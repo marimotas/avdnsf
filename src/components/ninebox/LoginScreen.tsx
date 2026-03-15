@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { lovable } from '@/integrations/lovable/index';
+import { supabase } from '@/integrations/supabase/client';
 import logoNsf from '@/assets/logo_nsfs.png';
 
 const LoginScreen = () => {
@@ -10,15 +10,22 @@ const LoginScreen = () => {
     setLoading(true);
     setError('');
     try {
-      const result = await lovable.auth.signInWithOAuth('google', {
-        redirect_uri: window.location.origin,
-        extraParams: {
-          hd: 'semfronteiras.app',
-          prompt: 'select_account',
+      const { data, error: oauthError } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: window.location.origin,
+          skipBrowserRedirect: true,
+          queryParams: {
+            hd: 'semfronteiras.app',
+            prompt: 'select_account',
+          },
         },
       });
-      if (result?.error) {
-        setError('Erro ao entrar com Google. Tente novamente.');
+
+      if (oauthError) throw oauthError;
+
+      if (data?.url) {
+        window.location.href = data.url;
       }
     } catch {
       setError('Erro ao entrar com Google. Tente novamente.');
