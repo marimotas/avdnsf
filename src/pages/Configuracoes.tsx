@@ -5,6 +5,13 @@ import logoNsf from '@/assets/logo_nsfs.png';
 
 const CICLO = '2026.1';
 
+type CicloRow = {
+  id: string;
+  nome: string;
+  ativo: boolean;
+  created_at: string;
+};
+
 type AdminUser = {
   id: string;
   user_id: string;
@@ -173,6 +180,11 @@ const Configuracoes = () => {
   const [janelaSaving, setJanelaSaving] = useState<Record<string, boolean>>({});
   const [janelaSaved, setJanelaSaved] = useState<Record<string, boolean>>({});
 
+  // Ciclos
+  const [ciclos, setCiclos] = useState<CicloRow[]>([]);
+  const [cicloOpening, setCicloOpening] = useState(false);
+  const [cicloSuccess, setCicloSuccess] = useState('');
+
   const edgeFn = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-manage-roles`;
 
   const getSession = async () => {
@@ -214,6 +226,15 @@ const Configuracoes = () => {
     }
   }, []);
 
+  const loadCiclos = useCallback(async () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data } = await (supabase as any)
+      .from('ciclos')
+      .select('id,nome,ativo,created_at')
+      .order('nome', { ascending: true });
+    if (data) setCiclos(data);
+  }, []);
+
   useEffect(() => {
     (async () => {
       const session = await getSession();
@@ -226,8 +247,8 @@ const Configuracoes = () => {
   }, [navigate]);
 
   useEffect(() => {
-    if (isAdmin) { loadAdmins(); loadJanelas(); }
-  }, [isAdmin, loadAdmins, loadJanelas]);
+    if (isAdmin) { loadAdmins(); loadJanelas(); loadCiclos(); }
+  }, [isAdmin, loadAdmins, loadJanelas, loadCiclos]);
 
   const handleJanelaChange = (tipo: string, field: 'abertura' | 'fechamento', val: string) => {
     setJanelas(prev => ({ ...prev, [tipo]: { ...prev[tipo], [field]: val } }));
@@ -250,6 +271,20 @@ const Configuracoes = () => {
     setJanelaSaving(prev => ({ ...prev, [tipo]: false }));
     setJanelaSaved(prev => ({ ...prev, [tipo]: true }));
     setTimeout(() => setJanelaSaved(prev => ({ ...prev, [tipo]: false })), 3000);
+  };
+
+  const handleAbrirCiclo = async (nome: string) => {
+    setCicloOpening(true);
+    setCicloSuccess('');
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const client = supabase as any;
+    const session = await getSession();
+    if (!session) { setCicloOpening(false); return; }
+    await client.from('ciclos').insert({ nome, ativo: true, criado_por: session.user.id });
+    await loadCiclos();
+    setCicloOpening(false);
+    setCicloSuccess(`Ciclo ${nome} aberto com sucesso! A base de dados está pronta para receber avaliações, declarações e metas.`);
+    setTimeout(() => setCicloSuccess(''), 6000);
   };
 
   const handleAddAdmin = async () => {
@@ -349,6 +384,78 @@ const Configuracoes = () => {
               saved={!!janelaSaved[cfg.tipo]}
             />
           ))}
+        </div>
+
+        {/* ── Ciclos ────────────────────────────────────────────────────── */}
+        <div className="border border-border rounded-[6px] p-6 space-y-5 bg-card">
+          <div>
+            <h2 className="text-sm font-bold text-foreground">Ciclos de avaliação</h2>
+            <p className="text-xs text-muted-foreground mt-1">
+              Ao abrir um novo ciclo, uma base de dados independente é criada para avaliações de desempenho, declarações de expectativas e metas.
+            </p>
+          </div>
+
+          {cicloSuccess && (
+            <div className="border border-green-500/30 bg-green-500/10 rounded-[4px] px-3 py-2 text-xs text-green-400 leading-relaxed">
+              {cicloSuccess}
+            </div>
+          )}
+
+          {/* Existing cycles */}
+          <div className="space-y-2">
+            {ciclos.map(c => (
+              <div
+                key={c.id}
+                className="flex items-center justify-between px-4 py-3 rounded-[4px] border border-border bg-background"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-7 h-7 rounded-[4px] flex items-center justify-center bg-primary/10 border border-primary/20">
+                    <svg className="w-3.5 h-3.5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
+                    </svg>
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-foreground">Ciclo {c.nome}</p>
+                    <p className="text-[10px] text-muted-foreground/50">
+                      Aberto em {new Date(c.created_at).toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' })}
+                    </p>
+                  </div>
+                </div>
+                <span
+                  className="text-[10px] font-bold px-2.5 py-1 rounded-full"
+                  style={{ background: 'rgba(34,197,94,0.10)', border: '1px solid rgba(34,197,94,0.3)', color: '#4ade80' }}
+                >
+                  ● Ativo
+                </span>
+              </div>
+            ))}
+          </div>
+
+          {/* Open new cycle button — only show if 2026.2 not yet created */}
+          {!ciclos.some(c => c.nome === '2026.2') && (
+            <div
+              className="rounded-[4px] border border-dashed p-4 flex items-center justify-between gap-4"
+              style={{ borderColor: 'hsl(var(--border))' }}
+            >
+              <div>
+                <p className="text-sm font-bold text-foreground">Ciclo 2026.2</p>
+                <p className="text-xs text-muted-foreground/60 mt-0.5">
+                  Criar base de dados para avaliações, declarações e metas do segundo ciclo de 2026.
+                </p>
+              </div>
+              <button
+                onClick={() => handleAbrirCiclo('2026.2')}
+                disabled={cicloOpening}
+                className="flex items-center gap-2 px-4 py-2 rounded-[4px] text-sm font-bold transition-all disabled:opacity-40 whitespace-nowrap"
+                style={{ background: 'rgba(0,102,255,0.12)', border: '1px solid rgba(0,102,255,0.3)', color: '#4D94FF' }}
+              >
+                {cicloOpening
+                  ? <><div className="w-3.5 h-3.5 rounded-full border-2 border-current border-t-transparent animate-spin" /> Abrindo...</>
+                  : <><svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg> Abrir Ciclo 2026.2</>
+                }
+              </button>
+            </div>
+          )}
         </div>
 
         {/* ── Administradores ───────────────────────────────────────────── */}

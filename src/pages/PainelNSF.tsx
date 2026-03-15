@@ -619,6 +619,7 @@ const PainelNSF = () => {
   }, [isAdmin]);
 
   // Load avaliações (no ciclo column — only relevant for 2026.1)
+  // Load avaliações — filtered by activeCiclo
   useEffect(() => {
     if (!isAdmin) return;
     setAvaliacaoLoading(true);
@@ -626,12 +627,13 @@ const PainelNSF = () => {
     (supabase as any)
       .from('avaliacoes')
       .select('colaborador_nome,tipo_avaliador,d1,d2,d3,d4,d5,p1,p2,p3,p4,p5,i1,i2,i3,i4,i5,comentario')
+      .eq('ciclo', activeCiclo)
       .then(({ data, error: dbErr }: { data: AvaliacaoRow[] | null; error: unknown }) => {
         if (dbErr) setError('Erro ao carregar avaliações.');
         else setResultados(calcularResultados(data ?? []));
         setAvaliacaoLoading(false);
       });
-  }, [isAdmin]);
+  }, [isAdmin, activeCiclo]);
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
@@ -773,8 +775,8 @@ const PainelNSF = () => {
           )}
           {activeTab === 'avaliacao' && (
             <TabAvaliacao
-              resultados={activeCiclo === '2026.1' ? resultados : []}
-              loading={avaliacaoLoading && activeCiclo === '2026.1'}
+              resultados={resultados}
+              loading={avaliacaoLoading}
             />
           )}
         </div>
