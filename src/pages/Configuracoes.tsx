@@ -226,6 +226,15 @@ const Configuracoes = () => {
     }
   }, []);
 
+  const loadCiclos = useCallback(async () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data } = await (supabase as any)
+      .from('ciclos')
+      .select('id,nome,ativo,created_at')
+      .order('nome', { ascending: true });
+    if (data) setCiclos(data);
+  }, []);
+
   useEffect(() => {
     (async () => {
       const session = await getSession();
@@ -238,8 +247,8 @@ const Configuracoes = () => {
   }, [navigate]);
 
   useEffect(() => {
-    if (isAdmin) { loadAdmins(); loadJanelas(); }
-  }, [isAdmin, loadAdmins, loadJanelas]);
+    if (isAdmin) { loadAdmins(); loadJanelas(); loadCiclos(); }
+  }, [isAdmin, loadAdmins, loadJanelas, loadCiclos]);
 
   const handleJanelaChange = (tipo: string, field: 'abertura' | 'fechamento', val: string) => {
     setJanelas(prev => ({ ...prev, [tipo]: { ...prev[tipo], [field]: val } }));
@@ -262,6 +271,20 @@ const Configuracoes = () => {
     setJanelaSaving(prev => ({ ...prev, [tipo]: false }));
     setJanelaSaved(prev => ({ ...prev, [tipo]: true }));
     setTimeout(() => setJanelaSaved(prev => ({ ...prev, [tipo]: false })), 3000);
+  };
+
+  const handleAbrirCiclo = async (nome: string) => {
+    setCicloOpening(true);
+    setCicloSuccess('');
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const client = supabase as any;
+    const session = await getSession();
+    if (!session) { setCicloOpening(false); return; }
+    await client.from('ciclos').insert({ nome, ativo: true, criado_por: session.user.id });
+    await loadCiclos();
+    setCicloOpening(false);
+    setCicloSuccess(`Ciclo ${nome} aberto com sucesso! A base de dados está pronta para receber avaliações, declarações e metas.`);
+    setTimeout(() => setCicloSuccess(''), 6000);
   };
 
   const handleAddAdmin = async () => {
