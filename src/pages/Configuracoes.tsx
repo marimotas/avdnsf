@@ -399,6 +399,65 @@ const Configuracoes = () => {
     } finally { setRemoving(null); }
   };
 
+  const handleAddLider = async () => {
+    setLiderError(''); setLiderSuccess('');
+    const email = liderEmail.trim().toLowerCase();
+    if (!email) return;
+    setLiderLoading(true);
+    try {
+      const session = await getSession();
+      if (!session) return;
+      const res = await fetch(liderancaFn, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
+        body: JSON.stringify({ action: 'add', email }),
+      });
+      const json = await res.json();
+      if (!res.ok) setLiderError(json.error || 'Erro ao adicionar líder.');
+      else { setLiderSuccess(`${email} agora tem acesso de liderança.`); setLiderEmail(''); loadLideres(); }
+    } finally { setLiderLoading(false); }
+  };
+
+  const handleRemoveLider = async (liderId: string, userId: string) => {
+    setLiderError(''); setLiderSuccess('');
+    setRemovingLider(liderId);
+    try {
+      const session = await getSession();
+      if (!session) return;
+      const res = await fetch(liderancaFn, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
+        body: JSON.stringify({ action: 'remove', user_id: userId }),
+      });
+      const json = await res.json();
+      if (!res.ok) setLiderError(json.error || 'Erro ao remover líder.');
+      else { setLiderSuccess('Acesso removido com sucesso.'); loadLideres(); if (selectedLiderForEquipe?.user_id === userId) setSelectedLiderForEquipe(null); }
+    } finally { setRemovingLider(null); }
+  };
+
+  const handleAddMembro = async () => {
+    if (!selectedLiderForEquipe || !ciclo || !newMembroNome.trim()) return;
+    setEquipeError('');
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { error } = await (supabase as any).from('equipes').insert({
+      lider_user_id: selectedLiderForEquipe.user_id,
+      lider_nome: selectedLiderForEquipe.email.split('@')[0],
+      lider_email: selectedLiderForEquipe.email,
+      colaborador_nome: newMembroNome.trim(),
+      colaborador_email: newMembroEmail.trim(),
+      ciclo,
+    });
+    if (error) { setEquipeError(error.message); return; }
+    setNewMembroNome(''); setNewMembroEmail('');
+    loadEquipe(selectedLiderForEquipe.user_id);
+  };
+
+  const handleRemoveMembro = async (membroId: string) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await (supabase as any).from('equipes').delete().eq('id', membroId);
+    if (selectedLiderForEquipe) loadEquipe(selectedLiderForEquipe.user_id);
+  };
+
   if (isAdmin === null) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
