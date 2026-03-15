@@ -17,6 +17,19 @@ type AdminUser = {
   email: string;
 };
 
+type LiderUser = {
+  id: string;
+  user_id: string;
+  email: string;
+};
+
+type EquipeMembroRow = {
+  id: string;
+  colaborador_nome: string;
+  colaborador_email: string;
+  lider_user_id: string;
+};
+
 type JanelaRow = {
   id: string | null;
   abertura: string;
