@@ -775,8 +775,8 @@ const PainelNSF = () => {
           )}
           {activeTab === 'avaliacao' && (
             <TabAvaliacao
-              resultados={activeCiclo === '2026.1' ? resultados : []}
-              loading={avaliacaoLoading && activeCiclo === '2026.1'}
+              resultados={resultados}
+              loading={avaliacaoLoading}
             />
           )}
         </div>
