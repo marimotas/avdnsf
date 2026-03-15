@@ -198,7 +198,7 @@ const NineBoxGridVisual = ({ resultados }: { resultados: ColaboradorResultado[] 
               return (
                 <div
                   key={`${col}-${row}`}
-                  className="rounded-[4px] border p-2 flex flex-col gap-1 min-h-[100px]"
+                  className="rounded-[4px] border p-2 flex flex-col gap-1 min-h-[90px]"
                   style={{ background: c.bg, borderColor: c.border }}
                 >
                   <div className="flex items-start justify-between gap-1">
@@ -206,7 +206,7 @@ const NineBoxGridVisual = ({ resultados }: { resultados: ColaboradorResultado[] 
                       {cell[2]}
                     </p>
                     {resultados.length > 0 && (
-                      <span className="text-[10px] font-black tabular-nums shrink-0" style={{ color: c.badge }}>
+                      <span className="text-[12px] font-black tabular-nums shrink-0" style={{ color: c.badge }}>
                         {Math.round((occupants.length / resultados.length) * 100)}%
                       </span>
                     )}
