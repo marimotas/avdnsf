@@ -8,17 +8,15 @@ interface SelectionScreenProps {
 
 const SelectionScreen = ({ initial, onContinue }: SelectionScreenProps) => {
   const [colaborador, setColaborador] = useState(initial.colaboradorNome);
+  const [avaliador, setAvaliador] = useState(initial.avaliadorNome);
   const [tipo, setTipo] = useState<EvaluationType | null>(initial.tipoAvaliador);
   const [error, setError] = useState('');
-
-  // avaliadorNome comes pre-filled from Google SSO and is read-only
-  const avaliador = initial.avaliadorNome;
 
   const isValid = colaborador && avaliador && tipo && colaborador !== avaliador;
 
   const handleContinue = () => {
     if (colaborador === avaliador) {
-      setError('Você não pode se avaliar.');
+      setError('O avaliador não pode ser a mesma pessoa que o colaborador avaliado.');
       return;
     }
     setError('');
@@ -33,7 +31,16 @@ const SelectionScreen = ({ initial, onContinue }: SelectionScreenProps) => {
   const handleColaboradorChange = (v: string) => {
     setColaborador(v);
     if (v && avaliador && v === avaliador) {
-      setError('Você não pode se avaliar.');
+      setError('O avaliador não pode ser a mesma pessoa que o colaborador avaliado.');
+    } else {
+      setError('');
+    }
+  };
+
+  const handleAvaliadorChange = (v: string) => {
+    setAvaliador(v);
+    if (colaborador && v && colaborador === v) {
+      setError('O avaliador não pode ser a mesma pessoa que o colaborador avaliado.');
     } else {
       setError('');
     }
