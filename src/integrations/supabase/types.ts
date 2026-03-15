@@ -129,6 +129,7 @@ export type Database = {
           data_abertura: string
           data_fechamento: string
           id: string
+          tipo: string
           updated_at: string
         }
         Insert: {
@@ -137,6 +138,7 @@ export type Database = {
           data_abertura: string
           data_fechamento: string
           id?: string
+          tipo?: string
           updated_at?: string
         }
         Update: {
@@ -145,6 +147,7 @@ export type Database = {
           data_abertura?: string
           data_fechamento?: string
           id?: string
+          tipo?: string
           updated_at?: string
         }
         Relationships: []
