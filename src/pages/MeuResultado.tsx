@@ -141,20 +141,31 @@ const NaoEncontrado = ({ nome, onSignOut }: { nome: string; onSignOut: () => voi
   </div>
 );
 
-const MOCK_USER = { id: '00000000-0000-0000-0000-000000000000', email: 'demo@semfronteiras.app', user_metadata: { full_name: 'Usuário Demo' } } as unknown as User;
-
 // ─── Main page ────────────────────────────────────────────────────────────────
 const MeuResultado = () => {
   const navigate = useNavigate();
-  const [user] = useState<User | null>(MOCK_USER);
+  const [user, setUser] = useState<User | null>(null);
+  const [authLoading, setAuthLoading] = useState(true);
   const [dataLoading, setDataLoading] = useState(false);
   const [resultado, setResultado] = useState<ColaboradorResultado | null>(null);
   const [notFound, setNotFound] = useState(false);
 
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+      setAuthLoading(false);
+    });
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+      setAuthLoading(false);
+    });
+    return () => subscription.unsubscribe();
+  }, []);
+
   const displayName = user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email?.split('@')[0] || '';
 
   useEffect(() => {
-    if (!displayName) return;
+    if (!displayName || !user) return;
     setDataLoading(true);
     setNotFound(false);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -170,9 +181,12 @@ const MeuResultado = () => {
         else setNotFound(true);
         setDataLoading(false);
       });
-  }, [displayName]);
+  }, [displayName, user]);
 
-  const handleSignOut = () => navigate('/');
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    navigate('/');
+  };
 
   if (dataLoading) {
     return (
