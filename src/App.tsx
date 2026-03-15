@@ -26,6 +26,7 @@ const App = () => (
           <Route path="/avaliacao" element={<Avaliacao />} />
           <Route path="/declaracoes" element={<Declaracoes />} />
           <Route path="/resultados" element={<Resultados />} />
+          <Route path="/painel" element={<PainelNSF />} />
           <Route path="/meu-resultado" element={<MeuResultado />} />
           <Route path="/feedback" element={<Feedback />} />
           <Route path="/configuracoes" element={<Configuracoes />} />
