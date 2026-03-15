@@ -28,6 +28,7 @@ const JANELAS_CONFIG = [
     tipo: 'declaracao_expectativas',
     label: 'Declaração de Expectativas',
     desc: 'Período em que os colaboradores podem preencher a declaração.',
+    requiresCicloAtivo: false,
     icon: (
       <svg className="w-3.5 h-3.5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
         <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
@@ -38,6 +39,7 @@ const JANELAS_CONFIG = [
     tipo: 'metas',
     label: 'Metas',
     desc: 'Período em que os colaboradores podem preencher suas metas.',
+    requiresCicloAtivo: false,
     icon: (
       <svg className="w-3.5 h-3.5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
         <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5M5.625 4.5h12.75a1.875 1.875 0 010 3.75H5.625a1.875 1.875 0 010-3.75z" />
@@ -45,9 +47,21 @@ const JANELAS_CONFIG = [
     ),
   },
   {
+    tipo: 'avaliacao_desempenho',
+    label: 'Avaliação de Desempenho',
+    desc: 'Período em que as avaliações ficam abertas. Disponível apenas com ciclo ativo.',
+    requiresCicloAtivo: true,
+    icon: (
+      <svg className="w-3.5 h-3.5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25zM6.75 12h.008v.008H6.75V12zm0 3h.008v.008H6.75V15zm0 3h.008v.008H6.75V18z" />
+      </svg>
+    ),
+  },
+  {
     tipo: 'meus_resultados',
     label: 'Meus Resultados',
     desc: 'Período em que os colaboradores podem visualizar seus resultados.',
+    requiresCicloAtivo: false,
     icon: (
       <svg className="w-3.5 h-3.5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
         <path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
@@ -58,15 +72,19 @@ const JANELAS_CONFIG = [
 
 // ── Janela Card ────────────────────────────────────────────────────────────────
 const JanelaCard = ({
-  label, desc, icon, ciclo,
+  label, desc, icon, ciclo, cicloAtivo, requiresCicloAtivo,
   janela, onAtivar, onInativar, toggling,
 }: {
-  label: string; desc: string; icon: React.ReactNode; ciclo: string | null;
+  label: string; desc: string; icon: React.ReactNode;
+  ciclo: string | null; cicloAtivo: boolean; requiresCicloAtivo: boolean;
   janela: JanelaRow; onAtivar: () => void; onInativar: () => void; toggling: boolean;
 }) => {
   const today = new Date().toISOString().slice(0, 10);
   const isOpen = !!(janela.abertura && janela.fechamento
     && today >= janela.abertura && today <= janela.fechamento);
+
+  // Para módulos que requerem ciclo ativo, só mostra o botão quando há ciclo ativo
+  const canToggle = !requiresCicloAtivo || cicloAtivo;
 
   const fmt = (dt: string) =>
     dt ? new Date(dt + 'T00:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' }) : '';
@@ -82,8 +100,13 @@ const JanelaCard = ({
             <p className="text-xs font-bold text-foreground">{label}</p>
             <p className="text-[10px] text-muted-foreground/50 mt-0.5">{desc}</p>
             {isOpen && janela.abertura && janela.fechamento && (
-              <p className="text-[10px] text-green-400/70 mt-0.5">
-                Aberto desde {fmt(janela.abertura)} · fecha em {fmt(janela.fechamento)}
+              <p className="text-[10px] mt-0.5" style={{ color: 'rgba(74,222,128,0.8)' }}>
+                Ativo desde {fmt(janela.abertura)} · até {fmt(janela.fechamento)}
+              </p>
+            )}
+            {requiresCicloAtivo && !cicloAtivo && (
+              <p className="text-[10px] mt-1 text-muted-foreground/40 italic">
+                Ative um ciclo para habilitar este módulo.
               </p>
             )}
           </div>
@@ -99,21 +122,23 @@ const JanelaCard = ({
           >
             {isOpen ? '● Ativo' : '○ Inativo'}
           </span>
-          <button
-            onClick={isOpen ? onInativar : onAtivar}
-            disabled={toggling || !ciclo}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-[4px] text-xs font-bold transition-all duration-150 disabled:opacity-40 whitespace-nowrap min-h-[32px]"
-            style={
-              isOpen
-                ? { background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)', color: '#f87171' }
-                : { background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.25)', color: '#4ade80' }
-            }
-          >
-            {toggling
-              ? <div className="w-3 h-3 rounded-full border border-current border-t-transparent animate-spin" />
-              : isOpen ? 'Inativar' : 'Ativar'
-            }
-          </button>
+          {canToggle && (
+            <button
+              onClick={isOpen ? onInativar : onAtivar}
+              disabled={toggling || !ciclo}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-[4px] text-xs font-bold transition-all duration-150 disabled:opacity-40 whitespace-nowrap min-h-[32px]"
+              style={
+                isOpen
+                  ? { background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)', color: '#f87171' }
+                  : { background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.25)', color: '#4ade80' }
+              }
+            >
+              {toggling
+                ? <div className="w-3 h-3 rounded-full border border-current border-t-transparent animate-spin" />
+                : isOpen ? 'Inativar' : 'Ativar'
+              }
+            </button>
+          )}
         </div>
       </div>
     </div>
@@ -124,7 +149,9 @@ const JanelaCard = ({
 const Configuracoes = () => {
   const navigate = useNavigate();
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
-  const { ciclo } = useCicloAtivo();
+  const { ciclo, loading: cicloLoading } = useCicloAtivo();
+  const cicloAtivo = !cicloLoading && !!ciclo;
+
   // Admins
   const [admins, setAdmins] = useState<AdminUser[]>([]);
   const [newEmail, setNewEmail] = useState('');
@@ -167,13 +194,13 @@ const Configuracoes = () => {
     }
   }, [edgeFn]);
 
-  const loadJanelas = useCallback(async () => {
-    if (!ciclo) return;
+  // loadJanelas recebe cicloNome como parâmetro para evitar closure stale
+  const loadJanelas = useCallback(async (cicloNome: string) => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data } = await (supabase as any)
       .from('janela_declaracoes')
       .select('id,tipo,data_abertura,data_fechamento')
-      .eq('ciclo', ciclo);
+      .eq('ciclo', cicloNome);
 
     if (data && Array.isArray(data)) {
       const updates: Record<string, JanelaRow> = {};
@@ -186,7 +213,7 @@ const Configuracoes = () => {
       }
       setJanelas(prev => ({ ...prev, ...updates }));
     }
-  }, [ciclo]);
+  }, []);
 
   const loadCiclos = useCallback(async () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -209,8 +236,13 @@ const Configuracoes = () => {
   }, [navigate]);
 
   useEffect(() => {
-    if (isAdmin) { loadAdmins(); loadJanelas(); loadCiclos(); }
-  }, [isAdmin, loadAdmins, loadJanelas, loadCiclos]);
+    if (isAdmin) { loadAdmins(); loadCiclos(); }
+  }, [isAdmin, loadAdmins, loadCiclos]);
+
+  // Carrega janelas assim que ciclo estiver disponível (aguarda o hook)
+  useEffect(() => {
+    if (isAdmin && ciclo) loadJanelas(ciclo);
+  }, [isAdmin, ciclo, loadJanelas]);
 
   // Ativar: cria/atualiza janela com abertura=hoje e fechamento=31/12/2099
   const handleAtivarJanela = async (tipo: string) => {
@@ -260,7 +292,7 @@ const Configuracoes = () => {
     await client.from('ciclos').insert({ nome, ativo: true, criado_por: session.user.id });
     await loadCiclos();
     setCicloOpening(false);
-    setCicloSuccess(`Ciclo ${nome} aberto com sucesso! A base de dados está pronta para receber avaliações, declarações e metas.`);
+    setCicloSuccess(`Ciclo ${nome} aberto com sucesso!`);
     setTimeout(() => setCicloSuccess(''), 6000);
   };
 
@@ -348,11 +380,15 @@ const Configuracoes = () => {
         </div>
 
         {/* ── Janelas de preenchimento ──────────────────────────────────── */}
-        <div className="border border-border rounded-[6px] p-6 space-y-5 bg-card">
-          <div>
+        <div className="border border-border rounded-[6px] p-6 space-y-3 bg-card">
+          <div className="mb-2">
             <h2 className="text-sm font-bold text-foreground">Janelas de preenchimento</h2>
             <p className="text-xs text-muted-foreground mt-1">
-              Defina o período em que cada campo fica aberto para os colaboradores.
+              Ative ou inative cada módulo para liberar ou bloquear o acesso dos colaboradores.{' '}
+              {ciclo
+                ? <span className="text-primary/70 font-medium">Ciclo ativo: {ciclo}.</span>
+                : <span className="text-muted-foreground/50">Nenhum ciclo ativo.</span>
+              }
             </p>
           </div>
           {JANELAS_CONFIG.map(cfg => (
@@ -362,6 +398,8 @@ const Configuracoes = () => {
               desc={cfg.desc}
               icon={cfg.icon}
               ciclo={ciclo}
+              cicloAtivo={cicloAtivo}
+              requiresCicloAtivo={cfg.requiresCicloAtivo}
               janela={janelas[cfg.tipo]}
               onAtivar={() => handleAtivarJanela(cfg.tipo)}
               onInativar={() => handleInativarJanela(cfg.tipo)}
@@ -385,7 +423,6 @@ const Configuracoes = () => {
             </div>
           )}
 
-          {/* Existing cycles */}
           <div className="space-y-2">
             {ciclos.map(c => (
               <div
@@ -401,7 +438,7 @@ const Configuracoes = () => {
                   <div>
                     <p className="text-sm font-bold text-foreground">Ciclo {c.nome}</p>
                     <p className="text-[10px] text-muted-foreground/50">
-                      Aberto em {new Date(c.created_at).toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' })}
+                      Criado em {new Date(c.created_at).toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' })}
                     </p>
                   </div>
                 </div>
@@ -419,7 +456,7 @@ const Configuracoes = () => {
                   <button
                     onClick={() => handleToggleCiclo(c.id, c.ativo)}
                     disabled={cicloToggling === c.id}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-[4px] text-xs font-bold transition-all duration-150 disabled:opacity-40"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-[4px] text-xs font-bold transition-all duration-150 disabled:opacity-40 min-h-[32px]"
                     style={
                       c.ativo
                         ? { background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)', color: '#f87171' }
@@ -436,7 +473,6 @@ const Configuracoes = () => {
             ))}
           </div>
 
-          {/* Open new cycle button — only show if 2026.2 not yet created */}
           {!ciclos.some(c => c.nome === '2026.2') && (
             <div
               className="rounded-[4px] border border-dashed p-4 flex items-center justify-between gap-4"
