@@ -174,7 +174,24 @@ const Configuracoes = () => {
   const [adminError, setAdminError] = useState('');
   const [adminSuccess, setAdminSuccess] = useState('');
 
+  // Líderes
+  const [lideres, setLideres] = useState<LiderUser[]>([]);
+  const [liderEmail, setLiderEmail] = useState('');
+  const [liderLoading, setLiderLoading] = useState(false);
+  const [removingLider, setRemovingLider] = useState<string | null>(null);
+  const [liderError, setLiderError] = useState('');
+  const [liderSuccess, setLiderSuccess] = useState('');
+
+  // Equipes: selectedLider → membros
+  const [selectedLiderForEquipe, setSelectedLiderForEquipe] = useState<LiderUser | null>(null);
+  const [equipeMembers, setEquipeMembers] = useState<EquipeMembroRow[]>([]);
+  const [equipeLoading, setEquipeLoading] = useState(false);
+  const [newMembroNome, setNewMembroNome] = useState('');
+  const [newMembroEmail, setNewMembroEmail] = useState('');
+  const [equipeError, setEquipeError] = useState('');
+
   // Janelas — one state entry per tipo
+
   const [janelas, setJanelas] = useState<Record<string, JanelaRow>>(
     Object.fromEntries(JANELAS_CONFIG.map(j => [j.tipo, { id: null, abertura: '', fechamento: '' }]))
   );
