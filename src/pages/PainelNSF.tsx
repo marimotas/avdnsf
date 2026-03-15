@@ -553,41 +553,6 @@ const PainelNSF = () => {
 
   const declaracoes = declaracoesByCiclo[activeCiclo] ?? [];
 
-  if (authLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="w-5 h-5 rounded-full border-2 border-primary border-t-transparent animate-spin" />
-      </div>
-    );
-  }
-
-  if (!user) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="text-center space-y-4">
-          <p className="text-muted-foreground text-sm">Você precisa estar logado para acessar esta página.</p>
-          <button onClick={() => navigate('/')} className="text-xs font-bold text-primary hover:underline">
-            Ir para o login
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  if (!isAdmin) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="text-center space-y-2">
-          <p className="font-bold text-foreground">Acesso restrito</p>
-          <p className="text-muted-foreground text-sm">Você não tem permissão para visualizar este painel.</p>
-          <button onClick={() => navigate('/')} className="text-xs font-bold text-primary hover:underline mt-2 block">
-            Voltar ao portal
-          </button>
-        </div>
-      </div>
-    );
-  }
-
   const TABS: { id: Tab; label: string; count?: number }[] = [
     { id: 'declaracoes', label: 'Declarações de Expectativas', count: declaracoes.filter((d) => d.declaracao).length },
     { id: 'metas', label: 'Metas', count: declaracoes.filter((d) => d.metas).length },
