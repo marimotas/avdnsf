@@ -99,8 +99,9 @@ const LoginScreen = ({ onLogin, loading }: { onLogin: () => void; loading: boole
 const Portal = ({ user, isAdmin, onSignOut }: { user: User; isAdmin: boolean; onSignOut: () => void }) => {
   const navigate = useNavigate();
   const [declaracao, setDeclaracaoData] = useState<DeclaracaoData | null>(null);
-  const [avaliacaoJanela, setAvaliacaoJanela] = useState<JanelaStatus | null>(null);
-  const { ciclo } = useCicloAtivo();
+  // ciclo vem do hook; se houver ciclo ativo (loading=false e ciclo definido), avaliação fica disponível
+  const { ciclo, loading: cicloLoading } = useCicloAtivo();
+  const avaliacaoAtiva = !cicloLoading && !!ciclo;
 
   const displayName = user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split('@')[0] || '';
   const firstName = displayName.split(' ')[0];
@@ -118,30 +119,7 @@ const Portal = ({ user, isAdmin, onSignOut }: { user: User; isAdmin: boolean; on
     setDeclaracaoData(data ?? { declaracao: null, metas: null });
   }, [user.id, ciclo]);
 
-  // Busca a janela de avaliação de desempenho para controlar o botão
-  const loadAvaliacaoJanela = useCallback(async () => {
-    if (!ciclo) return;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data } = await (supabase as any)
-      .from('janela_declaracoes')
-      .select('data_abertura,data_fechamento')
-      .eq('ciclo', ciclo)
-      .eq('tipo', 'avaliacao_desempenho')
-      .maybeSingle();
-
-    if (!data) {
-      setAvaliacaoJanela({ abertura: null, fechamento: null, isOpen: false });
-      return;
-    }
-    const today = new Date().toISOString().slice(0, 10);
-    const abertura = data.data_abertura?.slice(0, 10) ?? null;
-    const fechamento = data.data_fechamento?.slice(0, 10) ?? null;
-    const isOpen = !!(abertura && fechamento && today >= abertura && today <= fechamento);
-    setAvaliacaoJanela({ abertura, fechamento, isOpen });
-  }, [ciclo]);
-
   useEffect(() => { loadDeclaracao(); }, [loadDeclaracao]);
-  useEffect(() => { loadAvaliacaoJanela(); }, [loadAvaliacaoJanela]);
 
   return (
     <div className="min-h-screen bg-background">
