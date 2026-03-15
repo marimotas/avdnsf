@@ -103,17 +103,17 @@ const SelectionScreen = ({ initial, onContinue }: SelectionScreenProps) => {
 
       {/* Type cards */}
       <div className="space-y-3">
-        <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
-          Tipo de avaliação
+        <p className="text-xs font-medium uppercase tracking-widest text-muted-foreground">
+          Como você avalia?
         </p>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {/* Líder card */}
           <button
             onClick={() => setTipo('Líder')}
-            className={`text-left p-5 rounded-[4px] border transition-all duration-200 ${
+            className={`text-left p-5 rounded-lg border transition-all duration-200 ${
               tipo === 'Líder'
                 ? 'border-primary'
-                : 'border-border hover:border-primary'
+                : 'border-border hover:border-primary/50'
             }`}
             style={
               tipo === 'Líder'
@@ -141,10 +141,10 @@ const SelectionScreen = ({ initial, onContinue }: SelectionScreenProps) => {
           {/* Interação card */}
           <button
             onClick={() => setTipo('Interação')}
-            className={`text-left p-5 rounded-[4px] border transition-all duration-200 ${
+            className={`text-left p-5 rounded-lg border transition-all duration-200 ${
               tipo === 'Interação'
                 ? 'border-foreground'
-                : 'border-border hover:border-foreground'
+                : 'border-border hover:border-foreground/50'
             }`}
             style={
               tipo === 'Interação'
@@ -175,14 +175,14 @@ const SelectionScreen = ({ initial, onContinue }: SelectionScreenProps) => {
       <button
         onClick={handleContinue}
         disabled={!isValid}
-        className="w-full py-4 text-sm font-bold tracking-wide rounded-[4px] transition-all duration-200"
+        className="w-full py-4 text-sm font-bold tracking-widest uppercase rounded-lg transition-all duration-200"
         style={
           isValid
-            ? { background: '#0066FF', color: '#fff' }
+            ? { background: '#0066FF', color: '#fff', letterSpacing: '0.1em' }
             : { background: '#111111', color: '#444444', cursor: 'not-allowed' }
         }
       >
-        Continuar para as perguntas →
+        Continuar →
       </button>
     </div>
   );
