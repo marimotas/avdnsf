@@ -27,12 +27,12 @@ const NineBoxApp = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Fixed Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-background border-b border-border">
+      <header className="fixed top-0 left-0 right-0 z-50 bg-primary border-b border-border">
         <div className="max-w-2xl mx-auto px-4 py-4 flex flex-col gap-0.5">
-          <span className="text-sm font-bold tracking-widest text-foreground uppercase">
-            Avaliação de Desempenho
+          <span className="text-sm font-bold tracking-widest text-primary-foreground uppercase">
+            avaliação de desempenho NSF
           </span>
-          <span className="text-xs" style={{ color: 'hsl(var(--text-dim))' }}>
+          <span className="text-xs text-white/70">
             9-Box Grid · Ciclo 2025
           </span>
         </div>
