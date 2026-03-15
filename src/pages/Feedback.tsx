@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import logoNsf from '@/assets/logo_nsfs.png';
+import { useCicloAtivo } from '@/hooks/useCicloAtivo';
 
 type Colaborador = { nome: string; email: string };
 

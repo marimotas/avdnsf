@@ -365,7 +365,7 @@ const Resultados = () => {
                 nutrição sem fronteiras
               </span>
               <span style={{ fontFamily: "'Outfit', sans-serif", fontWeight: 300, fontSize: '10px', color: 'hsl(var(--text-dim))', letterSpacing: '0.03em' }}>
-                resultados · ciclo 2026.1
+                resultados · ciclo {ciclo}
               </span>
             </div>
           </div>
