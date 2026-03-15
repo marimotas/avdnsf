@@ -112,7 +112,7 @@ const QuestionsScreen = ({ state, onChange, onSubmitted }: QuestionsScreenProps)
   const potencialAvg = state.tipoAvaliador === 'Líder' ? avgScore(potencialKeys) : null;
 
   const handleSubmit = async () => {
-    if (!allAnswered || loading) return;
+    if (!allAnswered || loading || !janelaAberta) return;
     setLoading(true);
     setError('');
 
