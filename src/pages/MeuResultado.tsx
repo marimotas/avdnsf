@@ -166,8 +166,6 @@ const MeuResultado = () => {
 
   const displayName = user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email?.split('@')[0] || '';
 
-  const { loading: cicloLoading } = useCicloAtivo();
-
   useEffect(() => {
     if (!displayName || !user || cicloLoading) return;
     setDataLoading(true);
