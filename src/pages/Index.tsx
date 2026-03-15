@@ -296,18 +296,86 @@ const Portal = ({ user, isAdmin, onSignOut }: { user: User; isAdmin: boolean; on
 };
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
-const MOCK_USER = {
-  id: '00000000-0000-0000-0000-000000000000',
-  email: 'demo@semfronteiras.app',
-  user_metadata: { full_name: 'Usuário Demo' },
-} as unknown as User;
-
 const Index = () => {
-  const [isAdmin, setIsAdmin] = useState(true);
+  const [user, setUser] = useState<User | null>(null);
+  const [authLoading, setAuthLoading] = useState(true);
+  const [loginLoading, setLoginLoading] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const { lovable } = useLovable();
 
-  const handleSignOut = () => {};
+  useEffect(() => {
+    // Listen for auth changes first
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+      setAuthLoading(false);
+    });
 
-  return <Portal user={MOCK_USER} isAdmin={isAdmin} onSignOut={handleSignOut} />;
+    // Then get current session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+      setAuthLoading(false);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  // Check admin role when user changes
+  useEffect(() => {
+    if (!user) { setIsAdmin(false); return; }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any).rpc('has_role', { _user_id: user.id, _role: 'admin' })
+      .then(({ data }: { data: boolean }) => setIsAdmin(!!data));
+  }, [user]);
+
+  const handleLogin = async () => {
+    setLoginLoading(true);
+    await lovable.auth.signInWithOAuth('google', {
+      redirect_uri: window.location.origin,
+      extraParams: { hd: 'semfronteiras.app', prompt: 'select_account' },
+    });
+    setLoginLoading(false);
+  };
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    setUser(null);
+  };
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ background: '#000' }}>
+        <div className="w-5 h-5 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <LoginScreen onLogin={handleLogin} loading={loginLoading} />;
+  }
+
+  return <Portal user={user} isAdmin={isAdmin} onSignOut={handleSignOut} />;
 };
 
-export default Index;
+const IndexWrapper = () => {
+  const [lovableReady, setLovableReady] = useState(false);
+  const [lovableInstance, setLovableInstance] = useState<{ auth: { signInWithOAuth: (provider: string, opts?: object) => Promise<unknown> } } | null>(null);
+
+  useEffect(() => {
+    import('@/integrations/lovable/index').then(m => {
+      setLovableInstance(m.lovable);
+      setLovableReady(true);
+    });
+  }, []);
+
+  if (!lovableReady || !lovableInstance) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ background: '#000' }}>
+        <div className="w-5 h-5 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+      </div>
+    );
+  }
+
+  return <LovableContext.Provider value={{ lovable: lovableInstance }}><Index /></LovableContext.Provider>;
+};
+
+export default IndexWrapper;
