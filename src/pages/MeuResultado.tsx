@@ -150,7 +150,7 @@ const MeuResultado = () => {
   const [dataLoading, setDataLoading] = useState(false);
   const [resultado, setResultado] = useState<ColaboradorResultado | null>(null);
   const [notFound, setNotFound] = useState(false);
-  const { ciclo } = useCicloAtivo();
+  const { ciclo, loading: cicloLoading } = useCicloAtivo();
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
