@@ -51,7 +51,7 @@ const SelectionScreen = ({ initial, onContinue }: SelectionScreenProps) => {
       {/* Title */}
       <div className="space-y-1">
         <h2 className="text-2xl font-black tracking-tight text-foreground uppercase">
-          Iniciar Avaliação
+          Vamos falar de desempenho?
         </h2>
         <p className="text-muted-foreground text-sm">
           Preencha os campos abaixo para começar
@@ -136,7 +136,7 @@ const SelectionScreen = ({ initial, onContinue }: SelectionScreenProps) => {
               </div>
             </div>
             <p className="text-xs text-muted-foreground leading-relaxed">
-              Sou o gestor direto. Avalio desempenho (5 perguntas) e potencial (5 perguntas).
+              Sou o gestor direto. 10 perguntas no total.
             </p>
           </button>
 
@@ -167,7 +167,7 @@ const SelectionScreen = ({ initial, onContinue }: SelectionScreenProps) => {
               </div>
             </div>
             <p className="text-xs text-muted-foreground leading-relaxed">
-              Trabalho com esta pessoa e avalio o desempenho que observei nas nossas interações (5 perguntas).
+              Trabalho com esta pessoa e avalio o desempenho que observei nas nossas interações. 5 perguntas no total.
             </p>
           </button>
         </div>
