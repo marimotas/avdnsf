@@ -20,7 +20,7 @@ const FeatureBtn = ({
   <button
     onClick={onClick}
     disabled={disabled}
-    className="w-full text-left border rounded-[6px] p-4 transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed hover:border-primary/40"
+    className="w-full text-left border rounded-[6px] p-4 transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed hover:border-primary/40 min-h-[52px]"
     style={{
       background: accent ? 'rgba(0,102,255,0.06)' : '#0A0A0A',
       borderColor: accent ? 'rgba(0,102,255,0.25)' : 'hsl(var(--border))',
