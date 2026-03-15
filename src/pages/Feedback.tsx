@@ -343,7 +343,7 @@ const Feedback = () => {
                     onFocus={() => setDropdownOpen(true)}
                     placeholder="Buscar colaborador..."
                     maxLength={100}
-                    className="w-full bg-card border border-border rounded-[4px] px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:border-primary/40 transition-colors"
+                    className="w-full bg-card border border-border rounded-[4px] px-3 py-3 sm:py-2.5 text-sm text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:border-primary/40 transition-colors min-h-[48px] sm:min-h-0"
                   />
                   {destinatario && (
                     <div className="absolute right-3 top-1/2 -translate-y-1/2">
@@ -352,22 +352,29 @@ const Feedback = () => {
                       </svg>
                     </div>
                   )}
-                  {/* Dropdown */}
+                  {/* Dropdown — fixed fullscreen em mobile, absolute em desktop */}
                   {dropdownOpen && busca.length > 0 && !destinatario && (
                     <div
-                      className="absolute top-full left-0 right-0 mt-1 border border-border rounded-[4px] overflow-hidden z-50"
+                      className="fixed sm:absolute inset-x-0 sm:inset-x-auto bottom-0 sm:bottom-auto sm:top-full sm:left-0 sm:right-0 sm:mt-1 border-t sm:border border-border sm:rounded-[4px] overflow-hidden z-50 max-h-[60vh] sm:max-h-72 overflow-y-auto"
                       style={{ background: '#111' }}
                     >
+                      {/* Handle bar para mobile */}
+                      <div className="flex justify-center pt-3 pb-1 sm:hidden">
+                        <div className="w-10 h-1 rounded-full bg-border" />
+                      </div>
+                      <div className="px-3 py-2 sm:hidden border-b border-border">
+                        <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground/60">Selecionar destinatário</p>
+                      </div>
                       {sugestoes.length === 0 ? (
-                        <p className="px-3 py-2.5 text-sm text-muted-foreground/50">Nenhum colaborador encontrado.</p>
+                        <p className="px-3 py-4 text-sm text-muted-foreground/50">Nenhum colaborador encontrado.</p>
                       ) : (
                         sugestoes.map(c => (
                           <button
                             key={c.email}
                             onMouseDown={() => handleSelectDestinatario(c)}
-                            className="w-full flex items-center gap-3 px-3 py-2.5 hover:bg-white/5 transition-colors text-left"
+                            className="w-full flex items-center gap-3 px-3 py-3 sm:py-2.5 hover:bg-white/5 transition-colors text-left min-h-[52px] sm:min-h-0"
                           >
-                            <Avatar name={c.nome} size={28} />
+                            <Avatar name={c.nome} size={32} />
                             <div>
                               <p className="text-sm font-medium text-foreground">{c.nome}</p>
                               <p className="text-[10px] text-muted-foreground/50">{c.email}</p>
@@ -375,6 +382,16 @@ const Feedback = () => {
                           </button>
                         ))
                       )}
+                      {/* Botão fechar em mobile */}
+                      <div className="px-3 py-3 sm:hidden border-t border-border">
+                        <button
+                          onMouseDown={() => setDropdownOpen(false)}
+                          className="w-full py-3 text-sm font-bold rounded-[4px] text-muted-foreground"
+                          style={{ background: '#1A1A1A', border: '1px solid hsl(var(--border))' }}
+                        >
+                          Cancelar
+                        </button>
+                      </div>
                     </div>
                   )}
                 </div>
