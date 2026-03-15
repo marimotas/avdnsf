@@ -77,8 +77,9 @@ const JanelaCard = ({
   onSave: () => void; onEncerrar: () => void;
   saving: boolean; saved: boolean; encerrating: boolean;
 }) => {
+  const today = new Date().toISOString().slice(0, 10);
   const isOpen = janela.abertura && janela.fechamento
-    ? new Date() >= new Date(janela.abertura) && new Date() <= new Date(janela.fechamento)
+    ? today >= janela.abertura && today <= janela.fechamento
     : null;
 
   const fmt = (dt: string) =>
