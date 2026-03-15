@@ -51,7 +51,7 @@ const SelectionScreen = ({ initial, onContinue }: SelectionScreenProps) => {
       {/* Title */}
       <div className="space-y-1">
         <h2 className="text-2xl font-black tracking-tight text-foreground uppercase">
-          Iniciar Avaliação
+          Vamos falar de desempenho?
         </h2>
         <p className="text-muted-foreground text-sm">
           Preencha os campos abaixo para começar
