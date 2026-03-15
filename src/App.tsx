@@ -8,6 +8,8 @@ import Avaliacao from "./pages/Avaliacao.tsx";
 import Declaracoes from "./pages/Declaracoes.tsx";
 import Resultados from "./pages/Resultados.tsx";
 import MeuResultado from "./pages/MeuResultado.tsx";
+import Feedback from "./pages/Feedback.tsx";
+import Configuracoes from "./pages/Configuracoes.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -24,6 +26,8 @@ const App = () => (
           <Route path="/declaracoes" element={<Declaracoes />} />
           <Route path="/resultados" element={<Resultados />} />
           <Route path="/meu-resultado" element={<MeuResultado />} />
+          <Route path="/feedback" element={<Feedback />} />
+          <Route path="/configuracoes" element={<Configuracoes />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
