@@ -141,7 +141,7 @@ const NaoEncontrado = ({ nome, onSignOut }: { nome: string; onSignOut: () => voi
   </div>
 );
 
-const MOCK_USER = { id: 'demo-user-id', email: 'demo@semfronteiras.app', user_metadata: { full_name: 'Usuário Demo' } } as unknown as User;
+const MOCK_USER = { id: '00000000-0000-0000-0000-000000000000', email: 'demo@semfronteiras.app', user_metadata: { full_name: 'Usuário Demo' } } as unknown as User;
 
 // ─── Main page ────────────────────────────────────────────────────────────────
 const MeuResultado = () => {

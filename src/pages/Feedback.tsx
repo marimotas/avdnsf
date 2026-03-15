@@ -125,7 +125,7 @@ const Feedback = () => {
 
   // Mock user — auth desabilitado temporariamente
   useEffect(() => {
-    setUser({ id: 'demo-user-id', email: 'mariane.mota@semfronteiras.app', name: 'Usuário Demo' });
+    setUser({ id: '00000000-0000-0000-0000-000000000000', email: 'demo@semfronteiras.app', name: 'Usuário Demo' });
   }, []);
 
   // Carregar listas
