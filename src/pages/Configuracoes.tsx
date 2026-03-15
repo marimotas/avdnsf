@@ -192,6 +192,7 @@ const Configuracoes = () => {
   const [ciclos, setCiclos] = useState<CicloRow[]>([]);
   const [cicloOpening, setCicloOpening] = useState(false);
   const [cicloSuccess, setCicloSuccess] = useState('');
+  const [cicloToggling, setCicloToggling] = useState<string | null>(null);
 
   const edgeFn = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-manage-roles`;
 
@@ -311,6 +312,14 @@ const Configuracoes = () => {
     setCicloOpening(false);
     setCicloSuccess(`Ciclo ${nome} aberto com sucesso! A base de dados está pronta para receber avaliações, declarações e metas.`);
     setTimeout(() => setCicloSuccess(''), 6000);
+  };
+
+  const handleToggleCiclo = async (cicloId: string, currentAtivo: boolean) => {
+    setCicloToggling(cicloId);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await (supabase as any).from('ciclos').update({ ativo: !currentAtivo }).eq('id', cicloId);
+    await loadCiclos();
+    setCicloToggling(null);
   };
 
   const handleAddAdmin = async () => {
@@ -450,12 +459,33 @@ const Configuracoes = () => {
                     </p>
                   </div>
                 </div>
-                <span
-                  className="text-[10px] font-bold px-2.5 py-1 rounded-full"
-                  style={{ background: 'rgba(34,197,94,0.10)', border: '1px solid rgba(34,197,94,0.3)', color: '#4ade80' }}
-                >
-                  ● Ativo
-                </span>
+                <div className="flex items-center gap-2">
+                  <span
+                    className="text-[10px] font-bold px-2.5 py-1 rounded-full"
+                    style={
+                      c.ativo
+                        ? { background: 'rgba(34,197,94,0.10)', border: '1px solid rgba(34,197,94,0.3)', color: '#4ade80' }
+                        : { background: 'rgba(100,100,100,0.10)', border: '1px solid rgba(100,100,100,0.25)', color: 'hsl(var(--muted-foreground))' }
+                    }
+                  >
+                    {c.ativo ? '● Ativo' : '○ Inativo'}
+                  </span>
+                  <button
+                    onClick={() => handleToggleCiclo(c.id, c.ativo)}
+                    disabled={cicloToggling === c.id}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-[4px] text-xs font-bold transition-all duration-150 disabled:opacity-40"
+                    style={
+                      c.ativo
+                        ? { background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)', color: '#f87171' }
+                        : { background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.25)', color: '#4ade80' }
+                    }
+                  >
+                    {cicloToggling === c.id
+                      ? <div className="w-3 h-3 rounded-full border border-current border-t-transparent animate-spin" />
+                      : c.ativo ? 'Inativar' : 'Ativar'
+                    }
+                  </button>
+                </div>
               </div>
             ))}
           </div>

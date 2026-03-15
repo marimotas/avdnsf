@@ -10,6 +10,12 @@ type DeclaracaoData = {
   metas: string | null;
 };
 
+type JanelaStatus = {
+  abertura: string | null;
+  fechamento: string | null;
+  isOpen: boolean;
+};
+
 // ─── Feature Button ────────────────────────────────────────────────────────────
 const FeatureBtn = ({
   icon, title, description, onClick, disabled, badge, accent,
@@ -99,6 +105,7 @@ const LoginScreen = ({ onLogin, loading }: { onLogin: () => void; loading: boole
 const Portal = ({ user, isAdmin, onSignOut }: { user: User; isAdmin: boolean; onSignOut: () => void }) => {
   const navigate = useNavigate();
   const [declaracao, setDeclaracaoData] = useState<DeclaracaoData | null>(null);
+  const [avaliacaoJanela, setAvaliacaoJanela] = useState<JanelaStatus | null>(null);
   const { ciclo } = useCicloAtivo();
 
   const displayName = user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split('@')[0] || '';
@@ -117,7 +124,30 @@ const Portal = ({ user, isAdmin, onSignOut }: { user: User; isAdmin: boolean; on
     setDeclaracaoData(data ?? { declaracao: null, metas: null });
   }, [user.id, ciclo]);
 
+  // Busca a janela de avaliação de desempenho para controlar o botão
+  const loadAvaliacaoJanela = useCallback(async () => {
+    if (!ciclo) return;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data } = await (supabase as any)
+      .from('janela_declaracoes')
+      .select('data_abertura,data_fechamento')
+      .eq('ciclo', ciclo)
+      .eq('tipo', 'avaliacao_desempenho')
+      .maybeSingle();
+
+    if (!data) {
+      setAvaliacaoJanela({ abertura: null, fechamento: null, isOpen: false });
+      return;
+    }
+    const today = new Date().toISOString().slice(0, 10);
+    const abertura = data.data_abertura?.slice(0, 10) ?? null;
+    const fechamento = data.data_fechamento?.slice(0, 10) ?? null;
+    const isOpen = !!(abertura && fechamento && today >= abertura && today <= fechamento);
+    setAvaliacaoJanela({ abertura, fechamento, isOpen });
+  }, [ciclo]);
+
   useEffect(() => { loadDeclaracao(); }, [loadDeclaracao]);
+  useEffect(() => { loadAvaliacaoJanela(); }, [loadAvaliacaoJanela]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -167,10 +197,20 @@ const Portal = ({ user, isAdmin, onSignOut }: { user: User; isAdmin: boolean; on
             <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/50 mb-3">Acesso rápido</p>
 
             <FeatureBtn
-              icon={<svg className="w-5 h-5" style={{ color: '#4D94FF' }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><path strokeLinecap="round" strokeLinejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25zM6.75 12h.008v.008H6.75V12zm0 3h.008v.008H6.75V15zm0 3h.008v.008H6.75V18z" /></svg>}
+              icon={<svg className="w-5 h-5" style={{ color: avaliacaoJanela?.isOpen ? '#4D94FF' : 'hsl(var(--muted-foreground))' }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><path strokeLinecap="round" strokeLinejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25zM6.75 12h.008v.008H6.75V12zm0 3h.008v.008H6.75V15zm0 3h.008v.008H6.75V18z" /></svg>}
               title="Avaliação de Desempenho"
-              description="Responda às avaliações dos seus colegas e liderados."
+              description={
+                avaliacaoJanela === null
+                  ? 'Carregando...'
+                  : avaliacaoJanela.isOpen
+                  ? 'Responda às avaliações dos seus colegas e liderados.'
+                  : avaliacaoJanela.abertura
+                  ? `Janela fechada. Período: ${new Date(avaliacaoJanela.abertura + 'T00:00:00').toLocaleDateString('pt-BR')} – ${new Date((avaliacaoJanela.fechamento ?? '') + 'T00:00:00').toLocaleDateString('pt-BR')}.`
+                  : 'Aguardando abertura pelo RH. Nenhuma data configurada.'
+              }
               onClick={() => navigate('/avaliacao')}
+              disabled={!avaliacaoJanela?.isOpen}
+              badge={avaliacaoJanela?.isOpen ? undefined : avaliacaoJanela?.abertura ? 'Encerrado' : 'Em breve'}
             />
 
             <FeatureBtn
