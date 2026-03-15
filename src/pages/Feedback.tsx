@@ -3,24 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import logoNsf from '@/assets/logo_nsfs.png';
 
-// ── Nomes fictícios (substituir pela lista real depois) ──────────────────────
-const COLABORADORES = [
-  { nome: 'Ana Paula Souza', email: 'ana.souza@nsf.org' },
-  { nome: 'Bruno Carvalho', email: 'bruno.carvalho@nsf.org' },
-  { nome: 'Carla Mendes', email: 'carla.mendes@nsf.org' },
-  { nome: 'Diego Ferreira', email: 'diego.ferreira@nsf.org' },
-  { nome: 'Elaine Rodrigues', email: 'elaine.rodrigues@nsf.org' },
-  { nome: 'Felipe Almeida', email: 'felipe.almeida@nsf.org' },
-  { nome: 'Gabriela Lima', email: 'gabriela.lima@nsf.org' },
-  { nome: 'Henrique Costa', email: 'henrique.costa@nsf.org' },
-  { nome: 'Isabela Nunes', email: 'isabela.nunes@nsf.org' },
-  { nome: 'João Pedro Martins', email: 'joao.martins@nsf.org' },
-  { nome: 'Karina Oliveira', email: 'karina.oliveira@nsf.org' },
-  { nome: 'Lucas Pereira', email: 'lucas.pereira@nsf.org' },
-  { nome: 'Mariana Torres', email: 'mariana.torres@nsf.org' },
-  { nome: 'Nicolas Barbosa', email: 'nicolas.barbosa@nsf.org' },
-  { nome: 'Patrícia Gomes', email: 'patricia.gomes@nsf.org' },
-];
+type Colaborador = { nome: string; email: string };
 
 type FeedbackRow = {
   id: string;
