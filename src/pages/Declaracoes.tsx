@@ -101,21 +101,10 @@ const Declaracoes = () => {
     setTimeout(() => setSaved(false), 3000);
   };
 
-  if (authLoading || janelaLoading) {
+  if (janelaLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ background: '#000' }}>
         <div className="w-5 h-5 rounded-full border-2 border-primary border-t-transparent animate-spin" />
-      </div>
-    );
-  }
-
-  if (!user) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center px-4 text-center space-y-4" style={{ background: '#000' }}>
-        <p className="text-muted-foreground text-sm">Você precisa estar logado.</p>
-        <button onClick={() => navigate('/')} className="text-xs font-bold text-primary hover:underline">
-          Ir para o login
-        </button>
       </div>
     );
   }

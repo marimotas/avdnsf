@@ -142,39 +142,22 @@ const NaoEncontrado = ({ nome, onSignOut }: { nome: string; onSignOut: () => voi
   </div>
 );
 
+const MOCK_USER = { id: 'demo-user-id', email: 'demo@semfronteiras.app', user_metadata: { full_name: 'Usuário Demo' } } as unknown as User;
+
 // ─── Main page ────────────────────────────────────────────────────────────────
 const MeuResultado = () => {
   const navigate = useNavigate();
-  const [user, setUser] = useState<User | null>(null);
-  const [authLoading, setAuthLoading] = useState(true);
+  const [user] = useState<User | null>(MOCK_USER);
   const [dataLoading, setDataLoading] = useState(false);
-  const [loginLoading, setLoginLoading] = useState(false);
   const [resultado, setResultado] = useState<ColaboradorResultado | null>(null);
   const [notFound, setNotFound] = useState(false);
 
-  const displayName =
-    user?.user_metadata?.full_name ||
-    user?.user_metadata?.name ||
-    user?.email?.split('@')[0] ||
-    '';
+  const displayName = user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email?.split('@')[0] || '';
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-      setAuthLoading(false);
-    });
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-      setAuthLoading(false);
-    });
-    return () => subscription.unsubscribe();
-  }, []);
-
-  useEffect(() => {
-    if (!user || !displayName) return;
+    if (!displayName) return;
     setDataLoading(true);
     setNotFound(false);
-
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (supabase as any)
       .from('avaliacoes')
@@ -184,35 +167,15 @@ const MeuResultado = () => {
         const meu = todos.find(
           (r) => r.nome.toLowerCase().trim() === displayName.toLowerCase().trim()
         );
-        if (meu) {
-          setResultado(meu);
-        } else {
-          setNotFound(true);
-        }
+        if (meu) setResultado(meu);
+        else setNotFound(true);
         setDataLoading(false);
       });
-  }, [user, displayName]);
+  }, [displayName]);
 
-  const handleLogin = async () => {
-    setLoginLoading(true);
-    try {
-      await lovable.auth.signInWithOAuth('google', {
-        redirect_uri: `${window.location.origin}/meu-resultado`,
-        extraParams: { hd: 'semfronteiras.app', prompt: 'select_account' },
-      });
-    } finally {
-      setLoginLoading(false);
-    }
-  };
+  const handleSignOut = () => navigate('/');
 
-  const handleSignOut = async () => {
-    await supabase.auth.signOut();
-    setUser(null);
-    setResultado(null);
-    navigate('/');
-  };
-
-  if (authLoading || dataLoading) {
+  if (dataLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ background: '#000' }}>
         <div className="w-5 h-5 rounded-full border-2 border-primary border-t-transparent animate-spin" />
@@ -220,7 +183,6 @@ const MeuResultado = () => {
     );
   }
 
-  if (!user) return <LoginPrompt onLogin={handleLogin} />;
   if (notFound) return <NaoEncontrado nome={displayName} onSignOut={handleSignOut} />;
   if (!resultado) return null;
 
