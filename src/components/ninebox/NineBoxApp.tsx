@@ -98,23 +98,14 @@ const NineBoxApp = () => {
             >
               CICLO 2026.1
             </span>
-
-            {/* My result */}
             <button
-              onClick={() => navigate('/meu-resultado')}
-              className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+              onClick={() => navigate('/')}
+              className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
             >
-              Meu resultado
-            </button>
-
-            {/* Admin access */}
-            <button
-              onClick={handleAdminLogin}
-              disabled={adminLoading}
-              className="text-xs text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50"
-              title="Acessar resultados (admin)"
-            >
-              {adminLoading ? '...' : 'Admin'}
+              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+              </svg>
+              Portal
             </button>
           </div>
         </div>
