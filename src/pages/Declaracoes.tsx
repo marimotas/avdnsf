@@ -52,9 +52,17 @@ const Declaracoes = () => {
     user?.email?.split('@')[0] ||
     '';
 
-  // Load window config — uses tipo='declaracao_expectativas' (and 'metas' shares same window for now)
+  // Load window config — uses tipo='declaracao_expectativas'
+  const { loading: cicloLoading } = useCicloAtivo();
+
   useEffect(() => {
-    if (!ciclo) return;
+    // Se ciclo ainda está carregando, aguardar
+    if (cicloLoading) return;
+    // Se não há ciclo ativo, encerrar loading sem janela
+    if (!ciclo) {
+      setJanelaLoading(false);
+      return;
+    }
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (supabase as any)
       .from('janela_declaracoes')
@@ -66,7 +74,7 @@ const Declaracoes = () => {
         setJanela(data);
         setJanelaLoading(false);
       });
-  }, [ciclo]);
+  }, [ciclo, cicloLoading]);
 
   // Load existing declaration
   const loadDeclaracao = useCallback(async (uid: string) => {
