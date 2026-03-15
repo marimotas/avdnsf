@@ -386,6 +386,78 @@ const Configuracoes = () => {
           ))}
         </div>
 
+        {/* ── Ciclos ────────────────────────────────────────────────────── */}
+        <div className="border border-border rounded-[6px] p-6 space-y-5 bg-card">
+          <div>
+            <h2 className="text-sm font-bold text-foreground">Ciclos de avaliação</h2>
+            <p className="text-xs text-muted-foreground mt-1">
+              Ao abrir um novo ciclo, uma base de dados independente é criada para avaliações de desempenho, declarações de expectativas e metas.
+            </p>
+          </div>
+
+          {cicloSuccess && (
+            <div className="border border-green-500/30 bg-green-500/10 rounded-[4px] px-3 py-2 text-xs text-green-400 leading-relaxed">
+              {cicloSuccess}
+            </div>
+          )}
+
+          {/* Existing cycles */}
+          <div className="space-y-2">
+            {ciclos.map(c => (
+              <div
+                key={c.id}
+                className="flex items-center justify-between px-4 py-3 rounded-[4px] border border-border bg-background"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-7 h-7 rounded-[4px] flex items-center justify-center bg-primary/10 border border-primary/20">
+                    <svg className="w-3.5 h-3.5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
+                    </svg>
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-foreground">Ciclo {c.nome}</p>
+                    <p className="text-[10px] text-muted-foreground/50">
+                      Aberto em {new Date(c.created_at).toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' })}
+                    </p>
+                  </div>
+                </div>
+                <span
+                  className="text-[10px] font-bold px-2.5 py-1 rounded-full"
+                  style={{ background: 'rgba(34,197,94,0.10)', border: '1px solid rgba(34,197,94,0.3)', color: '#4ade80' }}
+                >
+                  ● Ativo
+                </span>
+              </div>
+            ))}
+          </div>
+
+          {/* Open new cycle button — only show if 2026.2 not yet created */}
+          {!ciclos.some(c => c.nome === '2026.2') && (
+            <div
+              className="rounded-[4px] border border-dashed p-4 flex items-center justify-between gap-4"
+              style={{ borderColor: 'hsl(var(--border))' }}
+            >
+              <div>
+                <p className="text-sm font-bold text-foreground">Ciclo 2026.2</p>
+                <p className="text-xs text-muted-foreground/60 mt-0.5">
+                  Criar base de dados para avaliações, declarações e metas do segundo ciclo de 2026.
+                </p>
+              </div>
+              <button
+                onClick={() => handleAbrirCiclo('2026.2')}
+                disabled={cicloOpening}
+                className="flex items-center gap-2 px-4 py-2 rounded-[4px] text-sm font-bold transition-all disabled:opacity-40 whitespace-nowrap"
+                style={{ background: 'rgba(0,102,255,0.12)', border: '1px solid rgba(0,102,255,0.3)', color: '#4D94FF' }}
+              >
+                {cicloOpening
+                  ? <><div className="w-3.5 h-3.5 rounded-full border-2 border-current border-t-transparent animate-spin" /> Abrindo...</>
+                  : <><svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg> Abrir Ciclo 2026.2</>
+                }
+              </button>
+            </div>
+          )}
+        </div>
+
         {/* ── Administradores ───────────────────────────────────────────── */}
         <div className="border border-border rounded-[6px] p-6 space-y-5 bg-card">
           <div>
