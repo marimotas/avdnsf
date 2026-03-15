@@ -384,7 +384,7 @@ const Resultados = () => {
         </div>
       </header>
 
-      <div className="pt-16 max-w-5xl mx-auto px-4 py-8 space-y-8">
+      <div className="pt-16 max-w-6xl mx-auto px-4 py-8 space-y-8">
         {/* Title */}
         <div className="space-y-1">
           <h1 className="text-3xl font-black tracking-tight text-foreground">Resultados</h1>
