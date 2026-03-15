@@ -13,32 +13,50 @@ type DeclaracaoData = {
 
 // ─── Feature Button ────────────────────────────────────────────────────────────
 const FeatureBtn = ({
-  icon, title, description, onClick, disabled, badge, accent,
+  icon, title, description, onClick, disabled, badge, accent, primary, janelaAberta,
 }: {
   icon: React.ReactNode; title: string; description: string;
   onClick: () => void; disabled?: boolean; badge?: string; accent?: boolean;
+  primary?: boolean; janelaAberta?: boolean;
 }) => (
   <button
     onClick={onClick}
     disabled={disabled}
     className="w-full text-left border rounded-[6px] p-4 transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed hover:border-primary/40 min-h-[52px]"
     style={{
-      background: accent ? 'rgba(0,102,255,0.06)' : '#0A0A0A',
-      borderColor: accent ? 'rgba(0,102,255,0.25)' : 'hsl(var(--border))',
+      background: primary
+        ? 'rgba(0,102,255,0.10)'
+        : accent
+        ? 'rgba(0,102,255,0.06)'
+        : '#0A0A0A',
+      borderColor: primary
+        ? 'rgba(0,102,255,0.35)'
+        : accent
+        ? 'rgba(0,102,255,0.25)'
+        : 'hsl(var(--border))',
+      borderWidth: primary ? '1px' : undefined,
     }}
   >
     <div className="flex items-center gap-3">
       <div
         className="flex-shrink-0 w-9 h-9 rounded-[6px] flex items-center justify-center"
         style={{
-          background: accent ? 'rgba(0,102,255,0.15)' : 'rgba(0,102,255,0.08)',
-          border: accent ? '1px solid rgba(0,102,255,0.3)' : '1px solid rgba(0,102,255,0.15)',
+          background: primary
+            ? 'rgba(0,102,255,0.20)'
+            : accent
+            ? 'rgba(0,102,255,0.15)'
+            : 'rgba(0,102,255,0.08)',
+          border: primary
+            ? '1px solid rgba(0,102,255,0.4)'
+            : accent
+            ? '1px solid rgba(0,102,255,0.3)'
+            : '1px solid rgba(0,102,255,0.15)',
         }}
       >
         {icon}
       </div>
       <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <span className="text-sm font-bold text-foreground">{title}</span>
           {badge && (
             <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full"
@@ -48,6 +66,19 @@ const FeatureBtn = ({
           )}
         </div>
         <p className="text-[11px] text-muted-foreground leading-snug mt-0.5">{description}</p>
+        {janelaAberta && (
+          <span
+            className="inline-flex items-center gap-1 mt-1.5 text-[9px] font-bold px-2 py-0.5 rounded-full"
+            style={{
+              color: '#4ade80',
+              background: 'rgba(34,197,94,0.12)',
+              border: '1px solid rgba(34,197,94,0.3)',
+              animation: 'janela-pulse 2s ease-in-out infinite',
+            }}
+          >
+            ● janela aberta
+          </span>
+        )}
       </div>
       {!disabled && (
         <svg className="w-4 h-4 text-muted-foreground/30 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -96,12 +127,25 @@ const LoginScreen = ({ onLogin, loading }: { onLogin: () => void; loading: boole
   </div>
 );
 
+// ─── Status Pill ───────────────────────────────────────────────────────────────
+const StatusPill = ({ filled }: { filled: boolean }) => (
+  <span
+    className="inline-flex items-center text-[9px] font-bold px-1.5 py-0.5 rounded-full"
+    style={
+      filled
+        ? { color: '#4ade80', background: 'rgba(34,197,94,0.12)', border: '1px solid rgba(34,197,94,0.25)' }
+        : { color: 'hsl(var(--muted-foreground))', background: 'rgba(100,100,100,0.10)', border: '1px solid rgba(100,100,100,0.18)' }
+    }
+  >
+    {filled ? '● preenchido' : '○ pendente'}
+  </span>
+);
+
 // ─── Portal ───────────────────────────────────────────────────────────────────
 const Portal = ({ user, isAdmin, onSignOut }: { user: User; isAdmin: boolean; onSignOut: () => void }) => {
   const navigate = useNavigate();
   const [declaracao, setDeclaracaoData] = useState<DeclaracaoData | null>(null);
   const { ciclo, loading: cicloLoading } = useCicloAtivo();
-  // Avaliação só fica disponível quando há ciclo ativo E a janela avaliacao_desempenho está aberta
   const { aberta: janelaAvaliacaoAberta, loading: janelaAvaliacaoLoading } = useJanelaAtiva('avaliacao_desempenho', ciclo);
   const avaliacaoAtiva = !cicloLoading && !janelaAvaliacaoLoading && !!ciclo && janelaAvaliacaoAberta;
 
@@ -128,8 +172,19 @@ const Portal = ({ user, isAdmin, onSignOut }: { user: User; isAdmin: boolean; on
     if (!cicloLoading) loadDeclaracao();
   }, [cicloLoading, loadDeclaracao]);
 
+  const declaracaoPreenchida = !!declaracao?.declaracao;
+  const metasPreenchidas = !!declaracao?.metas;
+
   return (
     <div className="min-h-screen bg-background">
+      {/* Keyframes for pulsing badge */}
+      <style>{`
+        @keyframes janela-pulse {
+          0%, 100% { opacity: 0.6; }
+          50% { opacity: 1; }
+        }
+      `}</style>
+
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 z-50 border-b border-border" style={{ background: '#000' }}>
         <div className="w-full px-4 sm:px-6 py-3 flex items-center justify-between">
@@ -164,11 +219,16 @@ const Portal = ({ user, isAdmin, onSignOut }: { user: User; isAdmin: boolean; on
       <div className="pt-16 w-full px-4 sm:px-6 py-6 sm:py-8">
         {/* Greeting */}
         <div className="mb-6 sm:mb-8">
-          <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Bem-vindo(a) de volta</p>
-          <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-foreground mt-1">{displayName}</h1>
+          <p className="text-xs text-muted-foreground">Olá,</p>
+          <h1 className="text-2xl font-black tracking-tight text-foreground">{firstName}</h1>
+          {ciclo && (
+            <p className="text-xs text-muted-foreground/50 mt-0.5">
+              Ciclo {ciclo} · avaliação de desempenho
+            </p>
+          )}
         </div>
 
-        {/* Main grid: mobile = coluna única (botões → cards abaixo) */}
+        {/* Main grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
           {/* LEFT: Buttons */}
@@ -176,7 +236,9 @@ const Portal = ({ user, isAdmin, onSignOut }: { user: User; isAdmin: boolean; on
             <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/50 mb-3">Acesso rápido</p>
 
             <FeatureBtn
-              icon={<svg className="w-5 h-5" style={{ color: avaliacaoAtiva ? '#4D94FF' : 'hsl(var(--muted-foreground))' }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><path strokeLinecap="round" strokeLinejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25zM6.75 12h.008v.008H6.75V12zm0 3h.008v.008H6.75V15zm0 3h.008v.008H6.75V18z" /></svg>}
+              primary
+              janelaAberta={avaliacaoAtiva}
+              icon={<svg className="w-5 h-5" style={{ color: '#4D94FF' }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><path strokeLinecap="round" strokeLinejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25zM6.75 12h.008v.008H6.75V12zm0 3h.008v.008H6.75V15zm0 3h.008v.008H6.75V18z" /></svg>}
               title="Avaliação de Desempenho"
               description={
                 cicloLoading || janelaAvaliacaoLoading
@@ -191,7 +253,6 @@ const Portal = ({ user, isAdmin, onSignOut }: { user: User; isAdmin: boolean; on
               disabled={!avaliacaoAtiva}
               badge={avaliacaoAtiva ? undefined : 'Indisponível'}
             />
-
 
             <FeatureBtn
               icon={<svg className="w-5 h-5" style={{ color: '#4D94FF' }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" /></svg>}
@@ -243,18 +304,21 @@ const Portal = ({ user, isAdmin, onSignOut }: { user: User; isAdmin: boolean; on
             )}
           </div>
 
-          {/* MIDDLE + RIGHT: Declaration + Metas — aparece abaixo dos botões em mobile */}
+          {/* MIDDLE + RIGHT: Declaration + Metas */}
           <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-6">
 
             {/* Declaração */}
             <div className="border border-border rounded-[6px] p-5 flex flex-col" style={{ background: '#0A0A0A', minHeight: '260px' }}>
               <div className="flex items-center justify-between mb-3">
-                <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Declaração de Expectativas</p>
+                <div className="flex items-center gap-2">
+                  <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Declaração de Expectativas</p>
+                  {declaracao !== null && <StatusPill filled={declaracaoPreenchida} />}
+                </div>
                 <button
                   onClick={() => navigate('/declaracoes')}
-                  className="text-[10px] text-primary hover:underline font-semibold"
+                  className="text-[10px] text-primary hover:underline font-semibold flex-shrink-0 ml-2"
                 >
-                  {declaracao?.declaracao ? 'Editar' : 'Preencher'}
+                  {declaracaoPreenchida ? 'Editar' : 'Preencher'}
                 </button>
               </div>
               <div className="flex-1">
@@ -280,12 +344,15 @@ const Portal = ({ user, isAdmin, onSignOut }: { user: User; isAdmin: boolean; on
             {/* Metas */}
             <div className="border border-border rounded-[6px] p-5 flex flex-col" style={{ background: '#0A0A0A', minHeight: '260px' }}>
               <div className="flex items-center justify-between mb-3">
-                <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Metas</p>
+                <div className="flex items-center gap-2">
+                  <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Metas</p>
+                  {declaracao !== null && <StatusPill filled={metasPreenchidas} />}
+                </div>
                 <button
                   onClick={() => navigate('/declaracoes')}
-                  className="text-[10px] text-primary hover:underline font-semibold"
+                  className="text-[10px] text-primary hover:underline font-semibold flex-shrink-0 ml-2"
                 >
-                  {declaracao?.metas ? 'Editar' : 'Preencher'}
+                  {metasPreenchidas ? 'Editar' : 'Preencher'}
                 </button>
               </div>
               <div className="flex-1">
