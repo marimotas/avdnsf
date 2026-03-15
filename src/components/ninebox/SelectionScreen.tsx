@@ -167,7 +167,7 @@ const SelectionScreen = ({ initial, onContinue }: SelectionScreenProps) => {
               </div>
             </div>
             <p className="text-xs text-muted-foreground leading-relaxed">
-              Trabalho com esta pessoa e avalio o desempenho que observei nas nossas interações (5 perguntas).
+              Trabalho com esta pessoa e avalio o desempenho que observei nas nossas interações. 5 perguntas no total.
             </p>
           </button>
         </div>
