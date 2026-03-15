@@ -321,9 +321,6 @@ const Resultados = () => {
     navigate('/');
   };
 
-  const [filterType, setFilterType] = useState<'nome' | 'quadrante' | 'cluster'>('nome');
-  const [filterQuery, setFilterQuery] = useState('');
-
   const resultadosFiltrados = resultados.filter((r) => {
     if (!filterQuery.trim()) return true;
     const q = filterQuery.toLowerCase().trim();
