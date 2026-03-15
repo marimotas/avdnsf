@@ -404,11 +404,11 @@ const Resultados = () => {
             Nenhuma avaliação encontrada no banco de dados.
           </div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
             {/* Left: grid + summary */}
-            <div className="lg:col-span-1 space-y-6">
+            <div className="lg:col-span-2 space-y-6">
               {/* 9-Box visual */}
-              <div className="border border-border rounded-[4px] p-4 space-y-3" style={{ background: '#0A0A0A' }}>
+              <div className="border border-border rounded-[4px] p-5 space-y-3" style={{ background: '#0A0A0A' }}>
                 <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Matriz 9-Box</p>
                 <NineBoxGridVisual resultados={resultados} />
               </div>
