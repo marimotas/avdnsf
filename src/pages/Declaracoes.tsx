@@ -290,7 +290,7 @@ const Declaracoes = () => {
         )}
 
         <p className="text-center text-xs text-muted-foreground/30 pb-6">
-          ciclo {CICLO} · nutrição sem fronteiras
+          ciclo {ciclo} · nutrição sem fronteiras
         </p>
       </div>
     </div>
