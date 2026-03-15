@@ -303,13 +303,26 @@ const Index = () => {
   const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
+    const upsertProfile = (u: User) => {
+      const name = u.user_metadata?.full_name || u.user_metadata?.name || u.email?.split('@')[0] || '';
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (supabase as any).from('profiles').upsert(
+        { user_id: u.id, name, email: u.email ?? '' },
+        { onConflict: 'user_id' }
+      );
+    };
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
+      const u = session?.user ?? null;
+      setUser(u);
+      if (u) upsertProfile(u);
       setAuthLoading(false);
     });
 
     supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
+      const u = session?.user ?? null;
+      setUser(u);
+      if (u) upsertProfile(u);
       setAuthLoading(false);
     });
 

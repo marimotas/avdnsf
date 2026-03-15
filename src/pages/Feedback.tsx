@@ -3,24 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import logoNsf from '@/assets/logo_nsfs.png';
 
-// ── Nomes fictícios (substituir pela lista real depois) ──────────────────────
-const COLABORADORES = [
-  { nome: 'Ana Paula Souza', email: 'ana.souza@nsf.org' },
-  { nome: 'Bruno Carvalho', email: 'bruno.carvalho@nsf.org' },
-  { nome: 'Carla Mendes', email: 'carla.mendes@nsf.org' },
-  { nome: 'Diego Ferreira', email: 'diego.ferreira@nsf.org' },
-  { nome: 'Elaine Rodrigues', email: 'elaine.rodrigues@nsf.org' },
-  { nome: 'Felipe Almeida', email: 'felipe.almeida@nsf.org' },
-  { nome: 'Gabriela Lima', email: 'gabriela.lima@nsf.org' },
-  { nome: 'Henrique Costa', email: 'henrique.costa@nsf.org' },
-  { nome: 'Isabela Nunes', email: 'isabela.nunes@nsf.org' },
-  { nome: 'João Pedro Martins', email: 'joao.martins@nsf.org' },
-  { nome: 'Karina Oliveira', email: 'karina.oliveira@nsf.org' },
-  { nome: 'Lucas Pereira', email: 'lucas.pereira@nsf.org' },
-  { nome: 'Mariana Torres', email: 'mariana.torres@nsf.org' },
-  { nome: 'Nicolas Barbosa', email: 'nicolas.barbosa@nsf.org' },
-  { nome: 'Patrícia Gomes', email: 'patricia.gomes@nsf.org' },
-];
+type Colaborador = { nome: string; email: string };
 
 type FeedbackRow = {
   id: string;
@@ -93,6 +76,9 @@ const Feedback = () => {
   const [user, setUser] = useState<{ id: string; email: string; name: string } | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
 
+  // Colaboradores dinâmicos da tabela profiles
+  const [colaboradores, setColaboradores] = useState<Colaborador[]>([]);
+
   // Enviar
   const [busca, setBusca] = useState('');
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -108,8 +94,8 @@ const Feedback = () => {
   const [enviados, setEnviados] = useState<FeedbackRow[]>([]);
   const [loadingLists, setLoadingLists] = useState(false);
 
-  // Sugestões filtradas
-  const sugestoes = COLABORADORES.filter(c =>
+  // Sugestões filtradas — exclui o usuário logado
+  const sugestoes = colaboradores.filter(c =>
     c.nome.toLowerCase().includes(busca.toLowerCase()) && c.email !== user?.email
   ).slice(0, 8);
 
@@ -126,14 +112,24 @@ const Feedback = () => {
 
   // Real auth with supabase
   useEffect(() => {
+    const upsertProfile = (u: { id: string; email: string; name: string }) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (supabase as any).from('profiles').upsert(
+        { user_id: u.id, name: u.name, email: u.email },
+        { onConflict: 'user_id' }
+      );
+    };
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       const u = session?.user;
       if (u) {
-        setUser({
+        const profile = {
           id: u.id,
           email: u.email ?? '',
           name: u.user_metadata?.full_name || u.user_metadata?.name || u.email?.split('@')[0] || '',
-        });
+        };
+        setUser(profile);
+        upsertProfile(profile);
       } else {
         setUser(null);
       }
@@ -142,17 +138,33 @@ const Feedback = () => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       const u = session?.user;
       if (u) {
-        setUser({
+        const profile = {
           id: u.id,
           email: u.email ?? '',
           name: u.user_metadata?.full_name || u.user_metadata?.name || u.email?.split('@')[0] || '',
-        });
+        };
+        setUser(profile);
+        upsertProfile(profile);
       } else {
         setUser(null);
       }
       setAuthLoading(false);
     });
     return () => subscription.unsubscribe();
+  }, []);
+
+  // Carregar colaboradores da tabela profiles
+  useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from('profiles')
+      .select('name,email')
+      .order('name', { ascending: true })
+      .then(({ data }: { data: { name: string; email: string }[] | null }) => {
+        setColaboradores(
+          (data ?? []).map(p => ({ nome: p.name, email: p.email }))
+        );
+      });
   }, []);
 
   // Carregar listas
