@@ -68,10 +68,10 @@ const JANELAS_CONFIG = [
 
 // ── Janela Card ────────────────────────────────────────────────────────────────
 const JanelaCard = ({
-  tipo, label, desc, icon,
+  tipo, label, desc, icon, ciclo,
   janela, onChange, onSave, onEncerrar, saving, saved, encerrating,
 }: {
-  tipo: string; label: string; desc: string; icon: React.ReactNode;
+  tipo: string; label: string; desc: string; icon: React.ReactNode; ciclo: string;
   janela: JanelaRow; onChange: (field: 'abertura' | 'fechamento', val: string) => void;
   onSave: () => void; onEncerrar: () => void;
   saving: boolean; saved: boolean; encerrating: boolean;
