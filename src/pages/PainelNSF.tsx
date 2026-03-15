@@ -772,7 +772,10 @@ const PainelNSF = () => {
             <TabMetas declaracoes={declaracoes} loading={declaracoesLoading} />
           )}
           {activeTab === 'avaliacao' && (
-            <TabAvaliacao resultados={resultados} loading={avaliacaoLoading} />
+            <TabAvaliacao
+              resultados={activeCiclo === '2026.1' ? resultados : []}
+              loading={avaliacaoLoading && activeCiclo === '2026.1'}
+            />
           )}
         </div>
       </div>
