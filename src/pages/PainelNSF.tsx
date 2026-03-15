@@ -531,9 +531,7 @@ const CicloSelector = ({
 // ─── Main page ────────────────────────────────────────────────────────────────
 const PainelNSF = () => {
   const navigate = useNavigate();
-  const [user, setUser] = useState<User | null>(null);
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [authLoading, setAuthLoading] = useState(true);
+  const [isAdmin] = useState(true);
 
   const [activeTab, setActiveTab] = useState<Tab>('declaracoes');
   const [activeCiclo, setActiveCiclo] = useState<Ciclo>('2026.1');
