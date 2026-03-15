@@ -197,6 +197,7 @@ const Configuracoes = () => {
   );
   const [janelaSaving, setJanelaSaving] = useState<Record<string, boolean>>({});
   const [janelaSaved, setJanelaSaved] = useState<Record<string, boolean>>({});
+  const [janelaEncerrating, setJanelaEncerrating] = useState<Record<string, boolean>>({});
 
   // Ciclos
   const [ciclos, setCiclos] = useState<CicloRow[]>([]);
