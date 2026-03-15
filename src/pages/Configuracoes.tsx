@@ -294,8 +294,8 @@ const Configuracoes = () => {
   }, [navigate]);
 
   useEffect(() => {
-    if (isAdmin) { loadAdmins(); loadCiclos(); }
-  }, [isAdmin, loadAdmins, loadCiclos]);
+    if (isAdmin) { loadAdmins(); loadLideres(); loadCiclos(); }
+  }, [isAdmin, loadAdmins, loadLideres, loadCiclos]);
 
   // Carrega janelas assim que ciclo estiver disponível (aguarda o hook)
   useEffect(() => {
