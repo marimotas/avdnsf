@@ -11,6 +11,8 @@ import {
 } from '@/lib/ninebox-calc';
 import logoNsf from '@/assets/logo_nsfs.png';
 
+const CICLO = '2026.1';
+
 // ─── Grid label config ────────────────────────────────────────────────────────
 const GRID_CELLS = [
   // [col, row, nome, cluster]
