@@ -303,12 +303,9 @@ const MeuResultado = () => {
 
         {/* Footer note */}
         <p className="text-center text-xs text-muted-foreground/40 pb-6">
-          Este relatório é confidencial e destinado exclusivamente a você.
+        Este relatório é confidencial e destinado exclusivamente a você.
         </p>
       </div>
-
-      {/* Invisible element to avoid unused var warning */}
-      {loginLoading && null}
     </div>
   );
 };
