@@ -130,8 +130,8 @@ const Portal = ({ user, isAdmin, onSignOut }: { user: User; isAdmin: boolean; on
               <span className="text-foreground" style={{ fontFamily: "'Outfit', sans-serif", fontWeight: 500, fontSize: '14px' }}>
                 nutrição sem fronteiras
               </span>
-              <span style={{ fontFamily: "'Outfit', sans-serif", fontWeight: 300, fontSize: '10px', color: 'hsl(var(--text-dim))', letterSpacing: '0.03em' }}>
-                portal do colaborador · ciclo {CICLO}
+              <span style={{ fontFamily: "'Outfit', sans-serif", fontWeight: 300, fontSize: '10px', color: 'hsl(var(--muted-foreground))', letterSpacing: '0.03em' }}>
+                portal do colaborador
               </span>
             </div>
           </div>
