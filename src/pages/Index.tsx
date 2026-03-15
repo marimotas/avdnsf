@@ -458,7 +458,7 @@ const Index = () => {
     return <LoginScreen onLogin={handleLogin} loading={loginLoading} />;
   }
 
-  return <Portal user={user} isAdmin={isAdmin} onSignOut={handleSignOut} />;
+  return <Portal user={user} isAdmin={isAdmin} isLider={isLider} onSignOut={handleSignOut} />;
 };
 
 export default Index;
