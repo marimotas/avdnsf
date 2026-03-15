@@ -204,6 +204,7 @@ const Configuracoes = () => {
   const [cicloToggling, setCicloToggling] = useState<string | null>(null);
 
   const edgeFn = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-manage-roles`;
+  const liderancaFn = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-manage-lideranca`;
 
   const getSession = async () => {
     const { data: { session } } = await supabase.auth.getSession();
@@ -223,6 +224,33 @@ const Configuracoes = () => {
       setAdmins(json.admins ?? []);
     }
   }, [edgeFn]);
+
+  const loadLideres = useCallback(async () => {
+    const session = await getSession();
+    if (!session) return;
+    const res = await fetch(liderancaFn, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
+      body: JSON.stringify({ action: 'list' }),
+    });
+    if (res.ok) {
+      const json = await res.json();
+      setLideres(json.lideres ?? []);
+    }
+  }, [liderancaFn]);
+
+  const loadEquipe = useCallback(async (liderUserId: string) => {
+    if (!ciclo) return;
+    setEquipeLoading(true);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data } = await (supabase as any)
+      .from('equipes')
+      .select('id,colaborador_nome,colaborador_email,lider_user_id')
+      .eq('lider_user_id', liderUserId)
+      .eq('ciclo', ciclo);
+    setEquipeMembers(data ?? []);
+    setEquipeLoading(false);
+  }, [ciclo]);
 
   // loadJanelas recebe cicloNome como parâmetro para evitar closure stale
   const loadJanelas = useCallback(async (cicloNome: string) => {
