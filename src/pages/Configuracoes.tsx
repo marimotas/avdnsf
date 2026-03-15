@@ -238,8 +238,8 @@ const Configuracoes = () => {
       for (const row of data) {
         updates[row.tipo] = {
           id: row.id,
-          abertura: row.data_abertura?.slice(0, 16) ?? '',
-          fechamento: row.data_fechamento?.slice(0, 16) ?? '',
+          abertura: row.data_abertura?.slice(0, 10) ?? '',
+          fechamento: row.data_fechamento?.slice(0, 10) ?? '',
         };
       }
       setJanelas(prev => ({ ...prev, ...updates }));
