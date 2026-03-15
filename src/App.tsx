@@ -8,6 +8,8 @@ import Avaliacao from "./pages/Avaliacao.tsx";
 import Declaracoes from "./pages/Declaracoes.tsx";
 import Resultados from "./pages/Resultados.tsx";
 import MeuResultado from "./pages/MeuResultado.tsx";
+import Feedback from "./pages/Feedback.tsx";
+import Configuracoes from "./pages/Configuracoes.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();

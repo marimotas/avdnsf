@@ -289,7 +289,7 @@ const Portal = ({ user, isAdmin, onSignOut }: { user: User; isAdmin: boolean; on
         </div>
 
         <p className="text-center text-xs text-muted-foreground/20 mt-10">
-          ciclo {CICLO} · nutrição sem fronteiras
+          nutrição sem fronteiras
         </p>
       </div>
     </div>
