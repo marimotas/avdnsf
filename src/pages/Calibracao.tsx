@@ -494,7 +494,7 @@ const Calibracao = () => {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 z-50 border-b border-border" style={{ background: '#000' }}>
-        <div className="w-full max-w-5xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
+        <div className="w-full px-4 sm:px-6 py-3 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <img src={logoNsf} alt="NSF" className="w-7 h-7" />
             <div className="flex flex-col leading-none gap-0.5">
@@ -518,7 +518,7 @@ const Calibracao = () => {
         </div>
       </header>
 
-      <div className="pt-16 w-full max-w-5xl mx-auto px-4 sm:px-6 py-8 space-y-8">
+      <div className="pt-16 w-full px-4 sm:px-6 py-8 space-y-8">
 
         {/* Título */}
         <div className="space-y-1">
