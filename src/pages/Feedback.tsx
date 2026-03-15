@@ -91,6 +91,7 @@ const Feedback = () => {
 
   // Auth
   const [user, setUser] = useState<{ id: string; email: string; name: string } | null>(null);
+  const [authLoading, setAuthLoading] = useState(true);
 
   // Enviar
   const [busca, setBusca] = useState('');
