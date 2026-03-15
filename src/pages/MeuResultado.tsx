@@ -259,30 +259,23 @@ const MeuResultado = () => {
           <h1 className="text-3xl font-black tracking-tight text-foreground">{resultado.nome}</h1>
         </div>
 
-        {/* Quadrant hero card */}
+        {/* Cluster hero card */}
         <div
-          className="border rounded-lg p-6"
+          className="border rounded-lg p-6 space-y-3"
           style={{ background: c.bg, borderColor: c.border }}
         >
-          <div className="flex items-start justify-between gap-4">
-            <div className="space-y-2 flex-1">
-              <div
-                className="text-xs font-black px-3 py-1 rounded-full inline-block"
-                style={{ background: 'rgba(0,0,0,0.4)', color: c.text, border: `1px solid ${c.border}` }}
-              >
-                CLUSTER {resultado.quadrante.cluster} — {resultado.quadrante.clusterNome.toUpperCase()}
-              </div>
-              <h2 className="text-2xl font-black text-foreground leading-tight">
-                {resultado.quadrante.nome}
-              </h2>
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                {resultado.quadrante.clusterAcao}
-              </p>
-            </div>
-            <div className="shrink-0">
-              <Mini9Box resultado={resultado} />
-            </div>
+          <div
+            className="text-xs font-black px-3 py-1 rounded-full inline-block"
+            style={{ background: 'rgba(0,0,0,0.4)', color: c.text, border: `1px solid ${c.border}` }}
+          >
+            CLUSTER {resultado.quadrante.cluster} — {resultado.quadrante.clusterNome.toUpperCase()}
           </div>
+          <h2 className="text-2xl font-black text-foreground leading-tight">
+            {resultado.quadrante.clusterNome}
+          </h2>
+          <p className="text-xs text-muted-foreground leading-relaxed">
+            {resultado.quadrante.clusterAcao}
+          </p>
         </div>
 
         {/* Scores */}
