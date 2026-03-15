@@ -58,7 +58,7 @@ const NineBoxApp = () => {
       </header>
 
       {/* Page content – padded for fixed header */}
-      <div className="pt-20">
+      <div className="pt-16">
         {screen === 'selection' && (
           <SelectionScreen
             initial={state}
