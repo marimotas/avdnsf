@@ -92,7 +92,7 @@ const JanelaCard = ({
           </div>
           <div>
             <p className="text-xs font-bold text-foreground">{label}</p>
-            <p className="text-[10px] text-muted-foreground/60">Ciclo {CICLO}</p>
+            <p className="text-[10px] text-muted-foreground/60">Ciclo {ciclo}</p>
           </div>
         </div>
         <span
