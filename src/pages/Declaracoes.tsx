@@ -53,8 +53,6 @@ const Declaracoes = () => {
     '';
 
   // Load window config — uses tipo='declaracao_expectativas'
-  const { loading: cicloLoading } = useCicloAtivo();
-
   useEffect(() => {
     // Se ciclo ainda está carregando, aguardar
     if (cicloLoading) return;
