@@ -20,7 +20,7 @@ const FeatureBtn = ({
   <button
     onClick={onClick}
     disabled={disabled}
-    className="w-full text-left border rounded-[6px] p-4 transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed hover:border-primary/40"
+    className="w-full text-left border rounded-[6px] p-4 transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed hover:border-primary/40 min-h-[52px]"
     style={{
       background: accent ? 'rgba(0,102,255,0.06)' : '#0A0A0A',
       borderColor: accent ? 'rgba(0,102,255,0.25)' : 'hsl(var(--border))',
@@ -123,25 +123,28 @@ const Portal = ({ user, isAdmin, onSignOut }: { user: User; isAdmin: boolean; on
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 z-50 border-b border-border" style={{ background: '#000' }}>
-        <div className="w-full px-6 py-3 flex items-center justify-between">
+        <div className="w-full px-4 sm:px-6 py-3 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <img src={logoNsf} alt="NSF" className="w-7 h-7" />
             <div className="flex flex-col leading-none gap-0.5">
-              <span className="text-foreground" style={{ fontFamily: "'Outfit', sans-serif", fontWeight: 500, fontSize: '14px' }}>
+              <span className="text-foreground hidden sm:block" style={{ fontFamily: "'Outfit', sans-serif", fontWeight: 500, fontSize: '14px' }}>
                 nutrição sem fronteiras
+              </span>
+              <span className="text-foreground sm:hidden" style={{ fontFamily: "'Outfit', sans-serif", fontWeight: 500, fontSize: '13px' }}>
+                nsf
               </span>
               <span style={{ fontFamily: "'Outfit', sans-serif", fontWeight: 300, fontSize: '10px', color: 'hsl(var(--muted-foreground))', letterSpacing: '0.03em' }}>
                 portal do colaborador
               </span>
             </div>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             {avatar && <img src={avatar} alt={displayName} className="w-7 h-7 rounded-full" />}
-            <div className="flex flex-col leading-none">
+            <div className="flex flex-col leading-none hidden sm:flex">
               <span className="text-xs font-semibold text-foreground">{firstName}</span>
               <span className="text-[10px] text-muted-foreground/60">{user.email}</span>
             </div>
-            <button onClick={onSignOut} className="text-xs text-muted-foreground hover:text-foreground transition-colors ml-2">
+            <button onClick={onSignOut} className="text-xs text-muted-foreground hover:text-foreground transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center sm:min-h-0 sm:min-w-0">
               Sair
             </button>
           </div>
@@ -149,14 +152,14 @@ const Portal = ({ user, isAdmin, onSignOut }: { user: User; isAdmin: boolean; on
       </header>
 
       {/* Full-width content */}
-      <div className="pt-16 w-full px-6 py-8">
+      <div className="pt-16 w-full px-4 sm:px-6 py-6 sm:py-8">
         {/* Greeting */}
-        <div className="mb-8">
+        <div className="mb-6 sm:mb-8">
           <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Bem-vindo(a) de volta</p>
-          <h1 className="text-3xl font-black tracking-tight text-foreground mt-1">{displayName}</h1>
+          <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-foreground mt-1">{displayName}</h1>
         </div>
 
-        {/* Main grid */}
+        {/* Main grid: mobile = coluna única (botões → cards abaixo) */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
           {/* LEFT: Buttons */}
@@ -220,8 +223,8 @@ const Portal = ({ user, isAdmin, onSignOut }: { user: User; isAdmin: boolean; on
             )}
           </div>
 
-          {/* MIDDLE + RIGHT: Declaration + Metas */}
-          <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* MIDDLE + RIGHT: Declaration + Metas — aparece abaixo dos botões em mobile */}
+          <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-6">
 
             {/* Declaração */}
             <div className="border border-border rounded-[6px] p-5 flex flex-col" style={{ background: '#0A0A0A', minHeight: '260px' }}>

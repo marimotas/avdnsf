@@ -258,8 +258,8 @@ const Feedback = () => {
     <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 z-50 border-b border-border" style={{ background: '#000' }}>
-        <div className="w-full px-6 py-3 flex items-center gap-3">
-          <button onClick={() => navigate('/')} className="text-muted-foreground hover:text-foreground transition-colors">
+        <div className="w-full px-4 sm:px-6 py-3 flex items-center gap-3">
+          <button onClick={() => navigate('/')} className="text-muted-foreground hover:text-foreground transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center">
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
             </svg>
@@ -275,13 +275,13 @@ const Feedback = () => {
           </div>
         </div>
 
-        {/* Tabs */}
+        {/* Tabs — min-h para toque fácil */}
         <div className="flex border-t border-border">
           {TABS.map(t => (
             <button
               key={t.key}
               onClick={() => setActiveTab(t.key)}
-              className="flex-1 flex items-center justify-center gap-1.5 px-4 py-2.5 text-xs font-bold transition-colors relative"
+              className="flex-1 flex items-center justify-center gap-1.5 px-2 sm:px-4 py-3 sm:py-2.5 text-xs font-bold transition-colors relative min-h-[48px] sm:min-h-0"
               style={{
                 color: activeTab === t.key ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))',
                 borderBottom: activeTab === t.key ? '2px solid hsl(var(--primary))' : '2px solid transparent',
@@ -302,7 +302,7 @@ const Feedback = () => {
       </header>
 
       {/* Content */}
-      <div className="pt-28 w-full max-w-2xl mx-auto px-6 py-8">
+      <div className="pt-28 w-full max-w-2xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
 
         {/* ── TAB: ENVIAR ─────────────────────────────────────────── */}
         {activeTab === 'enviar' && (
@@ -343,7 +343,7 @@ const Feedback = () => {
                     onFocus={() => setDropdownOpen(true)}
                     placeholder="Buscar colaborador..."
                     maxLength={100}
-                    className="w-full bg-card border border-border rounded-[4px] px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:border-primary/40 transition-colors"
+                    className="w-full bg-card border border-border rounded-[4px] px-3 py-3 sm:py-2.5 text-sm text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:border-primary/40 transition-colors min-h-[48px] sm:min-h-0"
                   />
                   {destinatario && (
                     <div className="absolute right-3 top-1/2 -translate-y-1/2">
@@ -352,22 +352,29 @@ const Feedback = () => {
                       </svg>
                     </div>
                   )}
-                  {/* Dropdown */}
+                  {/* Dropdown — fixed fullscreen em mobile, absolute em desktop */}
                   {dropdownOpen && busca.length > 0 && !destinatario && (
                     <div
-                      className="absolute top-full left-0 right-0 mt-1 border border-border rounded-[4px] overflow-hidden z-50"
+                      className="fixed sm:absolute inset-x-0 sm:inset-x-auto bottom-0 sm:bottom-auto sm:top-full sm:left-0 sm:right-0 sm:mt-1 border-t sm:border border-border sm:rounded-[4px] overflow-hidden z-50 max-h-[60vh] sm:max-h-72 overflow-y-auto"
                       style={{ background: '#111' }}
                     >
+                      {/* Handle bar para mobile */}
+                      <div className="flex justify-center pt-3 pb-1 sm:hidden">
+                        <div className="w-10 h-1 rounded-full bg-border" />
+                      </div>
+                      <div className="px-3 py-2 sm:hidden border-b border-border">
+                        <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground/60">Selecionar destinatário</p>
+                      </div>
                       {sugestoes.length === 0 ? (
-                        <p className="px-3 py-2.5 text-sm text-muted-foreground/50">Nenhum colaborador encontrado.</p>
+                        <p className="px-3 py-4 text-sm text-muted-foreground/50">Nenhum colaborador encontrado.</p>
                       ) : (
                         sugestoes.map(c => (
                           <button
                             key={c.email}
                             onMouseDown={() => handleSelectDestinatario(c)}
-                            className="w-full flex items-center gap-3 px-3 py-2.5 hover:bg-white/5 transition-colors text-left"
+                            className="w-full flex items-center gap-3 px-3 py-3 sm:py-2.5 hover:bg-white/5 transition-colors text-left min-h-[52px] sm:min-h-0"
                           >
-                            <Avatar name={c.nome} size={28} />
+                            <Avatar name={c.nome} size={32} />
                             <div>
                               <p className="text-sm font-medium text-foreground">{c.nome}</p>
                               <p className="text-[10px] text-muted-foreground/50">{c.email}</p>
@@ -375,6 +382,16 @@ const Feedback = () => {
                           </button>
                         ))
                       )}
+                      {/* Botão fechar em mobile */}
+                      <div className="px-3 py-3 sm:hidden border-t border-border">
+                        <button
+                          onMouseDown={() => setDropdownOpen(false)}
+                          className="w-full py-3 text-sm font-bold rounded-[4px] text-muted-foreground"
+                          style={{ background: '#1A1A1A', border: '1px solid hsl(var(--border))' }}
+                        >
+                          Cancelar
+                        </button>
+                      </div>
                     </div>
                   )}
                 </div>
@@ -408,7 +425,7 @@ const Feedback = () => {
               <button
                 onClick={handleEnviar}
                 disabled={!canSend || sending}
-                className="w-full py-3 text-sm font-bold rounded-[4px] transition-all duration-200 disabled:opacity-40"
+                className="w-full min-h-[52px] text-sm font-bold rounded-[4px] transition-all duration-200 disabled:opacity-40"
                 style={
                   canSend && !sending
                     ? { background: '#0066FF', color: '#fff', boxShadow: '0 4px 20px rgba(0,102,255,0.25)' }

@@ -359,10 +359,10 @@ const TabAvaliacao = ({
     return <EmptyState message="Nenhuma avaliação encontrada no banco de dados." />;
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
-      {/* Left: grid + summary */}
-      <div className="lg:col-span-2 space-y-6">
-        <div className="border border-border rounded-[4px] p-5 space-y-3" style={{ background: '#0A0A0A' }}>
+    <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 lg:gap-8">
+      {/* Left: grid + summary — coluna única em mobile */}
+      <div className="lg:col-span-2 space-y-4 lg:space-y-6">
+        <div className="border border-border rounded-[4px] p-4 sm:p-5 space-y-3" style={{ background: '#0A0A0A' }}>
           <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Matriz 9-Box</p>
           <NineBoxGridVisual resultados={resultados} />
         </div>
@@ -396,7 +396,7 @@ const TabAvaliacao = ({
               <button
                 key={type}
                 onClick={() => { setFilterType(type); setFilterQuery(''); }}
-                className="text-[11px] font-bold px-3 py-1.5 rounded-[4px] capitalize transition-all duration-150"
+                className="text-[11px] font-bold px-3 py-2 sm:py-1.5 rounded-[4px] capitalize transition-all duration-150 min-h-[40px] sm:min-h-0"
                 style={
                   filterType === type
                     ? { background: 'rgba(0,102,255,0.15)', border: '1px solid rgba(0,102,255,0.4)', color: '#4D94FF' }
@@ -416,7 +416,7 @@ const TabAvaliacao = ({
               value={filterQuery}
               onChange={(e) => setFilterQuery(e.target.value)}
               placeholder={`Filtrar por ${filterType}...`}
-              className="w-full pl-8 pr-3 py-1.5 text-xs rounded-[4px] bg-transparent border border-border text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:border-primary/40 transition-colors"
+              className="w-full pl-8 pr-3 py-2 sm:py-1.5 text-xs rounded-[4px] bg-transparent border border-border text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:border-primary/40 transition-colors min-h-[40px] sm:min-h-0"
             />
             {filterQuery && (
               <button
@@ -618,30 +618,31 @@ const PainelNSF = () => {
               </span>
             </div>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             <button
               onClick={() => exportPainelToExcel(activeCiclo, declaracoesByCiclo[activeCiclo] ?? [], resultados)}
-              className="flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-[4px] border transition-all duration-150"
+              className="flex items-center gap-1.5 text-xs font-bold px-3 py-2 sm:py-1.5 rounded-[4px] border transition-all duration-150 min-h-[40px] sm:min-h-0"
               style={{ background: 'rgba(0,102,255,0.10)', borderColor: 'rgba(0,102,255,0.35)', color: '#4D94FF' }}
               title="Exportar dados do ciclo para Excel"
             >
               <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 15V3" />
               </svg>
-              Exportar Excel
+              <span className="hidden sm:inline">Exportar Excel</span>
+              <span className="sm:hidden">Excel</span>
             </button>
             <button
               onClick={() => navigate('/')}
-              className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+              className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors min-h-[40px] sm:min-h-0"
             >
               <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
               </svg>
-              Portal
+              <span className="hidden sm:inline">Portal</span>
             </button>
             <button
               onClick={handleSignOut}
-              className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+              className="text-xs text-muted-foreground hover:text-foreground transition-colors min-h-[40px] sm:min-h-0 px-1"
             >
               Sair
             </button>
