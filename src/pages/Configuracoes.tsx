@@ -5,6 +5,13 @@ import logoNsf from '@/assets/logo_nsfs.png';
 
 const CICLO = '2026.1';
 
+type CicloRow = {
+  id: string;
+  nome: string;
+  ativo: boolean;
+  created_at: string;
+};
+
 type AdminUser = {
   id: string;
   user_id: string;
