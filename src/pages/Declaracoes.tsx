@@ -21,11 +21,10 @@ const formatDate = (iso: string) =>
   new Date(iso).toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' });
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
-const MOCK_USER = { id: '00000000-0000-0000-0000-000000000000', email: 'demo@semfronteiras.app', user_metadata: { full_name: 'Usuário Demo' } } as unknown as User;
-
 const Declaracoes = () => {
   const navigate = useNavigate();
-  const [user] = useState<User | null>(MOCK_USER);
+  const [user, setUser] = useState<User | null>(null);
+  const [authLoading, setAuthLoading] = useState(true);
   const [janela, setJanela] = useState<Janela | null>(null);
   const [janelaLoading, setJanelaLoading] = useState(true);
   const [declaracao, setDeclaracao] = useState('');
@@ -34,6 +33,18 @@ const Declaracoes = () => {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [dataLoading, setDataLoading] = useState(false);
+
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+      setAuthLoading(false);
+    });
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+      setAuthLoading(false);
+    });
+    return () => subscription.unsubscribe();
+  }, []);
 
   const displayName =
     user?.user_metadata?.full_name ||
@@ -113,10 +124,24 @@ const Declaracoes = () => {
     setTimeout(() => setSaved(false), 3000);
   };
 
-  if (janelaLoading) {
+  if (authLoading || janelaLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ background: '#000' }}>
         <div className="w-5 h-5 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center px-4 gap-4" style={{ background: '#000' }}>
+        <p className="text-sm text-muted-foreground">Você precisa estar autenticado para acessar esta página.</p>
+        <button
+          onClick={() => navigate('/')}
+          className="text-xs font-bold text-primary hover:underline"
+        >
+          Ir para o Portal
+        </button>
       </div>
     );
   }

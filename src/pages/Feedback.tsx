@@ -91,6 +91,7 @@ const Feedback = () => {
 
   // Auth
   const [user, setUser] = useState<{ id: string; email: string; name: string } | null>(null);
+  const [authLoading, setAuthLoading] = useState(true);
 
   // Enviar
   const [busca, setBusca] = useState('');
@@ -123,9 +124,35 @@ const Feedback = () => {
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
-  // Mock user — auth desabilitado temporariamente
+  // Real auth with supabase
   useEffect(() => {
-    setUser({ id: '00000000-0000-0000-0000-000000000000', email: 'demo@semfronteiras.app', name: 'Usuário Demo' });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      const u = session?.user;
+      if (u) {
+        setUser({
+          id: u.id,
+          email: u.email ?? '',
+          name: u.user_metadata?.full_name || u.user_metadata?.name || u.email?.split('@')[0] || '',
+        });
+      } else {
+        setUser(null);
+      }
+      setAuthLoading(false);
+    });
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      const u = session?.user;
+      if (u) {
+        setUser({
+          id: u.id,
+          email: u.email ?? '',
+          name: u.user_metadata?.full_name || u.user_metadata?.name || u.email?.split('@')[0] || '',
+        });
+      } else {
+        setUser(null);
+      }
+      setAuthLoading(false);
+    });
+    return () => subscription.unsubscribe();
   }, []);
 
   // Carregar listas
@@ -193,6 +220,25 @@ const Feedback = () => {
     { key: 'recebidos', label: 'Recebidos', count: recebidos.length },
     { key: 'enviados', label: 'Enviados', count: enviados.length },
   ];
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ background: '#000' }}>
+        <div className="w-5 h-5 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center px-4 gap-4" style={{ background: '#000' }}>
+        <p className="text-sm text-muted-foreground">Você precisa estar autenticado para acessar esta página.</p>
+        <button onClick={() => navigate('/')} className="text-xs font-bold text-primary hover:underline">
+          Ir para o Portal
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background flex flex-col">

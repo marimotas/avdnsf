@@ -141,20 +141,31 @@ const NaoEncontrado = ({ nome, onSignOut }: { nome: string; onSignOut: () => voi
   </div>
 );
 
-const MOCK_USER = { id: '00000000-0000-0000-0000-000000000000', email: 'demo@semfronteiras.app', user_metadata: { full_name: 'Usuário Demo' } } as unknown as User;
-
 // ─── Main page ────────────────────────────────────────────────────────────────
 const MeuResultado = () => {
   const navigate = useNavigate();
-  const [user] = useState<User | null>(MOCK_USER);
+  const [user, setUser] = useState<User | null>(null);
+  const [authLoading, setAuthLoading] = useState(true);
   const [dataLoading, setDataLoading] = useState(false);
   const [resultado, setResultado] = useState<ColaboradorResultado | null>(null);
   const [notFound, setNotFound] = useState(false);
 
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+      setAuthLoading(false);
+    });
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+      setAuthLoading(false);
+    });
+    return () => subscription.unsubscribe();
+  }, []);
+
   const displayName = user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email?.split('@')[0] || '';
 
   useEffect(() => {
-    if (!displayName) return;
+    if (!displayName || !user) return;
     setDataLoading(true);
     setNotFound(false);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -170,9 +181,31 @@ const MeuResultado = () => {
         else setNotFound(true);
         setDataLoading(false);
       });
-  }, [displayName]);
+  }, [displayName, user]);
 
-  const handleSignOut = () => navigate('/');
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    navigate('/');
+  };
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ background: '#000' }}>
+        <div className="w-5 h-5 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center px-4 gap-4" style={{ background: '#000' }}>
+        <p className="text-sm text-muted-foreground">Você precisa estar autenticado para acessar esta página.</p>
+        <button onClick={() => navigate('/')} className="text-xs font-bold text-primary hover:underline">
+          Ir para o Portal
+        </button>
+      </div>
+    );
+  }
 
   if (dataLoading) {
     return (

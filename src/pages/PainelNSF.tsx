@@ -530,7 +530,33 @@ const CicloSelector = ({
 // ─── Main page ────────────────────────────────────────────────────────────────
 const PainelNSF = () => {
   const navigate = useNavigate();
-  const [isAdmin] = useState(true);
+  const [authLoading, setAuthLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      const u = session?.user ?? null;
+      setAuthLoading(false);
+      if (!u) { setIsAdmin(false); return; }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (supabase as any).rpc('has_role', { _user_id: u.id, _role: 'admin' })
+        .then(({ data }: { data: boolean }) => setIsAdmin(!!data));
+    });
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      const u = session?.user ?? null;
+      setAuthLoading(false);
+      if (!u) { setIsAdmin(false); return; }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (supabase as any).rpc('has_role', { _user_id: u.id, _role: 'admin' })
+        .then(({ data }: { data: boolean }) => setIsAdmin(!!data));
+    });
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    navigate('/');
+  };
 
   const [activeTab, setActiveTab] = useState<Tab>('declaracoes');
   const [activeCiclo, setActiveCiclo] = useState<Ciclo>('2026.1');
@@ -542,13 +568,11 @@ const PainelNSF = () => {
   const [declaracoesByCiclo, setDeclaracoesByCiclo] = useState<Record<string, DeclaracaoRow[]>>({});
   const [declaracoesLoading, setDeclaracoesLoading] = useState(false);
 
-  // Avaliação — keyed by ciclo (avaliacoes table has no ciclo, so we use all for 2026.1 only)
+  // Avaliação — keyed by ciclo
   const [resultados, setResultados] = useState<ColaboradorResultado[]>([]);
   const [avaliacaoLoading, setAvaliacaoLoading] = useState(false);
 
   const [error, setError] = useState('');
-
-  const handleSignOut = () => navigate('/');
 
   const declaracoes = declaracoesByCiclo[activeCiclo] ?? [];
 
@@ -557,6 +581,25 @@ const PainelNSF = () => {
     { id: 'metas', label: 'Metas', count: declaracoes.filter((d) => d.metas).length },
     { id: 'avaliacao', label: 'Avaliação de Desempenho', count: resultados.length },
   ];
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ background: '#000' }}>
+        <div className="w-5 h-5 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+      </div>
+    );
+  }
+
+  if (!isAdmin) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center px-4 gap-4" style={{ background: '#000' }}>
+        <p className="text-sm text-muted-foreground">Acesso restrito a administradores.</p>
+        <button onClick={() => navigate('/')} className="text-xs font-bold text-primary hover:underline">
+          Ir para o Portal
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
