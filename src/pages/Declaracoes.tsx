@@ -24,6 +24,7 @@ const Declaracoes = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState<User | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
+  const { ciclo } = useCicloAtivo();
   const [janela, setJanela] = useState<Janela | null>(null);
   const [janelaLoading, setJanelaLoading] = useState(true);
   const [declaracao, setDeclaracao] = useState('');

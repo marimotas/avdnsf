@@ -99,21 +99,23 @@ const LoginScreen = ({ onLogin, loading }: { onLogin: () => void; loading: boole
 const Portal = ({ user, isAdmin, onSignOut }: { user: User; isAdmin: boolean; onSignOut: () => void }) => {
   const navigate = useNavigate();
   const [declaracao, setDeclaracaoData] = useState<DeclaracaoData | null>(null);
+  const { ciclo } = useCicloAtivo();
 
   const displayName = user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split('@')[0] || '';
   const firstName = displayName.split(' ')[0];
   const avatar = user.user_metadata?.avatar_url;
 
   const loadDeclaracao = useCallback(async () => {
+    if (!ciclo) return;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data } = await (supabase as any)
       .from('declaracoes')
       .select('declaracao,metas')
       .eq('user_id', user.id)
-      .eq('ciclo', CICLO)
+      .eq('ciclo', ciclo)
       .maybeSingle();
     setDeclaracaoData(data ?? { declaracao: null, metas: null });
-  }, [user.id]);
+  }, [user.id, ciclo]);
 
   useEffect(() => { loadDeclaracao(); }, [loadDeclaracao]);
 
