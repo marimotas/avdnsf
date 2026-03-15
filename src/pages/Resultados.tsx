@@ -88,15 +88,25 @@ const NineBoxGridVisual = ({ resultados }: { resultados: ColaboradorResultado[] 
                 return (
                   <div
                     key={`${col}-${row}`}
-                    className="rounded-[4px] border p-2 flex flex-col gap-1.5 min-h-[80px]"
+                    className="rounded-[4px] border p-2 flex flex-col gap-1 min-h-[80px]"
                     style={{ background: c.bg, borderColor: c.border }}
                   >
-                    <p
-                      className="text-[9px] font-bold leading-tight"
-                      style={{ color: c.text, whiteSpace: 'pre-line' }}
-                    >
-                      {cellNome}
-                    </p>
+                    <div className="flex items-start justify-between gap-1">
+                      <p
+                        className="text-[9px] font-bold leading-tight"
+                        style={{ color: c.text, whiteSpace: 'pre-line' }}
+                      >
+                        {cellNome}
+                      </p>
+                      {resultados.length > 0 && (
+                        <span
+                          className="text-[10px] font-black tabular-nums shrink-0"
+                          style={{ color: c.badge }}
+                        >
+                          {Math.round((occupants.length / resultados.length) * 100)}%
+                        </span>
+                      )}
+                    </div>
                     <div className="flex flex-wrap gap-1">
                       {occupants.map((r) => (
                         <span
