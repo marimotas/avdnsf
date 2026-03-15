@@ -273,9 +273,6 @@ const MeuResultado = () => {
           <h2 className="text-2xl font-black text-foreground leading-tight">
             {resultado.quadrante.clusterNome}
           </h2>
-          <p className="text-xs text-muted-foreground leading-relaxed">
-            {resultado.quadrante.clusterAcao}
-          </p>
         </div>
 
         {/* Scores */}
