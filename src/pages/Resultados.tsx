@@ -441,9 +441,70 @@ const Resultados = () => {
           <p className="text-muted-foreground text-sm">{resultados.length} colaboradores avaliados</p>
         </div>
 
+        {/* Admin: Janela de Declarações */}
+        <div className="border border-border rounded-[4px] p-5 space-y-4" style={{ background: '#0A0A0A' }}>
+          <div className="flex items-center justify-between">
+            <div className="space-y-0.5">
+              <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Período — Declaração de Expectativas</p>
+              <p className="text-[11px] text-muted-foreground/50">Defina quando os campos estarão abertos para os colaboradores.</p>
+            </div>
+            {janelaExistingId && janelaAbertura && janelaFechamento && (
+              <span
+                className="text-[10px] font-bold px-2.5 py-1 rounded-full"
+                style={
+                  new Date() >= new Date(janelaAbertura) && new Date() <= new Date(janelaFechamento)
+                    ? { background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.3)', color: '#4ade80' }
+                    : { background: 'rgba(100,100,100,0.1)', border: '1px solid rgba(100,100,100,0.2)', color: 'hsl(var(--muted-foreground))' }
+                }
+              >
+                {new Date() >= new Date(janelaAbertura) && new Date() <= new Date(janelaFechamento) ? 'Aberto' : 'Fechado'}
+              </span>
+            )}
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <label className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground/70">Abertura</label>
+              <input
+                type="datetime-local"
+                value={janelaAbertura}
+                onChange={(e) => setJanelaAbertura(e.target.value)}
+                className="w-full bg-transparent border border-border rounded-[4px] px-3 py-2 text-sm text-foreground focus:outline-none focus:border-primary/40 transition-colors"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground/70">Fechamento</label>
+              <input
+                type="datetime-local"
+                value={janelaFechamento}
+                onChange={(e) => setJanelaFechamento(e.target.value)}
+                className="w-full bg-transparent border border-border rounded-[4px] px-3 py-2 text-sm text-foreground focus:outline-none focus:border-primary/40 transition-colors"
+              />
+            </div>
+          </div>
+          <div className="flex items-center justify-between pt-1">
+            {janelaSaved ? (
+              <p className="text-xs text-green-400 flex items-center gap-1.5">
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+                Período salvo
+              </p>
+            ) : <span />}
+            <button
+              onClick={handleSaveJanela}
+              disabled={janelaSaving || !janelaAbertura || !janelaFechamento}
+              className="px-4 py-2 rounded-[4px] text-sm font-bold text-white transition-all duration-150 disabled:opacity-40"
+              style={{ background: '#0066FF', border: '1px solid rgba(0,102,255,0.5)' }}
+            >
+              {janelaSaving ? 'Salvando...' : 'Salvar período'}
+            </button>
+          </div>
+        </div>
+
         {error && (
           <p className="text-sm font-medium" style={{ color: 'hsl(0 72% 51%)' }}>{error}</p>
         )}
+
 
         {dataLoading ? (
           <div className="flex items-center justify-center py-20">
