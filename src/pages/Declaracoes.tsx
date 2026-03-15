@@ -24,7 +24,7 @@ const Declaracoes = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState<User | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
-  const { ciclo } = useCicloAtivo();
+  const { ciclo, loading: cicloLoading } = useCicloAtivo();
   const [janela, setJanela] = useState<Janela | null>(null);
   const [janelaLoading, setJanelaLoading] = useState(true);
   const [declaracao, setDeclaracao] = useState('');
@@ -52,9 +52,15 @@ const Declaracoes = () => {
     user?.email?.split('@')[0] ||
     '';
 
-  // Load window config — uses tipo='declaracao_expectativas' (and 'metas' shares same window for now)
+  // Load window config — uses tipo='declaracao_expectativas'
   useEffect(() => {
-    if (!ciclo) return;
+    // Se ciclo ainda está carregando, aguardar
+    if (cicloLoading) return;
+    // Se não há ciclo ativo, encerrar loading sem janela
+    if (!ciclo) {
+      setJanelaLoading(false);
+      return;
+    }
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (supabase as any)
       .from('janela_declaracoes')
@@ -66,10 +72,11 @@ const Declaracoes = () => {
         setJanela(data);
         setJanelaLoading(false);
       });
-  }, [ciclo]);
+  }, [ciclo, cicloLoading]);
 
   // Load existing declaration
   const loadDeclaracao = useCallback(async (uid: string) => {
+    if (!ciclo) { setDataLoading(false); return; }
     setDataLoading(true);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data } = await (supabase as any)
@@ -87,8 +94,8 @@ const Declaracoes = () => {
   }, [ciclo]);
 
   useEffect(() => {
-    if (user) loadDeclaracao(user.id);
-  }, [user, loadDeclaracao]);
+    if (user && !cicloLoading) loadDeclaracao(user.id);
+  }, [user, cicloLoading, loadDeclaracao]);
 
   const isOpen = janela
     ? new Date() >= new Date(janela.data_abertura) && new Date() <= new Date(janela.data_fechamento)
