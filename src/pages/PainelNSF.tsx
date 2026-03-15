@@ -530,25 +530,33 @@ const CicloSelector = ({
 // ─── Main page ────────────────────────────────────────────────────────────────
 const PainelNSF = () => {
   const navigate = useNavigate();
-  const [isAdmin] = useState(true);
+  const [authLoading, setAuthLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
 
-  const [activeTab, setActiveTab] = useState<Tab>('declaracoes');
-  const [activeCiclo, setActiveCiclo] = useState<Ciclo>('2026.1');
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      const u = session?.user ?? null;
+      setAuthLoading(false);
+      if (!u) { setIsAdmin(false); return; }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (supabase as any).rpc('has_role', { _user_id: u.id, _role: 'admin' })
+        .then(({ data }: { data: boolean }) => setIsAdmin(!!data));
+    });
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      const u = session?.user ?? null;
+      setAuthLoading(false);
+      if (!u) { setIsAdmin(false); return; }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (supabase as any).rpc('has_role', { _user_id: u.id, _role: 'admin' })
+        .then(({ data }: { data: boolean }) => setIsAdmin(!!data));
+    });
+    return () => subscription.unsubscribe();
+  }, []);
 
-  // Janela statuses per ciclo
-  const [janelaStatus, setJanelaStatus] = useState<Record<string, JanelaStatus[]>>({});
-
-  // Declarações/Metas — keyed by ciclo
-  const [declaracoesByCiclo, setDeclaracoesByCiclo] = useState<Record<string, DeclaracaoRow[]>>({});
-  const [declaracoesLoading, setDeclaracoesLoading] = useState(false);
-
-  // Avaliação — keyed by ciclo (avaliacoes table has no ciclo, so we use all for 2026.1 only)
-  const [resultados, setResultados] = useState<ColaboradorResultado[]>([]);
-  const [avaliacaoLoading, setAvaliacaoLoading] = useState(false);
-
-  const [error, setError] = useState('');
-
-  const handleSignOut = () => navigate('/');
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    navigate('/');
+  };
 
   const declaracoes = declaracoesByCiclo[activeCiclo] ?? [];
 
