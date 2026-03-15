@@ -88,7 +88,7 @@ const NineBoxGridVisual = ({ resultados }: { resultados: ColaboradorResultado[] 
                 return (
                   <div
                     key={`${col}-${row}`}
-                    className="rounded-[4px] border p-2 flex flex-col gap-1 min-h-[80px]"
+                    className="rounded-[4px] border p-2 flex flex-col gap-1 min-h-[120px]"
                     style={{ background: c.bg, borderColor: c.border }}
                   >
                     <div className="flex items-start justify-between gap-1">
@@ -352,7 +352,7 @@ const Resultados = () => {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 z-50 border-b border-border" style={{ background: '#000' }}>
-        <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
+        <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <img src={logoNsf} alt="NSF" className="w-7 h-7" />
             <div className="flex flex-col leading-none gap-0.5">
@@ -384,7 +384,7 @@ const Resultados = () => {
         </div>
       </header>
 
-      <div className="pt-16 max-w-5xl mx-auto px-4 py-8 space-y-8">
+      <div className="pt-16 max-w-6xl mx-auto px-4 py-8 space-y-8">
         {/* Title */}
         <div className="space-y-1">
           <h1 className="text-3xl font-black tracking-tight text-foreground">Resultados</h1>
@@ -404,11 +404,11 @@ const Resultados = () => {
             Nenhuma avaliação encontrada no banco de dados.
           </div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
             {/* Left: grid + summary */}
-            <div className="lg:col-span-1 space-y-6">
+            <div className="lg:col-span-2 space-y-6">
               {/* 9-Box visual */}
-              <div className="border border-border rounded-[4px] p-4 space-y-3" style={{ background: '#0A0A0A' }}>
+              <div className="border border-border rounded-[4px] p-5 space-y-3" style={{ background: '#0A0A0A' }}>
                 <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Matriz 9-Box</p>
                 <NineBoxGridVisual resultados={resultados} />
               </div>
@@ -437,7 +437,7 @@ const Resultados = () => {
             </div>
 
             {/* Right: filter + collaborator cards */}
-            <div className="lg:col-span-2 space-y-4">
+            <div className="lg:col-span-3 space-y-4">
               {/* Filter bar */}
               <div className="border border-border rounded-[4px] p-3 flex flex-col sm:flex-row gap-2" style={{ background: '#0A0A0A' }}>
                 {/* Filter type buttons */}
