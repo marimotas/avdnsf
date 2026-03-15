@@ -678,11 +678,11 @@ const PainelNSF = () => {
               {tab.label}
               {tab.count !== undefined && (
                 <span
-                  className="text-[10px] font-black px-1.5 py-0.5 rounded-full tabular-nums"
+                  className="text-[11px] font-bold px-2 py-0.5 rounded-full tabular-nums"
                   style={
                     activeTab === tab.id
-                      ? { background: 'rgba(0,102,255,0.15)', color: '#4D94FF' }
-                      : { background: 'rgba(255,255,255,0.06)', color: 'hsl(var(--muted-foreground))' }
+                      ? { background: 'rgba(0,102,255,0.15)', color: '#4D94FF', border: '1px solid rgba(0,102,255,0.25)' }
+                      : { background: 'rgba(255,255,255,0.06)', color: 'hsl(var(--muted-foreground) / 0.5)' }
                   }
                 >
                   {tab.count}
