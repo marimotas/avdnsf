@@ -558,6 +558,22 @@ const PainelNSF = () => {
     navigate('/');
   };
 
+  const [activeTab, setActiveTab] = useState<Tab>('declaracoes');
+  const [activeCiclo, setActiveCiclo] = useState<Ciclo>('2026.1');
+
+  // Janela statuses per ciclo
+  const [janelaStatus, setJanelaStatus] = useState<Record<string, JanelaStatus[]>>({});
+
+  // Declarações/Metas — keyed by ciclo
+  const [declaracoesByCiclo, setDeclaracoesByCiclo] = useState<Record<string, DeclaracaoRow[]>>({});
+  const [declaracoesLoading, setDeclaracoesLoading] = useState(false);
+
+  // Avaliação — keyed by ciclo
+  const [resultados, setResultados] = useState<ColaboradorResultado[]>([]);
+  const [avaliacaoLoading, setAvaliacaoLoading] = useState(false);
+
+  const [error, setError] = useState('');
+
   const declaracoes = declaracoesByCiclo[activeCiclo] ?? [];
 
   const TABS: { id: Tab; label: string; count?: number }[] = [
