@@ -12,6 +12,7 @@ import MeuResultado from "./pages/MeuResultado.tsx";
 import Feedback from "./pages/Feedback.tsx";
 import Configuracoes from "./pages/Configuracoes.tsx";
 import DashboardLider from "./pages/DashboardLider.tsx";
+import GestaoAcessos from "./pages/GestaoAcessos.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
