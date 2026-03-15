@@ -223,8 +223,8 @@ const Portal = ({ user, isAdmin, onSignOut }: { user: User; isAdmin: boolean; on
             )}
           </div>
 
-          {/* MIDDLE + RIGHT: Declaration + Metas */}
-          <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* MIDDLE + RIGHT: Declaration + Metas — aparece abaixo dos botões em mobile */}
+          <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-6">
 
             {/* Declaração */}
             <div className="border border-border rounded-[6px] p-5 flex flex-col" style={{ background: '#0A0A0A', minHeight: '260px' }}>
