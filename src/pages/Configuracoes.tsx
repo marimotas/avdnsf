@@ -2,8 +2,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import logoNsf from '@/assets/logo_nsfs.png';
-
-const CICLO = '2026.1';
+import { useCicloAtivo } from '@/hooks/useCicloAtivo';
 
 type CicloRow = {
   id: string;
@@ -69,10 +68,10 @@ const JANELAS_CONFIG = [
 
 // ── Janela Card ────────────────────────────────────────────────────────────────
 const JanelaCard = ({
-  tipo, label, desc, icon,
+  tipo, label, desc, icon, ciclo,
   janela, onChange, onSave, onEncerrar, saving, saved, encerrating,
 }: {
-  tipo: string; label: string; desc: string; icon: React.ReactNode;
+  tipo: string; label: string; desc: string; icon: React.ReactNode; ciclo: string;
   janela: JanelaRow; onChange: (field: 'abertura' | 'fechamento', val: string) => void;
   onSave: () => void; onEncerrar: () => void;
   saving: boolean; saved: boolean; encerrating: boolean;
@@ -93,7 +92,7 @@ const JanelaCard = ({
           </div>
           <div>
             <p className="text-xs font-bold text-foreground">{label}</p>
-            <p className="text-[10px] text-muted-foreground/60">Ciclo {CICLO}</p>
+            <p className="text-[10px] text-muted-foreground/60">Ciclo {ciclo}</p>
           </div>
         </div>
         <span
@@ -171,7 +170,7 @@ const JanelaCard = ({
 const Configuracoes = () => {
   const navigate = useNavigate();
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
-
+  const { ciclo } = useCicloAtivo();
   // Admins
   const [admins, setAdmins] = useState<AdminUser[]>([]);
   const [newEmail, setNewEmail] = useState('');
@@ -220,7 +219,7 @@ const Configuracoes = () => {
     const { data } = await (supabase as any)
       .from('janela_declaracoes')
       .select('id,tipo,data_abertura,data_fechamento')
-      .eq('ciclo', CICLO);
+      .eq('ciclo', ciclo);
 
     if (data && Array.isArray(data)) {
       const updates: Record<string, JanelaRow> = {};
@@ -273,7 +272,7 @@ const Configuracoes = () => {
       await client.from('janela_declaracoes').update({ data_abertura: j.abertura, data_fechamento: j.fechamento }).eq('id', j.id);
     } else {
       const { data } = await client.from('janela_declaracoes')
-        .insert({ ciclo: CICLO, tipo, data_abertura: j.abertura, data_fechamento: j.fechamento })
+        .insert({ ciclo, tipo, data_abertura: j.abertura, data_fechamento: j.fechamento })
         .select('id').single();
       if (data) setJanelas(prev => ({ ...prev, [tipo]: { ...prev[tipo], id: data.id } }));
     }
@@ -404,6 +403,7 @@ const Configuracoes = () => {
               label={cfg.label}
               desc={cfg.desc}
               icon={cfg.icon}
+              ciclo={ciclo}
               janela={janelas[cfg.tipo]}
               onChange={(field, val) => handleJanelaChange(cfg.tipo, field, val)}
               onSave={() => handleSaveJanela(cfg.tipo)}

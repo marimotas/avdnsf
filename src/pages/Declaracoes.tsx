@@ -3,8 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import type { User } from '@supabase/supabase-js';
 import logoNsf from '@/assets/logo_nsfs.png';
-
-const CICLO = '2026.1';
+import { useCicloAtivo } from '@/hooks/useCicloAtivo';
 
 type Janela = {
   data_abertura: string;
@@ -25,6 +24,7 @@ const Declaracoes = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState<User | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
+  const { ciclo } = useCicloAtivo();
   const [janela, setJanela] = useState<Janela | null>(null);
   const [janelaLoading, setJanelaLoading] = useState(true);
   const [declaracao, setDeclaracao] = useState('');
@@ -54,18 +54,19 @@ const Declaracoes = () => {
 
   // Load window config — uses tipo='declaracao_expectativas' (and 'metas' shares same window for now)
   useEffect(() => {
+    if (!ciclo) return;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (supabase as any)
       .from('janela_declaracoes')
       .select('data_abertura,data_fechamento')
-      .eq('ciclo', CICLO)
+      .eq('ciclo', ciclo)
       .eq('tipo', 'declaracao_expectativas')
       .maybeSingle()
       .then(({ data }: { data: Janela | null }) => {
         setJanela(data);
         setJanelaLoading(false);
       });
-  }, []);
+  }, [ciclo]);
 
   // Load existing declaration
   const loadDeclaracao = useCallback(async (uid: string) => {
@@ -75,7 +76,7 @@ const Declaracoes = () => {
       .from('declaracoes')
       .select('id,declaracao,metas')
       .eq('user_id', uid)
-      .eq('ciclo', CICLO)
+      .eq('ciclo', ciclo)
       .maybeSingle();
     if (data) {
       setExistingId(data.id);
@@ -83,7 +84,7 @@ const Declaracoes = () => {
       setMetas(data.metas ?? '');
     }
     setDataLoading(false);
-  }, []);
+  }, [ciclo]);
 
   useEffect(() => {
     if (user) loadDeclaracao(user.id);
@@ -111,7 +112,7 @@ const Declaracoes = () => {
           user_id: user.id,
           user_name: displayName,
           user_email: user.email ?? '',
-          ciclo: CICLO,
+          ciclo: ciclo,
           declaracao,
           metas,
         })
@@ -158,7 +159,7 @@ const Declaracoes = () => {
                 nutrição sem fronteiras
               </span>
               <span style={{ fontFamily: "'Outfit', sans-serif", fontWeight: 300, fontSize: '10px', color: 'hsl(var(--text-dim))', letterSpacing: '0.03em' }}>
-                declaração de expectativas · ciclo {CICLO}
+                declaração de expectativas · ciclo {ciclo}
               </span>
             </div>
           </div>
@@ -177,7 +178,7 @@ const Declaracoes = () => {
       <div className="pt-16 max-w-2xl mx-auto px-4 py-10 space-y-8">
         {/* Title */}
         <div className="space-y-1">
-          <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Ciclo {CICLO}</p>
+          <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Ciclo {ciclo}</p>
           <h1 className="text-3xl font-black tracking-tight text-foreground">Declaração de Expectativas</h1>
         </div>
 
@@ -289,7 +290,7 @@ const Declaracoes = () => {
         )}
 
         <p className="text-center text-xs text-muted-foreground/30 pb-6">
-          ciclo {CICLO} · nutrição sem fronteiras
+          ciclo {ciclo} · nutrição sem fronteiras
         </p>
       </div>
     </div>

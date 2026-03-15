@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import logoNsf from '@/assets/logo_nsfs.png';
+import { useCicloAtivo } from '@/hooks/useCicloAtivo';
 
 type Colaborador = { nome: string; email: string };
 
@@ -71,6 +72,7 @@ const FeedbackCard = ({ fb, variant }: { fb: FeedbackRow; variant: 'recebido' | 
 const Feedback = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<Tab>('enviar');
+  const { ciclo } = useCicloAtivo();
 
   // Auth
   const [user, setUser] = useState<{ id: string; email: string; name: string } | null>(null);
@@ -209,7 +211,7 @@ const Feedback = () => {
         to_user_name: destinatario.nome,
         to_user_email: destinatario.email,
         mensagem: mensagem.trim(),
-        ciclo: '2026.1',
+        ciclo: ciclo,
       });
       if (error) throw error;
       setSendSuccess(true);

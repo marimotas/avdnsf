@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { fetchCicloAtivo, CICLO_FALLBACK } from '@/config/ciclo';
 import {
   type EvaluationState,
   LIDER_QUESTIONS,
@@ -63,6 +64,11 @@ const QuestionsScreen = ({ state, onChange, onSubmitted }: QuestionsScreenProps)
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [janelaAberta, setJanelaAberta] = useState<boolean | null>(null);
+  const [ciclo, setCiclo] = useState(CICLO_FALLBACK);
+
+  useEffect(() => {
+    fetchCicloAtivo().then(setCiclo);
+  }, []);
 
   useEffect(() => {
     const checkJanela = async () => {
@@ -71,7 +77,7 @@ const QuestionsScreen = ({ state, onChange, onSubmitted }: QuestionsScreenProps)
         .from('janela_declaracoes')
         .select('data_abertura,data_fechamento')
         .eq('tipo', 'avaliacao_desempenho')
-        .eq('ciclo', '2026.1')
+        .eq('ciclo', ciclo)
         .maybeSingle();
 
       if (!data) { setJanelaAberta(false); return; }
@@ -122,7 +128,7 @@ const QuestionsScreen = ({ state, onChange, onSubmitted }: QuestionsScreenProps)
         avaliador_nome: state.avaliadorNome,
         tipo_avaliador: state.tipoAvaliador,
         comentario: state.comentario || null,
-        ciclo: '2026.1', // TODO: pass ciclo dinamicamente quando múltiplos ciclos estiverem ativos
+        ciclo: ciclo,
         // Líder fields
         d1: state.tipoAvaliador === 'Líder' ? state.d1 : null,
         d2: state.tipoAvaliador === 'Líder' ? state.d2 : null,

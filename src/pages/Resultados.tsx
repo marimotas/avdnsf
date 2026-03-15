@@ -10,8 +10,7 @@ import {
   type AvaliacaoRow,
 } from '@/lib/ninebox-calc';
 import logoNsf from '@/assets/logo_nsfs.png';
-
-const CICLO = '2026.1';
+import { useCicloAtivo } from '@/hooks/useCicloAtivo';
 
 // ─── Grid label config ────────────────────────────────────────────────────────
 const GRID_CELLS = [
@@ -254,6 +253,7 @@ const Resultados = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [authLoading, setAuthLoading] = useState(true);
   const [dataLoading, setDataLoading] = useState(false);
+  const { ciclo } = useCicloAtivo();
   const [resultados, setResultados] = useState<ColaboradorResultado[]>([]);
   const [error, setError] = useState('');
   const [filterType, setFilterType] = useState<'nome' | 'quadrante' | 'cluster'>('nome');
@@ -366,7 +366,7 @@ const Resultados = () => {
                 nutrição sem fronteiras
               </span>
               <span style={{ fontFamily: "'Outfit', sans-serif", fontWeight: 300, fontSize: '10px', color: 'hsl(var(--text-dim))', letterSpacing: '0.03em' }}>
-                resultados · ciclo 2026.1
+                resultados · ciclo {ciclo}
               </span>
             </div>
           </div>
