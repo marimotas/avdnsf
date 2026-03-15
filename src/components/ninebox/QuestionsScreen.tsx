@@ -64,6 +64,11 @@ const QuestionsScreen = ({ state, onChange, onSubmitted }: QuestionsScreenProps)
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [janelaAberta, setJanelaAberta] = useState<boolean | null>(null);
+  const [ciclo, setCiclo] = useState(CICLO_FALLBACK);
+
+  useEffect(() => {
+    fetchCicloAtivo().then(setCiclo);
+  }, []);
 
   useEffect(() => {
     const checkJanela = async () => {
@@ -72,7 +77,7 @@ const QuestionsScreen = ({ state, onChange, onSubmitted }: QuestionsScreenProps)
         .from('janela_declaracoes')
         .select('data_abertura,data_fechamento')
         .eq('tipo', 'avaliacao_desempenho')
-        .eq('ciclo', '2026.1')
+        .eq('ciclo', ciclo)
         .maybeSingle();
 
       if (!data) { setJanelaAberta(false); return; }
