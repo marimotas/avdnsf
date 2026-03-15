@@ -170,7 +170,7 @@ const JanelaCard = ({
 const Configuracoes = () => {
   const navigate = useNavigate();
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
-
+  const { ciclo } = useCicloAtivo();
   // Admins
   const [admins, setAdmins] = useState<AdminUser[]>([]);
   const [newEmail, setNewEmail] = useState('');
