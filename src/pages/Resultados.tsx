@@ -244,6 +244,9 @@ const Resultados = () => {
   const [dataLoading, setDataLoading] = useState(false);
   const [resultados, setResultados] = useState<ColaboradorResultado[]>([]);
   const [error, setError] = useState('');
+  const [filterType, setFilterType] = useState<'nome' | 'quadrante' | 'cluster'>('nome');
+  const [filterQuery, setFilterQuery] = useState('');
+
 
   // Auth check
   useEffect(() => {
