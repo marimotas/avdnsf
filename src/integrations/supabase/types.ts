@@ -149,6 +149,42 @@ export type Database = {
         }
         Relationships: []
       }
+      equipes: {
+        Row: {
+          ciclo: string
+          colaborador_email: string
+          colaborador_nome: string
+          created_at: string
+          id: string
+          lider_email: string
+          lider_nome: string
+          lider_user_id: string
+          updated_at: string
+        }
+        Insert: {
+          ciclo?: string
+          colaborador_email?: string
+          colaborador_nome: string
+          created_at?: string
+          id?: string
+          lider_email?: string
+          lider_nome?: string
+          lider_user_id: string
+          updated_at?: string
+        }
+        Update: {
+          ciclo?: string
+          colaborador_email?: string
+          colaborador_nome?: string
+          created_at?: string
+          id?: string
+          lider_email?: string
+          lider_nome?: string
+          lider_user_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       feedbacks: {
         Row: {
           ciclo: string
@@ -277,7 +313,7 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "admin"
+      app_role: "admin" | "lideranca"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -405,7 +441,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin"],
+      app_role: ["admin", "lideranca"],
     },
   },
 } as const
