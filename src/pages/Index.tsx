@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import type { User } from '@supabase/supabase-js';
 import logoNsf from '@/assets/logo_nsfs.png';
 import { useCicloAtivo } from '@/hooks/useCicloAtivo';
+import { useJanelaAtiva } from '@/hooks/useJanelaAtiva';
 
 type DeclaracaoData = {
   declaracao: string | null;
