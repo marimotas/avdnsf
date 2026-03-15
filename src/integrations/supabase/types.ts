@@ -86,6 +86,69 @@ export type Database = {
         }
         Relationships: []
       }
+      declaracoes: {
+        Row: {
+          ciclo: string
+          created_at: string
+          declaracao: string | null
+          id: string
+          metas: string | null
+          updated_at: string
+          user_email: string
+          user_id: string
+          user_name: string
+        }
+        Insert: {
+          ciclo?: string
+          created_at?: string
+          declaracao?: string | null
+          id?: string
+          metas?: string | null
+          updated_at?: string
+          user_email: string
+          user_id: string
+          user_name: string
+        }
+        Update: {
+          ciclo?: string
+          created_at?: string
+          declaracao?: string | null
+          id?: string
+          metas?: string | null
+          updated_at?: string
+          user_email?: string
+          user_id?: string
+          user_name?: string
+        }
+        Relationships: []
+      }
+      janela_declaracoes: {
+        Row: {
+          ciclo: string
+          created_at: string
+          data_abertura: string
+          data_fechamento: string
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          ciclo?: string
+          created_at?: string
+          data_abertura: string
+          data_fechamento: string
+          id?: string
+          updated_at?: string
+        }
+        Update: {
+          ciclo?: string
+          created_at?: string
+          data_abertura?: string
+          data_fechamento?: string
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string

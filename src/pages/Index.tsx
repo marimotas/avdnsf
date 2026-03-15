@@ -192,10 +192,9 @@ const Portal = ({
             }
             title="Declaração de Expectativas"
             description="Registre e acompanhe suas metas e expectativas para o ciclo atual."
-            onClick={() => {}}
-            disabled
-            badge="Em breve"
+            onClick={() => navigate('/declaracoes')}
           />
+
 
           <FeatureCard
             icon={
