@@ -403,6 +403,7 @@ const Configuracoes = () => {
               label={cfg.label}
               desc={cfg.desc}
               icon={cfg.icon}
+              ciclo={ciclo}
               janela={janelas[cfg.tipo]}
               onChange={(field, val) => handleJanelaChange(cfg.tipo, field, val)}
               onSave={() => handleSaveJanela(cfg.tipo)}
