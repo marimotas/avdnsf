@@ -142,7 +142,7 @@ const StatusPill = ({ filled }: { filled: boolean }) => (
 );
 
 // ─── Portal ───────────────────────────────────────────────────────────────────
-const Portal = ({ user, isAdmin, onSignOut }: { user: User; isAdmin: boolean; onSignOut: () => void }) => {
+const Portal = ({ user, isAdmin, isLider, onSignOut }: { user: User; isAdmin: boolean; isLider: boolean; onSignOut: () => void }) => {
   const navigate = useNavigate();
   const [declaracao, setDeclaracaoData] = useState<DeclaracaoData | null>(null);
   const { ciclo, loading: cicloLoading } = useCicloAtivo();
