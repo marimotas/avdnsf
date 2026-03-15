@@ -112,14 +112,24 @@ const Feedback = () => {
 
   // Real auth with supabase
   useEffect(() => {
+    const upsertProfile = (u: { id: string; email: string; name: string }) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (supabase as any).from('profiles').upsert(
+        { user_id: u.id, name: u.name, email: u.email },
+        { onConflict: 'user_id' }
+      );
+    };
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       const u = session?.user;
       if (u) {
-        setUser({
+        const profile = {
           id: u.id,
           email: u.email ?? '',
           name: u.user_metadata?.full_name || u.user_metadata?.name || u.email?.split('@')[0] || '',
-        });
+        };
+        setUser(profile);
+        upsertProfile(profile);
       } else {
         setUser(null);
       }
@@ -128,11 +138,13 @@ const Feedback = () => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       const u = session?.user;
       if (u) {
-        setUser({
+        const profile = {
           id: u.id,
           email: u.email ?? '',
           name: u.user_metadata?.full_name || u.user_metadata?.name || u.email?.split('@')[0] || '',
-        });
+        };
+        setUser(profile);
+        upsertProfile(profile);
       } else {
         setUser(null);
       }
