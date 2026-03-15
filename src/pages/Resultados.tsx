@@ -294,45 +294,7 @@ const Resultados = () => {
         setDataLoading(false);
       });
 
-    // Load janela config
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (supabase as any)
-      .from('janela_declaracoes')
-      .select('id,data_abertura,data_fechamento')
-      .eq('ciclo', CICLO)
-      .maybeSingle()
-      .then(({ data }: { data: { id: string; data_abertura: string; data_fechamento: string } | null }) => {
-        if (data) {
-          setJanelaExistingId(data.id);
-          // Convert to local datetime-local format
-          setJanelaAbertura(data.data_abertura.slice(0, 16));
-          setJanelaFechamento(data.data_fechamento.slice(0, 16));
-        }
-      });
   }, [isAdmin]);
-
-  const handleSaveJanela = async () => {
-    if (!janelaAbertura || !janelaFechamento) return;
-    setJanelaSaving(true);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const client = supabase as any;
-    if (janelaExistingId) {
-      await client
-        .from('janela_declaracoes')
-        .update({ data_abertura: janelaAbertura, data_fechamento: janelaFechamento })
-        .eq('id', janelaExistingId);
-    } else {
-      const { data } = await client
-        .from('janela_declaracoes')
-        .insert({ ciclo: CICLO, data_abertura: janelaAbertura, data_fechamento: janelaFechamento })
-        .select('id')
-        .single();
-      if (data) setJanelaExistingId(data.id);
-    }
-    setJanelaSaving(false);
-    setJanelaSaved(true);
-    setTimeout(() => setJanelaSaved(false), 3000);
-  };
 
 
   if (authLoading) {

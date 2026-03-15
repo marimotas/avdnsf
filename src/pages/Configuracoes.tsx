@@ -356,11 +356,6 @@ const Configuracoes = () => {
 
 export default Configuracoes;
 
-type AdminUser = {
-  id: string;
-  user_id: string;
-  email: string;
-};
 
 const Configuracoes = () => {
   const navigate = useNavigate();
