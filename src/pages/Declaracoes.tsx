@@ -53,13 +53,14 @@ const Declaracoes = () => {
     return () => subscription.unsubscribe();
   }, []);
 
-  // Load window config
+  // Load window config — uses tipo='declaracao_expectativas' (and 'metas' shares same window for now)
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (supabase as any)
       .from('janela_declaracoes')
       .select('data_abertura,data_fechamento')
       .eq('ciclo', CICLO)
+      .eq('tipo', 'declaracao_expectativas')
       .maybeSingle()
       .then(({ data }: { data: Janela | null }) => {
         setJanela(data);
