@@ -9,6 +9,7 @@ import {
   type AvaliacaoRow,
 } from '@/lib/ninebox-calc';
 import logoNsf from '@/assets/logo_nsfs.png';
+import { useCicloAtivo } from '@/hooks/useCicloAtivo';
 
 // ─── Mini 9-Box ───────────────────────────────────────────────────────────────
 const Mini9Box = ({ resultado }: { resultado: ColaboradorResultado }) => {
@@ -149,6 +150,7 @@ const MeuResultado = () => {
   const [dataLoading, setDataLoading] = useState(false);
   const [resultado, setResultado] = useState<ColaboradorResultado | null>(null);
   const [notFound, setNotFound] = useState(false);
+  const { ciclo } = useCicloAtivo();
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -165,13 +167,14 @@ const MeuResultado = () => {
   const displayName = user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email?.split('@')[0] || '';
 
   useEffect(() => {
-    if (!displayName || !user) return;
+    if (!displayName || !user || !ciclo) return;
     setDataLoading(true);
     setNotFound(false);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (supabase as any)
       .from('avaliacoes')
       .select('colaborador_nome,tipo_avaliador,d1,d2,d3,d4,d5,p1,p2,p3,p4,p5,i1,i2,i3,i4,i5,comentario')
+      .eq('ciclo', ciclo)
       .then(({ data }: { data: AvaliacaoRow[] | null }) => {
         const todos = calcularResultados(data ?? []);
         const meu = todos.find(
@@ -181,7 +184,7 @@ const MeuResultado = () => {
         else setNotFound(true);
         setDataLoading(false);
       });
-  }, [displayName, user]);
+  }, [displayName, user, ciclo]);
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
