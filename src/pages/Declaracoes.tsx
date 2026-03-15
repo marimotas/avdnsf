@@ -178,7 +178,7 @@ const Declaracoes = () => {
       <div className="pt-16 max-w-2xl mx-auto px-4 py-10 space-y-8">
         {/* Title */}
         <div className="space-y-1">
-          <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Ciclo {CICLO}</p>
+          <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Ciclo {ciclo}</p>
           <h1 className="text-3xl font-black tracking-tight text-foreground">Declaração de Expectativas</h1>
         </div>
 
