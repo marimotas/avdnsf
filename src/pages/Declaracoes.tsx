@@ -54,18 +54,19 @@ const Declaracoes = () => {
 
   // Load window config — uses tipo='declaracao_expectativas' (and 'metas' shares same window for now)
   useEffect(() => {
+    if (!ciclo) return;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (supabase as any)
       .from('janela_declaracoes')
       .select('data_abertura,data_fechamento')
-      .eq('ciclo', CICLO)
+      .eq('ciclo', ciclo)
       .eq('tipo', 'declaracao_expectativas')
       .maybeSingle()
       .then(({ data }: { data: Janela | null }) => {
         setJanela(data);
         setJanelaLoading(false);
       });
-  }, []);
+  }, [ciclo]);
 
   // Load existing declaration
   const loadDeclaracao = useCallback(async (uid: string) => {
