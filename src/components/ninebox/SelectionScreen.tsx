@@ -60,21 +60,20 @@ const SelectionScreen = ({ initial, onContinue }: SelectionScreenProps) => {
 
       {/* Selects */}
       <div className="space-y-4">
-        {/* Avaliador – read-only, from Google */}
         <div className="space-y-2">
           <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
-            Seu nome
+            Qual é o seu nome?
           </label>
-          <div
-            className="w-full border border-border rounded-[4px] px-4 py-3 text-sm text-foreground flex items-center gap-2"
-            style={{ background: '#0A0A0A' }}
+          <select
+            value={avaliador}
+            onChange={(e) => handleAvaliadorChange(e.target.value)}
+            className="w-full bg-card border border-border rounded-[4px] px-4 py-3 text-sm text-foreground focus:outline-none focus:border-primary transition-colors appearance-none cursor-pointer"
           >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" className="shrink-0" style={{ color: 'hsl(var(--text-dim))' }}>
-              <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z" fill="currentColor"/>
-            </svg>
-            <span>{avaliador || '—'}</span>
-            <span className="ml-auto text-xs" style={{ color: 'hsl(var(--text-dim))' }}>via Google</span>
-          </div>
+            <option value="" disabled>Selecione seu nome</option>
+            {COLLABORATORS.map((c) => (
+              <option key={c} value={c} style={{ background: '#0A0A0A' }}>{c}</option>
+            ))}
+          </select>
         </div>
 
         <div className="space-y-2">
@@ -87,7 +86,7 @@ const SelectionScreen = ({ initial, onContinue }: SelectionScreenProps) => {
             className="w-full bg-card border border-border rounded-[4px] px-4 py-3 text-sm text-foreground focus:outline-none focus:border-primary transition-colors appearance-none cursor-pointer"
           >
             <option value="" disabled>Selecione o colaborador</option>
-            {COLLABORATORS.filter((c) => c !== avaliador).map((c) => (
+            {COLLABORATORS.map((c) => (
               <option key={c} value={c} style={{ background: '#0A0A0A' }}>{c}</option>
             ))}
           </select>
