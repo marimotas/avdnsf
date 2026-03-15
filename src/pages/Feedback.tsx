@@ -76,6 +76,9 @@ const Feedback = () => {
   const [user, setUser] = useState<{ id: string; email: string; name: string } | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
 
+  // Colaboradores dinâmicos da tabela profiles
+  const [colaboradores, setColaboradores] = useState<Colaborador[]>([]);
+
   // Enviar
   const [busca, setBusca] = useState('');
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -91,8 +94,8 @@ const Feedback = () => {
   const [enviados, setEnviados] = useState<FeedbackRow[]>([]);
   const [loadingLists, setLoadingLists] = useState(false);
 
-  // Sugestões filtradas
-  const sugestoes = COLABORADORES.filter(c =>
+  // Sugestões filtradas — exclui o usuário logado
+  const sugestoes = colaboradores.filter(c =>
     c.nome.toLowerCase().includes(busca.toLowerCase()) && c.email !== user?.email
   ).slice(0, 8);
 
