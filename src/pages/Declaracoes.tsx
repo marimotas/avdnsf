@@ -21,37 +21,13 @@ const formatDate = (iso: string) =>
   new Date(iso).toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' });
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
+const MOCK_USER = { id: 'demo-user-id', email: 'demo@semfronteiras.app', user_metadata: { full_name: 'Usuário Demo' } } as unknown as User;
+
 const Declaracoes = () => {
   const navigate = useNavigate();
-  const [user, setUser] = useState<User | null>(null);
-  const [authLoading, setAuthLoading] = useState(true);
+  const [user] = useState<User | null>(MOCK_USER);
   const [janela, setJanela] = useState<Janela | null>(null);
   const [janelaLoading, setJanelaLoading] = useState(true);
-  const [declaracao, setDeclaracao] = useState('');
-  const [metas, setMetas] = useState('');
-  const [existingId, setExistingId] = useState<string | null>(null);
-  const [saving, setSaving] = useState(false);
-  const [saved, setSaved] = useState(false);
-  const [dataLoading, setDataLoading] = useState(false);
-
-  const displayName =
-    user?.user_metadata?.full_name ||
-    user?.user_metadata?.name ||
-    user?.email?.split('@')[0] ||
-    '';
-
-  // Auth
-  useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, session) => {
-      setUser(session?.user ?? null);
-      setAuthLoading(false);
-    });
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-      setAuthLoading(false);
-    });
-    return () => subscription.unsubscribe();
-  }, []);
 
   // Load window config — uses tipo='declaracao_expectativas' (and 'metas' shares same window for now)
   useEffect(() => {
