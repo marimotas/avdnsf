@@ -76,7 +76,7 @@ const Declaracoes = () => {
       .from('declaracoes')
       .select('id,declaracao,metas')
       .eq('user_id', uid)
-      .eq('ciclo', CICLO)
+      .eq('ciclo', ciclo)
       .maybeSingle();
     if (data) {
       setExistingId(data.id);
@@ -84,7 +84,7 @@ const Declaracoes = () => {
       setMetas(data.metas ?? '');
     }
     setDataLoading(false);
-  }, []);
+  }, [ciclo]);
 
   useEffect(() => {
     if (user) loadDeclaracao(user.id);
