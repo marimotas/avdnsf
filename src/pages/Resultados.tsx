@@ -259,6 +259,14 @@ const Resultados = () => {
   const [filterType, setFilterType] = useState<'nome' | 'quadrante' | 'cluster'>('nome');
   const [filterQuery, setFilterQuery] = useState('');
 
+  // Janela declarações
+  const [janelaAbertura, setJanelaAbertura] = useState('');
+  const [janelaFechamento, setJanelaFechamento] = useState('');
+  const [janelaExistingId, setJanelaExistingId] = useState<string | null>(null);
+  const [janelaSaving, setJanelaSaving] = useState(false);
+  const [janelaSaved, setJanelaSaved] = useState(false);
+
+
 
   // Auth check
   useEffect(() => {
