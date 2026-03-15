@@ -78,9 +78,8 @@ const JanelaCard = ({
   saving: boolean; saved: boolean; encerrating: boolean;
 }) => {
   const today = new Date().toISOString().slice(0, 10);
-  const isOpen = janela.abertura && janela.fechamento
-    ? today >= janela.abertura && today <= janela.fechamento
-    : null;
+  const isOpen = !!(janela.abertura && janela.fechamento
+    && today >= janela.abertura && today <= janela.fechamento);
 
   const fmt = (dt: string) =>
     dt ? new Date(dt + 'T00:00:00').toLocaleDateString('pt-BR', { dateStyle: 'short' }) : '';
@@ -97,8 +96,7 @@ const JanelaCard = ({
             <p className="text-[10px] text-muted-foreground/60">Ciclo {CICLO}</p>
           </div>
         </div>
-        {isOpen !== null && (
-          <span
+        <span
             className="text-[10px] font-bold px-2.5 py-1 rounded-full"
             style={
               isOpen
@@ -108,7 +106,6 @@ const JanelaCard = ({
           >
             {isOpen ? '● Aberto agora' : '○ Fechado'}
           </span>
-        )}
       </div>
 
       <p className="text-[11px] text-muted-foreground/60">{desc}</p>
