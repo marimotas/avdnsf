@@ -297,7 +297,7 @@ const Portal = ({ user, isAdmin, onSignOut }: { user: User; isAdmin: boolean; on
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 const MOCK_USER = {
-  id: 'demo-user-id',
+  id: '00000000-0000-0000-0000-000000000000',
   email: 'demo@semfronteiras.app',
   user_metadata: { full_name: 'Usuário Demo' },
 } as unknown as User;

@@ -21,7 +21,7 @@ const formatDate = (iso: string) =>
   new Date(iso).toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' });
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
-const MOCK_USER = { id: 'demo-user-id', email: 'demo@semfronteiras.app', user_metadata: { full_name: 'Usuário Demo' } } as unknown as User;
+const MOCK_USER = { id: '00000000-0000-0000-0000-000000000000', email: 'demo@semfronteiras.app', user_metadata: { full_name: 'Usuário Demo' } } as unknown as User;
 
 const Declaracoes = () => {
   const navigate = useNavigate();
