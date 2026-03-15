@@ -14,7 +14,78 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      avaliacoes: {
+        Row: {
+          avaliador_nome: string
+          colaborador_nome: string
+          comentario: string | null
+          created_at: string | null
+          d1: number | null
+          d2: number | null
+          d3: number | null
+          d4: number | null
+          d5: number | null
+          i1: number | null
+          i2: number | null
+          i3: number | null
+          i4: number | null
+          i5: number | null
+          id: string
+          p1: number | null
+          p2: number | null
+          p3: number | null
+          p4: number | null
+          p5: number | null
+          tipo_avaliador: string
+        }
+        Insert: {
+          avaliador_nome: string
+          colaborador_nome: string
+          comentario?: string | null
+          created_at?: string | null
+          d1?: number | null
+          d2?: number | null
+          d3?: number | null
+          d4?: number | null
+          d5?: number | null
+          i1?: number | null
+          i2?: number | null
+          i3?: number | null
+          i4?: number | null
+          i5?: number | null
+          id?: string
+          p1?: number | null
+          p2?: number | null
+          p3?: number | null
+          p4?: number | null
+          p5?: number | null
+          tipo_avaliador: string
+        }
+        Update: {
+          avaliador_nome?: string
+          colaborador_nome?: string
+          comentario?: string | null
+          created_at?: string | null
+          d1?: number | null
+          d2?: number | null
+          d3?: number | null
+          d4?: number | null
+          d5?: number | null
+          i1?: number | null
+          i2?: number | null
+          i3?: number | null
+          i4?: number | null
+          i5?: number | null
+          id?: string
+          p1?: number | null
+          p2?: number | null
+          p3?: number | null
+          p4?: number | null
+          p5?: number | null
+          tipo_avaliador?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
