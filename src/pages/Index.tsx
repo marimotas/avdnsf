@@ -100,9 +100,10 @@ const LoginScreen = ({ onLogin, loading }: { onLogin: () => void; loading: boole
 const Portal = ({ user, isAdmin, onSignOut }: { user: User; isAdmin: boolean; onSignOut: () => void }) => {
   const navigate = useNavigate();
   const [declaracao, setDeclaracaoData] = useState<DeclaracaoData | null>(null);
-  // ciclo vem do hook; se houver ciclo ativo (loading=false e ciclo definido), avaliação fica disponível
   const { ciclo, loading: cicloLoading } = useCicloAtivo();
-  const avaliacaoAtiva = !cicloLoading && !!ciclo;
+  // Avaliação só fica disponível quando há ciclo ativo E a janela avaliacao_desempenho está aberta
+  const { aberta: janelaAvaliacaoAberta, loading: janelaAvaliacaoLoading } = useJanelaAtiva('avaliacao_desempenho', ciclo);
+  const avaliacaoAtiva = !cicloLoading && !janelaAvaliacaoLoading && !!ciclo && janelaAvaliacaoAberta;
 
   const displayName = user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split('@')[0] || '';
   const firstName = displayName.split(' ')[0];
