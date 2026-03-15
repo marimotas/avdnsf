@@ -314,8 +314,6 @@ const Configuracoes = () => {
     setTimeout(() => setCicloSuccess(''), 6000);
   };
 
-  const [cicloToggling, setCicloToggling] = useState<string | null>(null);
-
   const handleToggleCiclo = async (cicloId: string, currentAtivo: boolean) => {
     setCicloToggling(cicloId);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
