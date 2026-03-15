@@ -58,97 +58,61 @@ const JANELAS_CONFIG = [
 
 // ── Janela Card ────────────────────────────────────────────────────────────────
 const JanelaCard = ({
-  tipo, label, desc, icon, ciclo,
-  janela, onChange, onSave, onEncerrar, saving, saved, encerrating,
+  label, desc, icon, ciclo,
+  janela, onAtivar, onInativar, toggling,
 }: {
-  tipo: string; label: string; desc: string; icon: React.ReactNode; ciclo: string;
-  janela: JanelaRow; onChange: (field: 'abertura' | 'fechamento', val: string) => void;
-  onSave: () => void; onEncerrar: () => void;
-  saving: boolean; saved: boolean; encerrating: boolean;
+  label: string; desc: string; icon: React.ReactNode; ciclo: string | null;
+  janela: JanelaRow; onAtivar: () => void; onInativar: () => void; toggling: boolean;
 }) => {
   const today = new Date().toISOString().slice(0, 10);
   const isOpen = !!(janela.abertura && janela.fechamento
     && today >= janela.abertura && today <= janela.fechamento);
 
   const fmt = (dt: string) =>
-    dt ? new Date(dt + 'T00:00:00').toLocaleDateString('pt-BR', { dateStyle: 'short' }) : '';
+    dt ? new Date(dt + 'T00:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' }) : '';
 
   return (
-    <div className="border border-border rounded-[4px] p-4 space-y-4 bg-background">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-[4px] flex items-center justify-center bg-primary/10 border border-primary/20">
+    <div className="border border-border rounded-[4px] p-4 bg-background">
+      <div className="flex items-start justify-between gap-4">
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="flex-shrink-0 w-7 h-7 rounded-[4px] flex items-center justify-center bg-primary/10 border border-primary/20">
             {icon}
           </div>
-          <div>
+          <div className="min-w-0">
             <p className="text-xs font-bold text-foreground">{label}</p>
-            <p className="text-[10px] text-muted-foreground/60">Ciclo {ciclo}</p>
+            <p className="text-[10px] text-muted-foreground/50 mt-0.5">{desc}</p>
+            {isOpen && janela.abertura && janela.fechamento && (
+              <p className="text-[10px] text-green-400/70 mt-0.5">
+                Aberto desde {fmt(janela.abertura)} · fecha em {fmt(janela.fechamento)}
+              </p>
+            )}
           </div>
         </div>
-        <span
-            className="text-[10px] font-bold px-2.5 py-1 rounded-full"
+        <div className="flex-shrink-0 flex items-center gap-2">
+          <span
+            className="text-[10px] font-bold px-2.5 py-1 rounded-full whitespace-nowrap"
             style={
               isOpen
                 ? { background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.3)', color: '#4ade80' }
                 : { background: 'rgba(100,100,100,0.1)', border: '1px solid rgba(100,100,100,0.2)', color: 'hsl(var(--muted-foreground))' }
             }
           >
-            {isOpen ? '● Aberto agora' : '○ Fechado'}
+            {isOpen ? '● Ativo' : '○ Inativo'}
           </span>
-      </div>
-
-      <p className="text-[11px] text-muted-foreground/60">{desc}</p>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <div className="space-y-1.5">
-          <label className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground/70">Abertura</label>
-          <input
-            type="date"
-            value={janela.abertura}
-            onChange={e => onChange('abertura', e.target.value)}
-            className="w-full bg-card border border-border rounded-[4px] px-3 py-2 text-sm text-foreground focus:outline-none focus:border-primary/40 transition-colors"
-          />
-        </div>
-        <div className="space-y-1.5">
-          <label className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground/70">Fechamento</label>
-          <input
-            type="date"
-            value={janela.fechamento}
-            onChange={e => onChange('fechamento', e.target.value)}
-            className="w-full bg-card border border-border rounded-[4px] px-3 py-2 text-sm text-foreground focus:outline-none focus:border-primary/40 transition-colors"
-          />
-        </div>
-      </div>
-
-      <div className="flex items-center justify-between pt-1">
-        {saved ? (
-          <p className="text-xs text-green-400 flex items-center gap-1.5">
-            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-            </svg>
-            Período salvo
-          </p>
-        ) : (
-          <p className="text-[10px] text-muted-foreground/40">
-            {janela.abertura && janela.fechamento
-              ? `De ${fmt(janela.abertura)} até ${fmt(janela.fechamento)}`
-              : 'Nenhum período definido'}
-          </p>
-        )}
-        <div className="flex items-center gap-2">
           <button
-            onClick={onEncerrar}
-            disabled={encerrating || !janela.id || !isOpen}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-[4px] text-xs font-bold transition-all duration-150 disabled:opacity-40 bg-red-600 hover:opacity-90 text-white"
+            onClick={isOpen ? onInativar : onAtivar}
+            disabled={toggling || !ciclo}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-[4px] text-xs font-bold transition-all duration-150 disabled:opacity-40 whitespace-nowrap min-h-[32px]"
+            style={
+              isOpen
+                ? { background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)', color: '#f87171' }
+                : { background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.25)', color: '#4ade80' }
+            }
           >
-            {encerrating ? 'Encerrando...' : 'Encerrar'}
-          </button>
-          <button
-            onClick={onSave}
-            disabled={saving || !janela.abertura || !janela.fechamento}
-            className="px-4 py-2 rounded-[4px] text-sm font-bold transition-all duration-150 disabled:opacity-40 bg-primary text-primary-foreground hover:opacity-90"
-          >
-            {saving ? 'Salvando...' : 'Salvar período'}
+            {toggling
+              ? <div className="w-3 h-3 rounded-full border border-current border-t-transparent animate-spin" />
+              : isOpen ? 'Inativar' : 'Ativar'
+            }
           </button>
         </div>
       </div>
