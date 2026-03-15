@@ -10,6 +10,12 @@ type DeclaracaoData = {
   metas: string | null;
 };
 
+type JanelaStatus = {
+  abertura: string | null;
+  fechamento: string | null;
+  isOpen: boolean;
+};
+
 // ─── Feature Button ────────────────────────────────────────────────────────────
 const FeatureBtn = ({
   icon, title, description, onClick, disabled, badge, accent,
