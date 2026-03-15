@@ -77,12 +77,13 @@ const JanelaCard = ({
   onSave: () => void; onEncerrar: () => void;
   saving: boolean; saved: boolean; encerrating: boolean;
 }) => {
+  const today = new Date().toISOString().slice(0, 10);
   const isOpen = janela.abertura && janela.fechamento
-    ? new Date() >= new Date(janela.abertura) && new Date() <= new Date(janela.fechamento)
+    ? today >= janela.abertura && today <= janela.fechamento
     : null;
 
   const fmt = (dt: string) =>
-    dt ? new Date(dt).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' }) : '';
+    dt ? new Date(dt + 'T00:00:00').toLocaleDateString('pt-BR', { dateStyle: 'short' }) : '';
 
   return (
     <div className="border border-border rounded-[4px] p-4 space-y-4 bg-background">
@@ -116,7 +117,7 @@ const JanelaCard = ({
         <div className="space-y-1.5">
           <label className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground/70">Abertura</label>
           <input
-            type="datetime-local"
+            type="date"
             value={janela.abertura}
             onChange={e => onChange('abertura', e.target.value)}
             className="w-full bg-card border border-border rounded-[4px] px-3 py-2 text-sm text-foreground focus:outline-none focus:border-primary/40 transition-colors"
@@ -125,7 +126,7 @@ const JanelaCard = ({
         <div className="space-y-1.5">
           <label className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground/70">Fechamento</label>
           <input
-            type="datetime-local"
+            type="date"
             value={janela.fechamento}
             onChange={e => onChange('fechamento', e.target.value)}
             className="w-full bg-card border border-border rounded-[4px] px-3 py-2 text-sm text-foreground focus:outline-none focus:border-primary/40 transition-colors"
@@ -237,8 +238,8 @@ const Configuracoes = () => {
       for (const row of data) {
         updates[row.tipo] = {
           id: row.id,
-          abertura: row.data_abertura?.slice(0, 16) ?? '',
-          fechamento: row.data_fechamento?.slice(0, 16) ?? '',
+          abertura: row.data_abertura?.slice(0, 10) ?? '',
+          fechamento: row.data_fechamento?.slice(0, 10) ?? '',
         };
       }
       setJanelas(prev => ({ ...prev, ...updates }));
@@ -297,15 +298,15 @@ const Configuracoes = () => {
     if (!j.id) return;
     setJanelaEncerrating(prev => ({ ...prev, [tipo]: true }));
     // Set fechamento to now (minus 1 minute to be safe with timezone rounding)
-    const agora = new Date(Date.now() - 60_000).toISOString();
+    const ontem = new Date(Date.now() - 86_400_000).toISOString().slice(0, 10);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     await (supabase as any)
       .from('janela_declaracoes')
-      .update({ data_fechamento: agora })
+      .update({ data_fechamento: ontem })
       .eq('id', j.id);
     setJanelas(prev => ({
       ...prev,
-      [tipo]: { ...prev[tipo], fechamento: agora.slice(0, 16) },
+      [tipo]: { ...prev[tipo], fechamento: ontem },
     }));
     setJanelaEncerrating(prev => ({ ...prev, [tipo]: false }));
   };
