@@ -264,10 +264,10 @@ const Portal = ({ user, isAdmin, isLider, onSignOut }: { user: User; isAdmin: bo
             <FeatureBtn
               icon={<svg className="w-5 h-5" style={{ color: '#4D94FF' }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>}
               title="Calibração"
-              description="Participe do processo de calibração do ciclo."
-              onClick={() => {}}
-              disabled
-              badge="Em breve"
+              description="Consulte o relatório completo de um colaborador para a sessão de calibração."
+              onClick={() => navigate('/calibracao')}
+              disabled={!isAdmin}
+              badge={!isAdmin ? 'Admin' : undefined}
             />
 
             <FeatureBtn
