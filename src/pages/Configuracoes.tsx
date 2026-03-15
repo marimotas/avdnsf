@@ -70,11 +70,12 @@ const JANELAS_CONFIG = [
 // ── Janela Card ────────────────────────────────────────────────────────────────
 const JanelaCard = ({
   tipo, label, desc, icon,
-  janela, onChange, onSave, saving, saved,
+  janela, onChange, onSave, onEncerrar, saving, saved, encerrating,
 }: {
   tipo: string; label: string; desc: string; icon: React.ReactNode;
   janela: JanelaRow; onChange: (field: 'abertura' | 'fechamento', val: string) => void;
-  onSave: () => void; saving: boolean; saved: boolean;
+  onSave: () => void; onEncerrar: () => void;
+  saving: boolean; saved: boolean; encerrating: boolean;
 }) => {
   const isOpen = janela.abertura && janela.fechamento
     ? new Date() >= new Date(janela.abertura) && new Date() <= new Date(janela.fechamento)
@@ -147,13 +148,30 @@ const JanelaCard = ({
               : 'Nenhum período definido'}
           </p>
         )}
-        <button
-          onClick={onSave}
-          disabled={saving || !janela.abertura || !janela.fechamento}
-          className="px-4 py-2 rounded-[4px] text-sm font-bold transition-all duration-150 disabled:opacity-40 bg-primary text-primary-foreground hover:opacity-90"
-        >
-          {saving ? 'Salvando...' : 'Salvar período'}
-        </button>
+        <div className="flex items-center gap-2">
+          {/* Encerrar — only shown when window exists and is currently open */}
+          {isOpen && (
+            <button
+              onClick={onEncerrar}
+              disabled={encerrating}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-[4px] text-xs font-bold transition-all duration-150 disabled:opacity-40"
+              style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)', color: '#f87171' }}
+            >
+              {encerrating
+                ? <div className="w-3 h-3 rounded-full border-2 border-current border-t-transparent animate-spin" />
+                : <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M5.25 7.5A2.25 2.25 0 017.5 5.25h9a2.25 2.25 0 012.25 2.25v9a2.25 2.25 0 01-2.25 2.25h-9a2.25 2.25 0 01-2.25-2.25v-9z" /></svg>
+              }
+              Encerrar
+            </button>
+          )}
+          <button
+            onClick={onSave}
+            disabled={saving || !janela.abertura || !janela.fechamento}
+            className="px-4 py-2 rounded-[4px] text-sm font-bold transition-all duration-150 disabled:opacity-40 bg-primary text-primary-foreground hover:opacity-90"
+          >
+            {saving ? 'Salvando...' : 'Salvar período'}
+          </button>
+        </div>
       </div>
     </div>
   );
