@@ -112,7 +112,7 @@ const Declaracoes = () => {
           user_id: user.id,
           user_name: displayName,
           user_email: user.email ?? '',
-          ciclo: CICLO,
+          ciclo: ciclo,
           declaracao,
           metas,
         })
