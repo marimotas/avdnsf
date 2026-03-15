@@ -288,19 +288,32 @@ const QuestionsScreen = ({ state, onChange, onSubmitted }: QuestionsScreenProps)
         </p>
       )}
 
+      {/* Janela fechada — aviso de bloqueio */}
+      {janelaAberta === false && (
+        <div
+          className="border rounded-[4px] px-4 py-3 text-sm font-medium flex items-center gap-2"
+          style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)', color: '#f87171' }}
+        >
+          <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+          </svg>
+          O período de Avaliação de Desempenho está encerrado. Novas avaliações não podem ser submetidas.
+        </div>
+      )}
+
       {/* Submit */}
       <div className="pb-8">
         <button
           onClick={handleSubmit}
-          disabled={!allAnswered || loading}
+          disabled={!allAnswered || loading || !janelaAberta}
           className="w-full py-4 text-sm font-bold tracking-wide rounded-[4px] transition-all duration-200"
           style={
-            allAnswered && !loading
+            allAnswered && !loading && janelaAberta
               ? { background: '#0066FF', color: '#fff', boxShadow: '0 4px 24px rgba(0,102,255,0.3)' }
               : { background: '#111111', color: '#444444', cursor: 'not-allowed' }
           }
         >
-          {loading ? 'Salvando...' : 'Salvar e enviar avaliação'}
+          {loading ? 'Salvando...' : janelaAberta === false ? 'Período encerrado' : 'Salvar e enviar avaliação'}
         </button>
       </div>
     </div>
