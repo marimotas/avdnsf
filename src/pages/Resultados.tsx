@@ -282,19 +282,20 @@ const Resultados = () => {
 
   // Load data when confirmed admin
   useEffect(() => {
-    if (!isAdmin) return;
+    if (!isAdmin || !ciclo) return;
     setDataLoading(true);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (supabase as any)
       .from('avaliacoes')
       .select('colaborador_nome,tipo_avaliador,d1,d2,d3,d4,d5,p1,p2,p3,p4,p5,i1,i2,i3,i4,i5,comentario')
+      .eq('ciclo', ciclo)
       .then(({ data, error: dbErr }: { data: AvaliacaoRow[] | null; error: unknown }) => {
         if (dbErr) { setError('Erro ao carregar dados.'); }
         else { setResultados(calcularResultados(data ?? [])); }
         setDataLoading(false);
       });
 
-  }, [isAdmin]);
+  }, [isAdmin, ciclo]);
 
 
   if (authLoading) {
