@@ -258,8 +258,8 @@ const Feedback = () => {
     <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 z-50 border-b border-border" style={{ background: '#000' }}>
-        <div className="w-full px-6 py-3 flex items-center gap-3">
-          <button onClick={() => navigate('/')} className="text-muted-foreground hover:text-foreground transition-colors">
+        <div className="w-full px-4 sm:px-6 py-3 flex items-center gap-3">
+          <button onClick={() => navigate('/')} className="text-muted-foreground hover:text-foreground transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center">
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
             </svg>
@@ -275,13 +275,13 @@ const Feedback = () => {
           </div>
         </div>
 
-        {/* Tabs */}
+        {/* Tabs — min-h para toque fácil */}
         <div className="flex border-t border-border">
           {TABS.map(t => (
             <button
               key={t.key}
               onClick={() => setActiveTab(t.key)}
-              className="flex-1 flex items-center justify-center gap-1.5 px-4 py-2.5 text-xs font-bold transition-colors relative"
+              className="flex-1 flex items-center justify-center gap-1.5 px-2 sm:px-4 py-3 sm:py-2.5 text-xs font-bold transition-colors relative min-h-[48px] sm:min-h-0"
               style={{
                 color: activeTab === t.key ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))',
                 borderBottom: activeTab === t.key ? '2px solid hsl(var(--primary))' : '2px solid transparent',
@@ -302,7 +302,7 @@ const Feedback = () => {
       </header>
 
       {/* Content */}
-      <div className="pt-28 w-full max-w-2xl mx-auto px-6 py-8">
+      <div className="pt-28 w-full max-w-2xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
 
         {/* ── TAB: ENVIAR ─────────────────────────────────────────── */}
         {activeTab === 'enviar' && (

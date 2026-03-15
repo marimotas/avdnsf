@@ -416,7 +416,7 @@ const TabAvaliacao = ({
               value={filterQuery}
               onChange={(e) => setFilterQuery(e.target.value)}
               placeholder={`Filtrar por ${filterType}...`}
-              className="w-full pl-8 pr-3 py-1.5 text-xs rounded-[4px] bg-transparent border border-border text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:border-primary/40 transition-colors"
+              className="w-full pl-8 pr-3 py-2 sm:py-1.5 text-xs rounded-[4px] bg-transparent border border-border text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:border-primary/40 transition-colors min-h-[40px] sm:min-h-0"
             />
             {filterQuery && (
               <button
