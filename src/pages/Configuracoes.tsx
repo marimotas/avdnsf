@@ -180,6 +180,11 @@ const Configuracoes = () => {
   const [janelaSaving, setJanelaSaving] = useState<Record<string, boolean>>({});
   const [janelaSaved, setJanelaSaved] = useState<Record<string, boolean>>({});
 
+  // Ciclos
+  const [ciclos, setCiclos] = useState<CicloRow[]>([]);
+  const [cicloOpening, setCicloOpening] = useState(false);
+  const [cicloSuccess, setCicloSuccess] = useState('');
+
   const edgeFn = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-manage-roles`;
 
   const getSession = async () => {
