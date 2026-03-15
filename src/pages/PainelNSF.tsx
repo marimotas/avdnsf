@@ -693,7 +693,7 @@ const PainelNSF = () => {
                 nutrição sem fronteiras
               </span>
               <span style={{ fontFamily: "'Outfit', sans-serif", fontWeight: 300, fontSize: '10px', color: 'hsl(var(--muted-foreground))', letterSpacing: '0.03em' }}>
-                painel · ciclo {CICLO}
+                painel · ciclo {activeCiclo}
               </span>
             </div>
           </div>
