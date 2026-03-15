@@ -219,10 +219,10 @@ const Portal = ({ user, isAdmin, onSignOut }: { user: User; isAdmin: boolean; on
       <div className="pt-16 w-full px-4 sm:px-6 py-6 sm:py-8">
         {/* Greeting */}
         <div className="mb-6 sm:mb-8">
-          <p className="text-xs text-muted-foreground">Olá,</p>
-          <h1 className="text-2xl font-black tracking-tight text-foreground">{firstName}</h1>
+          <p className="text-[11px] font-medium text-muted-foreground/60 uppercase tracking-widest mb-0.5">Olá,</p>
+          <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-foreground leading-none">{firstName}</h1>
           {ciclo && (
-            <p className="text-xs text-muted-foreground/50 mt-0.5">
+            <p className="text-xs text-muted-foreground/40 mt-1.5">
               Ciclo {ciclo} · avaliação de desempenho
             </p>
           )}
