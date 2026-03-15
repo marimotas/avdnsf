@@ -32,6 +32,7 @@ const NineBoxApp = () => {
         <div className="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
           {/* Logo + brand */}
           <div className="flex items-center gap-2.5">
+            <img src={logoNsf} alt="NSF Logo" className="w-7 h-7" />
             <div className="flex flex-col leading-none gap-0.5">
               <span
                 className="text-foreground"
