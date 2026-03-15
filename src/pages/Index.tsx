@@ -108,7 +108,10 @@ const Portal = ({ user, isAdmin, onSignOut }: { user: User; isAdmin: boolean; on
   const avatar = user.user_metadata?.avatar_url;
 
   const loadDeclaracao = useCallback(async () => {
-    if (!ciclo) return;
+    if (!ciclo) {
+      setDeclaracaoData({ declaracao: null, metas: null });
+      return;
+    }
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data } = await (supabase as any)
       .from('declaracoes')
@@ -119,7 +122,9 @@ const Portal = ({ user, isAdmin, onSignOut }: { user: User; isAdmin: boolean; on
     setDeclaracaoData(data ?? { declaracao: null, metas: null });
   }, [user.id, ciclo]);
 
-  useEffect(() => { loadDeclaracao(); }, [loadDeclaracao]);
+  useEffect(() => {
+    if (!cicloLoading) loadDeclaracao();
+  }, [cicloLoading, loadDeclaracao]);
 
   return (
     <div className="min-h-screen bg-background">
