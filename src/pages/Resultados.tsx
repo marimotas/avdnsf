@@ -318,6 +318,21 @@ const Resultados = () => {
     navigate('/');
   };
 
+  const [filterType, setFilterType] = useState<'nome' | 'quadrante' | 'cluster'>('nome');
+  const [filterQuery, setFilterQuery] = useState('');
+
+  const resultadosFiltrados = resultados.filter((r) => {
+    if (!filterQuery.trim()) return true;
+    const q = filterQuery.toLowerCase().trim();
+    if (filterType === 'nome') return r.nome.toLowerCase().includes(q);
+    if (filterType === 'quadrante') return r.quadrante.nome.toLowerCase().includes(q);
+    if (filterType === 'cluster') return (
+      String(r.quadrante.cluster).includes(q) ||
+      r.quadrante.clusterNome.toLowerCase().includes(q)
+    );
+    return true;
+  });
+
   const clusterCounts = [1, 2, 3, 4].map((cl) => ({
     cl,
     count: resultados.filter((r) => r.quadrante.cluster === cl).length,
