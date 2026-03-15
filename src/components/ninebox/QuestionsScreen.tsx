@@ -275,7 +275,7 @@ const QuestionsScreen = ({ state, onChange, onSubmitted }: QuestionsScreenProps)
           className="w-full py-4 text-sm font-bold tracking-wide rounded-[4px] transition-all duration-200"
           style={
             allAnswered && !loading
-              ? { background: 'hsl(142 70% 35%)', color: '#fff', boxShadow: '0 4px 24px rgba(34,197,94,0.3)' }
+              ? { background: '#0066FF', color: '#fff', boxShadow: '0 4px 24px rgba(0,102,255,0.3)' }
               : { background: '#111111', color: '#444444', cursor: 'not-allowed' }
           }
         >
