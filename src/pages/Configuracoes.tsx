@@ -219,7 +219,7 @@ const Configuracoes = () => {
     const { data } = await (supabase as any)
       .from('janela_declaracoes')
       .select('id,tipo,data_abertura,data_fechamento')
-      .eq('ciclo', CICLO);
+      .eq('ciclo', ciclo);
 
     if (data && Array.isArray(data)) {
       const updates: Record<string, JanelaRow> = {};
