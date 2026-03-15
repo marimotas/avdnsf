@@ -3,6 +3,7 @@ import { emptyState, type EvaluationState } from './types';
 import SelectionScreen from './SelectionScreen';
 import QuestionsScreen from './QuestionsScreen';
 import ConfirmationScreen from './ConfirmationScreen';
+import logoNsf from '@/assets/logo_nsf.webp';
 
 type Screen = 'selection' | 'questions' | 'confirmation';
 
