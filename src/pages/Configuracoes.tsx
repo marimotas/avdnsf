@@ -147,16 +147,13 @@ const JanelaCard = ({
           </p>
         )}
         <div className="flex items-center gap-2">
-          {/* Encerrar — shown whenever a janela record exists */}
-          {janela.id && (
-            <button
-              onClick={onEncerrar}
-              disabled={encerrating}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-[4px] text-xs font-bold transition-all duration-150 disabled:opacity-40 bg-red-600 hover:opacity-90 text-white"
-            >
-              {encerrating ? 'Encerrando...' : 'Encerrar'}
-            </button>
-          )}
+          <button
+            onClick={onEncerrar}
+            disabled={encerrating || !janela.id || !isOpen}
+            className="flex items-center gap-1.5 px-3 py-2 rounded-[4px] text-xs font-bold transition-all duration-150 disabled:opacity-40 bg-red-600 hover:opacity-90 text-white"
+          >
+            {encerrating ? 'Encerrando...' : 'Encerrar'}
+          </button>
           <button
             onClick={onSave}
             disabled={saving || !janela.abertura || !janela.fechamento}
