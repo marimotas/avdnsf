@@ -8,6 +8,7 @@ import {
   type ColaboradorResultado,
   type AvaliacaoRow,
 } from '@/lib/ninebox-calc';
+import { exportPainelToExcel } from '@/lib/exportPainelToExcel';
 import logoNsf from '@/assets/logo_nsfs.png';
 
 const CICLOS = ['2026.1', '2026.2'] as const;
