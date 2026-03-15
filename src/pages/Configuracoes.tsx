@@ -298,15 +298,15 @@ const Configuracoes = () => {
     if (!j.id) return;
     setJanelaEncerrating(prev => ({ ...prev, [tipo]: true }));
     // Set fechamento to now (minus 1 minute to be safe with timezone rounding)
-    const agora = new Date(Date.now() - 60_000).toISOString();
+    const ontem = new Date(Date.now() - 86_400_000).toISOString().slice(0, 10);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     await (supabase as any)
       .from('janela_declaracoes')
-      .update({ data_fechamento: agora })
+      .update({ data_fechamento: ontem })
       .eq('id', j.id);
     setJanelas(prev => ({
       ...prev,
-      [tipo]: { ...prev[tipo], fechamento: agora.slice(0, 16) },
+      [tipo]: { ...prev[tipo], fechamento: ontem },
     }));
     setJanelaEncerrating(prev => ({ ...prev, [tipo]: false }));
   };
