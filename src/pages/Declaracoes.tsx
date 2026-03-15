@@ -159,7 +159,7 @@ const Declaracoes = () => {
                 nutrição sem fronteiras
               </span>
               <span style={{ fontFamily: "'Outfit', sans-serif", fontWeight: 300, fontSize: '10px', color: 'hsl(var(--text-dim))', letterSpacing: '0.03em' }}>
-                declaração de expectativas · ciclo {CICLO}
+                declaração de expectativas · ciclo {ciclo}
               </span>
             </div>
           </div>
