@@ -425,7 +425,7 @@ const Feedback = () => {
               <button
                 onClick={handleEnviar}
                 disabled={!canSend || sending}
-                className="w-full py-3 text-sm font-bold rounded-[4px] transition-all duration-200 disabled:opacity-40"
+                className="w-full min-h-[52px] text-sm font-bold rounded-[4px] transition-all duration-200 disabled:opacity-40"
                 style={
                   canSend && !sending
                     ? { background: '#0066FF', color: '#fff', boxShadow: '0 4px 20px rgba(0,102,255,0.25)' }
