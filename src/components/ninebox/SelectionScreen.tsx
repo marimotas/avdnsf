@@ -50,7 +50,7 @@ const SelectionScreen = ({ initial, onContinue }: SelectionScreenProps) => {
     <div className="max-w-2xl mx-auto px-4 py-10 space-y-8 animate-fade-in">
       {/* Title */}
       <div className="space-y-1">
-        <h2 className="text-2xl font-black tracking-tight text-foreground uppercase">
+        <h2 className="text-3xl font-black tracking-tight text-foreground">
           Vamos falar de desempenho?
         </h2>
         <p className="text-muted-foreground text-sm">
