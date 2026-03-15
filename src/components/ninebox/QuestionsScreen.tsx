@@ -102,6 +102,7 @@ const QuestionsScreen = ({ state, onChange, onSubmitted }: QuestionsScreenProps)
         avaliador_nome: state.avaliadorNome,
         tipo_avaliador: state.tipoAvaliador,
         comentario: state.comentario || null,
+        ciclo: '2026.1', // TODO: pass ciclo dinamicamente quando múltiplos ciclos estiverem ativos
         // Líder fields
         d1: state.tipoAvaliador === 'Líder' ? state.d1 : null,
         d2: state.tipoAvaliador === 'Líder' ? state.d2 : null,
