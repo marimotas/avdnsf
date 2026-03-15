@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import Index from "./pages/Index.tsx";
 import Avaliacao from "./pages/Avaliacao.tsx";
+import Declaracoes from "./pages/Declaracoes.tsx";
 import Resultados from "./pages/Resultados.tsx";
 import MeuResultado from "./pages/MeuResultado.tsx";
 import NotFound from "./pages/NotFound.tsx";
@@ -20,6 +21,7 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/avaliacao" element={<Avaliacao />} />
+          <Route path="/declaracoes" element={<Declaracoes />} />
           <Route path="/resultados" element={<Resultados />} />
           <Route path="/meu-resultado" element={<MeuResultado />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
