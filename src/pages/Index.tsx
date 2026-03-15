@@ -1,7 +1,7 @@
-import PerformanceEvaluation from "@/components/PerformanceEvaluation";
+import NineBoxApp from "@/components/ninebox/NineBoxApp";
 
 const Index = () => {
-  return <PerformanceEvaluation />;
+  return <NineBoxApp />;
 };
 
 export default Index;
