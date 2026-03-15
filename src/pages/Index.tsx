@@ -392,6 +392,7 @@ const Index = () => {
   const [authLoading, setAuthLoading] = useState(true);
   const [loginLoading, setLoginLoading] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isLider, setIsLider] = useState(false);
 
   useEffect(() => {
     const upsertProfile = (u: User) => {
