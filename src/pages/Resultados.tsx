@@ -426,13 +426,71 @@ const Resultados = () => {
               </div>
             </div>
 
-            {/* Right: collaborator cards */}
-            <div className="lg:col-span-2 space-y-3">
-              {resultados
-                .sort((a, b) => b.quadrante.cluster - a.quadrante.cluster)
-                .map((r) => (
-                  <ColaboradorCard key={r.nome} r={r} />
-                ))}
+            {/* Right: filter + collaborator cards */}
+            <div className="lg:col-span-2 space-y-4">
+              {/* Filter bar */}
+              <div className="border border-border rounded-[4px] p-3 flex flex-col sm:flex-row gap-2" style={{ background: '#0A0A0A' }}>
+                {/* Filter type buttons */}
+                <div className="flex gap-1 flex-shrink-0">
+                  {(['nome', 'quadrante', 'cluster'] as const).map((type) => (
+                    <button
+                      key={type}
+                      onClick={() => { setFilterType(type); setFilterQuery(''); }}
+                      className="text-[11px] font-bold px-3 py-1.5 rounded-[4px] capitalize transition-all duration-150"
+                      style={
+                        filterType === type
+                          ? { background: 'rgba(0,102,255,0.15)', border: '1px solid rgba(0,102,255,0.4)', color: '#4D94FF' }
+                          : { background: 'transparent', border: '1px solid hsl(var(--border))', color: 'hsl(var(--muted-foreground))' }
+                      }
+                    >
+                      {type.charAt(0).toUpperCase() + type.slice(1)}
+                    </button>
+                  ))}
+                </div>
+                {/* Text input */}
+                <div className="relative flex-1">
+                  <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground/50" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 111 11a6 6 0 0116 0z" />
+                  </svg>
+                  <input
+                    type="text"
+                    value={filterQuery}
+                    onChange={(e) => setFilterQuery(e.target.value)}
+                    placeholder={`Filtrar por ${filterType}...`}
+                    className="w-full pl-8 pr-3 py-1.5 text-xs rounded-[4px] bg-transparent border border-border text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:border-primary/40 transition-colors"
+                  />
+                  {filterQuery && (
+                    <button
+                      onClick={() => setFilterQuery('')}
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground/40 hover:text-muted-foreground transition-colors"
+                    >
+                      <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Count */}
+              {filterQuery && (
+                <p className="text-[11px] text-muted-foreground/50">
+                  {resultadosFiltrados.length} resultado{resultadosFiltrados.length !== 1 ? 's' : ''} encontrado{resultadosFiltrados.length !== 1 ? 's' : ''}
+                </p>
+              )}
+
+              {/* Cards */}
+              {resultadosFiltrados.length === 0 ? (
+                <div className="text-center py-12 text-muted-foreground text-sm border border-border rounded-[4px]" style={{ background: '#0A0A0A' }}>
+                  Nenhum colaborador encontrado para "{filterQuery}".
+                </div>
+              ) : (
+                resultadosFiltrados
+                  .sort((a, b) => b.quadrante.cluster - a.quadrante.cluster)
+                  .map((r) => (
+                    <ColaboradorCard key={r.nome} r={r} />
+                  ))
+              )}
             </div>
           </div>
         )}
@@ -442,3 +500,4 @@ const Resultados = () => {
 };
 
 export default Resultados;
+
