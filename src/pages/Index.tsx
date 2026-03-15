@@ -422,10 +422,13 @@ const Index = () => {
   }, []);
 
   useEffect(() => {
-    if (!user) { setIsAdmin(false); return; }
+    if (!user) { setIsAdmin(false); setIsLider(false); return; }
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (supabase as any).rpc('has_role', { _user_id: user.id, _role: 'admin' })
       .then(({ data }: { data: boolean }) => setIsAdmin(!!data));
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any).rpc('has_role', { _user_id: user.id, _role: 'lideranca' })
+      .then(({ data }: { data: boolean }) => setIsLider(!!data));
   }, [user]);
 
   const handleLogin = async () => {
