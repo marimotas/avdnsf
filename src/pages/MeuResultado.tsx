@@ -9,6 +9,7 @@ import {
   type AvaliacaoRow,
 } from '@/lib/ninebox-calc';
 import logoNsf from '@/assets/logo_nsfs.png';
+import { useCicloAtivo } from '@/hooks/useCicloAtivo';
 
 // ─── Mini 9-Box ───────────────────────────────────────────────────────────────
 const Mini9Box = ({ resultado }: { resultado: ColaboradorResultado }) => {
