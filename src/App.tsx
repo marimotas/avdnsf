@@ -7,6 +7,7 @@ import Index from "./pages/Index.tsx";
 import Avaliacao from "./pages/Avaliacao.tsx";
 import Declaracoes from "./pages/Declaracoes.tsx";
 import Resultados from "./pages/Resultados.tsx";
+import PainelNSF from "./pages/PainelNSF.tsx";
 import MeuResultado from "./pages/MeuResultado.tsx";
 import Feedback from "./pages/Feedback.tsx";
 import Configuracoes from "./pages/Configuracoes.tsx";
