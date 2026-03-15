@@ -1,7 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { lovable } from '@/integrations/lovable/index';
 import type { User } from '@supabase/supabase-js';
 import logoNsf from '@/assets/logo_nsfs.png';
 
@@ -297,60 +296,18 @@ const Portal = ({ user, isAdmin, onSignOut }: { user: User; isAdmin: boolean; on
 };
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
+const MOCK_USER = {
+  id: 'demo-user-id',
+  email: 'demo@semfronteiras.app',
+  user_metadata: { full_name: 'Usuário Demo' },
+} as unknown as User;
+
 const Index = () => {
-  const [user, setUser] = useState<User | null>(null);
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [authLoading, setAuthLoading] = useState(true);
-  const [loginLoading, setLoginLoading] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(true);
 
-  const checkAdmin = async (userId: string) => {
-    const { data } = await supabase.from('user_roles').select('role').eq('user_id', userId).eq('role', 'admin').maybeSingle();
-    setIsAdmin(!!data);
-  };
+  const handleSignOut = () => {};
 
-  useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      setUser(session?.user ?? null);
-      setAuthLoading(false);
-      if (session?.user) checkAdmin(session.user.id);
-      else setIsAdmin(false);
-    });
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-      setAuthLoading(false);
-      if (session?.user) checkAdmin(session.user.id);
-    });
-    return () => subscription.unsubscribe();
-  }, []);
-
-  const handleLogin = async () => {
-    setLoginLoading(true);
-    try {
-      await lovable.auth.signInWithOAuth('google', {
-        redirect_uri: `${window.location.origin}/`,
-        extraParams: { hd: 'semfronteiras.app', prompt: 'select_account' },
-      });
-    } finally {
-      setLoginLoading(false);
-    }
-  };
-
-  const handleSignOut = async () => {
-    await supabase.auth.signOut();
-    setUser(null);
-    setIsAdmin(false);
-  };
-
-  if (authLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: '#000' }}>
-        <div className="w-5 h-5 rounded-full border-2 border-primary border-t-transparent animate-spin" />
-      </div>
-    );
-  }
-
-  if (!user) return <LoginScreen onLogin={handleLogin} loading={loginLoading} />;
-  return <Portal user={user} isAdmin={isAdmin} onSignOut={handleSignOut} />;
+  return <Portal user={MOCK_USER} isAdmin={isAdmin} onSignOut={handleSignOut} />;
 };
 
 export default Index;

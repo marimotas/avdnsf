@@ -123,18 +123,10 @@ const Feedback = () => {
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
-  // Carregar usuário
+  // Mock user — auth desabilitado temporariamente
   useEffect(() => {
-    (async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) { navigate('/'); return; }
-      const name = session.user.user_metadata?.full_name
-        || session.user.user_metadata?.name
-        || session.user.email?.split('@')[0]
-        || 'Usuário';
-      setUser({ id: session.user.id, email: session.user.email!, name });
-    })();
-  }, [navigate]);
+    setUser({ id: 'demo-user-id', email: 'mariane.mota@semfronteiras.app', name: 'Usuário Demo' });
+  }, []);
 
   // Carregar listas
   const loadLists = async () => {

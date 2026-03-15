@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import type { User } from '@supabase/supabase-js';
 import {
   calcularResultados,
   getGridPos,
@@ -531,9 +530,7 @@ const CicloSelector = ({
 // ─── Main page ────────────────────────────────────────────────────────────────
 const PainelNSF = () => {
   const navigate = useNavigate();
-  const [user, setUser] = useState<User | null>(null);
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [authLoading, setAuthLoading] = useState(true);
+  const [isAdmin] = useState(true);
 
   const [activeTab, setActiveTab] = useState<Tab>('declaracoes');
   const [activeCiclo, setActiveCiclo] = useState<Ciclo>('2026.1');
@@ -551,131 +548,9 @@ const PainelNSF = () => {
 
   const [error, setError] = useState('');
 
-  // Auth
-  useEffect(() => {
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      const u = session?.user ?? null;
-      setUser(u);
-      if (u) {
-        const { data } = await supabase
-          .from('user_roles')
-          .select('role')
-          .eq('user_id', u.id)
-          .eq('role', 'admin')
-          .maybeSingle();
-        setIsAdmin(!!data);
-      }
-      setAuthLoading(false);
-    });
-  }, []);
-
-  // Load janela statuses for all ciclos
-  useEffect(() => {
-    if (!isAdmin) return;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (supabase as any)
-      .from('janela_declaracoes')
-      .select('ciclo,tipo,data_abertura,data_fechamento')
-      .then(({ data }: { data: { ciclo: string; tipo: string; data_abertura: string; data_fechamento: string }[] | null }) => {
-        if (!data) return;
-        const now = new Date();
-        const grouped: Record<string, JanelaStatus[]> = {};
-        for (const row of data) {
-          if (!grouped[row.ciclo]) grouped[row.ciclo] = [];
-          grouped[row.ciclo].push({
-            tipo: row.tipo,
-            isOpen: now >= new Date(row.data_abertura) && now <= new Date(row.data_fechamento),
-            abertura: row.data_abertura,
-            fechamento: row.data_fechamento,
-          });
-        }
-        setJanelaStatus(grouped);
-      });
-  }, [isAdmin]);
-
-  // Load declarações for all ciclos
-  useEffect(() => {
-    if (!isAdmin) return;
-    setDeclaracoesLoading(true);
-    Promise.all(
-      CICLOS.map((ciclo) =>
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (supabase as any)
-          .from('declaracoes')
-          .select('id,user_name,user_email,declaracao,metas,updated_at')
-          .eq('ciclo', ciclo)
-          .order('user_name', { ascending: true })
-          .then(({ data }: { data: DeclaracaoRow[] | null }) => ({ ciclo, data: data ?? [] }))
-      )
-    ).then((results) => {
-      const map: Record<string, DeclaracaoRow[]> = {};
-      for (const r of results) map[r.ciclo] = r.data;
-      setDeclaracoesByCiclo(map);
-      setDeclaracoesLoading(false);
-    }).catch(() => {
-      setError('Erro ao carregar declarações.');
-      setDeclaracoesLoading(false);
-    });
-  }, [isAdmin]);
-
-  // Load avaliações (no ciclo column — only relevant for 2026.1)
-  // Load avaliações — filtered by activeCiclo
-  useEffect(() => {
-    if (!isAdmin) return;
-    setAvaliacaoLoading(true);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (supabase as any)
-      .from('avaliacoes')
-      .select('colaborador_nome,tipo_avaliador,d1,d2,d3,d4,d5,p1,p2,p3,p4,p5,i1,i2,i3,i4,i5,comentario')
-      .eq('ciclo', activeCiclo)
-      .then(({ data, error: dbErr }: { data: AvaliacaoRow[] | null; error: unknown }) => {
-        if (dbErr) setError('Erro ao carregar avaliações.');
-        else setResultados(calcularResultados(data ?? []));
-        setAvaliacaoLoading(false);
-      });
-  }, [isAdmin, activeCiclo]);
-
-  const handleSignOut = async () => {
-    await supabase.auth.signOut();
-    navigate('/');
-  };
+  const handleSignOut = () => navigate('/');
 
   const declaracoes = declaracoesByCiclo[activeCiclo] ?? [];
-
-  if (authLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="w-5 h-5 rounded-full border-2 border-primary border-t-transparent animate-spin" />
-      </div>
-    );
-  }
-
-  if (!user) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="text-center space-y-4">
-          <p className="text-muted-foreground text-sm">Você precisa estar logado para acessar esta página.</p>
-          <button onClick={() => navigate('/')} className="text-xs font-bold text-primary hover:underline">
-            Ir para o login
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  if (!isAdmin) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="text-center space-y-2">
-          <p className="font-bold text-foreground">Acesso restrito</p>
-          <p className="text-muted-foreground text-sm">Você não tem permissão para visualizar este painel.</p>
-          <button onClick={() => navigate('/')} className="text-xs font-bold text-primary hover:underline mt-2 block">
-            Voltar ao portal
-          </button>
-        </div>
-      </div>
-    );
-  }
 
   const TABS: { id: Tab; label: string; count?: number }[] = [
     { id: 'declaracoes', label: 'Declarações de Expectativas', count: declaracoes.filter((d) => d.declaracao).length },

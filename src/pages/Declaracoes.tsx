@@ -21,10 +21,11 @@ const formatDate = (iso: string) =>
   new Date(iso).toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' });
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
+const MOCK_USER = { id: 'demo-user-id', email: 'demo@semfronteiras.app', user_metadata: { full_name: 'Usuário Demo' } } as unknown as User;
+
 const Declaracoes = () => {
   const navigate = useNavigate();
-  const [user, setUser] = useState<User | null>(null);
-  const [authLoading, setAuthLoading] = useState(true);
+  const [user] = useState<User | null>(MOCK_USER);
   const [janela, setJanela] = useState<Janela | null>(null);
   const [janelaLoading, setJanelaLoading] = useState(true);
   const [declaracao, setDeclaracao] = useState('');
@@ -39,19 +40,6 @@ const Declaracoes = () => {
     user?.user_metadata?.name ||
     user?.email?.split('@')[0] ||
     '';
-
-  // Auth
-  useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, session) => {
-      setUser(session?.user ?? null);
-      setAuthLoading(false);
-    });
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-      setAuthLoading(false);
-    });
-    return () => subscription.unsubscribe();
-  }, []);
 
   // Load window config — uses tipo='declaracao_expectativas' (and 'metas' shares same window for now)
   useEffect(() => {
@@ -125,21 +113,10 @@ const Declaracoes = () => {
     setTimeout(() => setSaved(false), 3000);
   };
 
-  if (authLoading || janelaLoading) {
+  if (janelaLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ background: '#000' }}>
         <div className="w-5 h-5 rounded-full border-2 border-primary border-t-transparent animate-spin" />
-      </div>
-    );
-  }
-
-  if (!user) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center px-4 text-center space-y-4" style={{ background: '#000' }}>
-        <p className="text-muted-foreground text-sm">Você precisa estar logado.</p>
-        <button onClick={() => navigate('/')} className="text-xs font-bold text-primary hover:underline">
-          Ir para o login
-        </button>
       </div>
     );
   }
