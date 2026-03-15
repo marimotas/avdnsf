@@ -124,9 +124,35 @@ const Feedback = () => {
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
-  // Mock user — auth desabilitado temporariamente
+  // Real auth with supabase
   useEffect(() => {
-    setUser({ id: '00000000-0000-0000-0000-000000000000', email: 'demo@semfronteiras.app', name: 'Usuário Demo' });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      const u = session?.user;
+      if (u) {
+        setUser({
+          id: u.id,
+          email: u.email ?? '',
+          name: u.user_metadata?.full_name || u.user_metadata?.name || u.email?.split('@')[0] || '',
+        });
+      } else {
+        setUser(null);
+      }
+      setAuthLoading(false);
+    });
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      const u = session?.user;
+      if (u) {
+        setUser({
+          id: u.id,
+          email: u.email ?? '',
+          name: u.user_metadata?.full_name || u.user_metadata?.name || u.email?.split('@')[0] || '',
+        });
+      } else {
+        setUser(null);
+      }
+      setAuthLoading(false);
+    });
+    return () => subscription.unsubscribe();
   }, []);
 
   // Carregar listas
