@@ -11,7 +11,8 @@ import {
 } from '@/lib/ninebox-calc';
 import logoNsf from '@/assets/logo_nsfs.png';
 
-const CICLO = '2026.1';
+const CICLOS = ['2026.1', '2026.2'] as const;
+type Ciclo = (typeof CICLOS)[number];
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 type DeclaracaoRow = {
@@ -21,6 +22,13 @@ type DeclaracaoRow = {
   declaracao: string | null;
   metas: string | null;
   updated_at: string;
+};
+
+type JanelaStatus = {
+  tipo: string;
+  isOpen: boolean;
+  abertura: string | null;
+  fechamento: string | null;
 };
 
 type Tab = 'declaracoes' | 'metas' | 'avaliacao';
@@ -477,6 +485,49 @@ const SearchInput = ({
   </div>
 );
 
+// ─── Cycle selector ───────────────────────────────────────────────────────────
+const CicloSelector = ({
+  activeCiclo,
+  onChange,
+  janelaStatus,
+}: {
+  activeCiclo: Ciclo;
+  onChange: (c: Ciclo) => void;
+  janelaStatus: Record<string, JanelaStatus[]>;
+}) => (
+  <div className="flex gap-2">
+    {CICLOS.map((ciclo) => {
+      const statuses = janelaStatus[ciclo] ?? [];
+      const anyOpen = statuses.some((s) => s.isOpen);
+      const isActive = activeCiclo === ciclo;
+      return (
+        <button
+          key={ciclo}
+          onClick={() => onChange(ciclo)}
+          className="flex items-center gap-2 px-4 py-2 rounded-[4px] border text-xs font-bold transition-all duration-150"
+          style={
+            isActive
+              ? { background: 'rgba(0,102,255,0.12)', borderColor: 'rgba(0,102,255,0.4)', color: '#4D94FF' }
+              : { background: '#0A0A0A', borderColor: 'hsl(var(--border))', color: 'hsl(var(--muted-foreground))' }
+          }
+        >
+          Ciclo {ciclo}
+          <span
+            className="text-[10px] font-bold px-2 py-0.5 rounded-full"
+            style={
+              anyOpen
+                ? { background: 'rgba(34,197,94,0.12)', border: '1px solid rgba(34,197,94,0.3)', color: '#4ade80' }
+                : { background: 'rgba(100,100,100,0.10)', border: '1px solid rgba(100,100,100,0.2)', color: 'hsl(var(--muted-foreground))' }
+            }
+          >
+            {anyOpen ? '● Aberto' : '○ Fechado'}
+          </span>
+        </button>
+      );
+    })}
+  </div>
+);
+
 // ─── Main page ────────────────────────────────────────────────────────────────
 const PainelNSF = () => {
   const navigate = useNavigate();
@@ -485,12 +536,16 @@ const PainelNSF = () => {
   const [authLoading, setAuthLoading] = useState(true);
 
   const [activeTab, setActiveTab] = useState<Tab>('declaracoes');
+  const [activeCiclo, setActiveCiclo] = useState<Ciclo>('2026.1');
 
-  // Declarações/Metas
-  const [declaracoes, setDeclaracoes] = useState<DeclaracaoRow[]>([]);
+  // Janela statuses per ciclo
+  const [janelaStatus, setJanelaStatus] = useState<Record<string, JanelaStatus[]>>({});
+
+  // Declarações/Metas — keyed by ciclo
+  const [declaracoesByCiclo, setDeclaracoesByCiclo] = useState<Record<string, DeclaracaoRow[]>>({});
   const [declaracoesLoading, setDeclaracoesLoading] = useState(false);
 
-  // Avaliação
+  // Avaliação — keyed by ciclo (avaliacoes table has no ciclo, so we use all for 2026.1 only)
   const [resultados, setResultados] = useState<ColaboradorResultado[]>([]);
   const [avaliacaoLoading, setAvaliacaoLoading] = useState(false);
 
@@ -514,24 +569,56 @@ const PainelNSF = () => {
     });
   }, []);
 
-  // Load declarações
+  // Load janela statuses for all ciclos
   useEffect(() => {
     if (!isAdmin) return;
-    setDeclaracoesLoading(true);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (supabase as any)
-      .from('declaracoes')
-      .select('id,user_name,user_email,declaracao,metas,updated_at')
-      .eq('ciclo', CICLO)
-      .order('user_name', { ascending: true })
-      .then(({ data, error: dbErr }: { data: DeclaracaoRow[] | null; error: unknown }) => {
-        if (dbErr) setError('Erro ao carregar declarações.');
-        else setDeclaracoes(data ?? []);
-        setDeclaracoesLoading(false);
+      .from('janela_declaracoes')
+      .select('ciclo,tipo,data_abertura,data_fechamento')
+      .then(({ data }: { data: { ciclo: string; tipo: string; data_abertura: string; data_fechamento: string }[] | null }) => {
+        if (!data) return;
+        const now = new Date();
+        const grouped: Record<string, JanelaStatus[]> = {};
+        for (const row of data) {
+          if (!grouped[row.ciclo]) grouped[row.ciclo] = [];
+          grouped[row.ciclo].push({
+            tipo: row.tipo,
+            isOpen: now >= new Date(row.data_abertura) && now <= new Date(row.data_fechamento),
+            abertura: row.data_abertura,
+            fechamento: row.data_fechamento,
+          });
+        }
+        setJanelaStatus(grouped);
       });
   }, [isAdmin]);
 
-  // Load avaliações
+  // Load declarações for all ciclos
+  useEffect(() => {
+    if (!isAdmin) return;
+    setDeclaracoesLoading(true);
+    Promise.all(
+      CICLOS.map((ciclo) =>
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (supabase as any)
+          .from('declaracoes')
+          .select('id,user_name,user_email,declaracao,metas,updated_at')
+          .eq('ciclo', ciclo)
+          .order('user_name', { ascending: true })
+          .then(({ data }: { data: DeclaracaoRow[] | null }) => ({ ciclo, data: data ?? [] }))
+      )
+    ).then((results) => {
+      const map: Record<string, DeclaracaoRow[]> = {};
+      for (const r of results) map[r.ciclo] = r.data;
+      setDeclaracoesByCiclo(map);
+      setDeclaracoesLoading(false);
+    }).catch(() => {
+      setError('Erro ao carregar declarações.');
+      setDeclaracoesLoading(false);
+    });
+  }, [isAdmin]);
+
+  // Load avaliações (no ciclo column — only relevant for 2026.1)
   useEffect(() => {
     if (!isAdmin) return;
     setAvaliacaoLoading(true);
@@ -550,6 +637,8 @@ const PainelNSF = () => {
     await supabase.auth.signOut();
     navigate('/');
   };
+
+  const declaracoes = declaracoesByCiclo[activeCiclo] ?? [];
 
   if (authLoading) {
     return (
@@ -604,7 +693,7 @@ const PainelNSF = () => {
                 nutrição sem fronteiras
               </span>
               <span style={{ fontFamily: "'Outfit', sans-serif", fontWeight: 300, fontSize: '10px', color: 'hsl(var(--muted-foreground))', letterSpacing: '0.03em' }}>
-                painel · ciclo {CICLO}
+                painel · ciclo {activeCiclo}
               </span>
             </div>
           </div>
@@ -632,8 +721,15 @@ const PainelNSF = () => {
         {/* Title */}
         <div className="space-y-1">
           <h1 className="text-3xl font-black tracking-tight text-foreground">Painel NSF</h1>
-          <p className="text-muted-foreground text-sm">Visão consolidada do ciclo {CICLO}</p>
+          <p className="text-muted-foreground text-sm">Visão consolidada do ciclo {activeCiclo}</p>
         </div>
+
+        {/* Cycle selector */}
+        <CicloSelector
+          activeCiclo={activeCiclo}
+          onChange={(c) => setActiveCiclo(c)}
+          janelaStatus={janelaStatus}
+        />
 
         {error && <p className="text-sm font-medium text-destructive">{error}</p>}
 
@@ -676,7 +772,10 @@ const PainelNSF = () => {
             <TabMetas declaracoes={declaracoes} loading={declaracoesLoading} />
           )}
           {activeTab === 'avaliacao' && (
-            <TabAvaliacao resultados={resultados} loading={avaliacaoLoading} />
+            <TabAvaliacao
+              resultados={activeCiclo === '2026.1' ? resultados : []}
+              loading={avaliacaoLoading && activeCiclo === '2026.1'}
+            />
           )}
         </div>
       </div>
