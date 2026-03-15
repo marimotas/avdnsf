@@ -13,6 +13,7 @@ import Feedback from "./pages/Feedback.tsx";
 import Configuracoes from "./pages/Configuracoes.tsx";
 import DashboardLider from "./pages/DashboardLider.tsx";
 import GestaoAcessos from "./pages/GestaoAcessos.tsx";
+import Calibracao from "./pages/Calibracao.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -34,6 +35,7 @@ const App = () => (
           <Route path="/configuracoes" element={<Configuracoes />} />
           <Route path="/gestao-acessos" element={<GestaoAcessos />} />
           <Route path="/dashboard-lider" element={<DashboardLider />} />
+          <Route path="/calibracao" element={<Calibracao />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
