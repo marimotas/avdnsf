@@ -50,7 +50,7 @@ const SelectionScreen = ({ initial, onContinue }: SelectionScreenProps) => {
     <div className="max-w-2xl mx-auto px-4 py-10 space-y-8 animate-fade-in">
       {/* Title */}
       <div className="space-y-1">
-        <h2 className="text-2xl font-black tracking-tight text-foreground uppercase">
+        <h2 className="text-3xl font-black tracking-tight text-foreground">
           Vamos falar de desempenho?
         </h2>
         <p className="text-muted-foreground text-sm">
@@ -93,6 +93,7 @@ const SelectionScreen = ({ initial, onContinue }: SelectionScreenProps) => {
         </div>
       </div>
 
+
       {/* Error */}
       {error && (
         <p className="text-sm font-medium" style={{ color: 'hsl(0 72% 51%)' }}>
@@ -100,22 +101,19 @@ const SelectionScreen = ({ initial, onContinue }: SelectionScreenProps) => {
         </p>
       )}
 
-      {/* Divider */}
-      <div className="border-t border-border" />
-
       {/* Type cards */}
       <div className="space-y-3">
-        <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
-          Tipo de avaliação
+        <p className="text-xs font-medium uppercase tracking-widest text-muted-foreground">
+          Como você avalia?
         </p>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {/* Líder card */}
           <button
             onClick={() => setTipo('Líder')}
-            className={`text-left p-5 rounded-[4px] border transition-all duration-200 ${
+            className={`text-left p-5 rounded-lg border transition-all duration-200 ${
               tipo === 'Líder'
                 ? 'border-primary'
-                : 'border-border hover:border-primary'
+                : 'border-border hover:border-primary/50'
             }`}
             style={
               tipo === 'Líder'
@@ -143,10 +141,10 @@ const SelectionScreen = ({ initial, onContinue }: SelectionScreenProps) => {
           {/* Interação card */}
           <button
             onClick={() => setTipo('Interação')}
-            className={`text-left p-5 rounded-[4px] border transition-all duration-200 ${
+            className={`text-left p-5 rounded-lg border transition-all duration-200 ${
               tipo === 'Interação'
                 ? 'border-foreground'
-                : 'border-border hover:border-foreground'
+                : 'border-border hover:border-foreground/50'
             }`}
             style={
               tipo === 'Interação'
@@ -177,14 +175,14 @@ const SelectionScreen = ({ initial, onContinue }: SelectionScreenProps) => {
       <button
         onClick={handleContinue}
         disabled={!isValid}
-        className="w-full py-4 text-sm font-bold tracking-wide rounded-[4px] transition-all duration-200"
+        className="w-full py-4 text-sm font-bold tracking-widest uppercase rounded-lg transition-all duration-200"
         style={
           isValid
-            ? { background: '#0066FF', color: '#fff' }
+            ? { background: '#0066FF', color: '#fff', letterSpacing: '0.1em' }
             : { background: '#111111', color: '#444444', cursor: 'not-allowed' }
         }
       >
-        Continuar para as perguntas →
+        Continuar →
       </button>
     </div>
   );
