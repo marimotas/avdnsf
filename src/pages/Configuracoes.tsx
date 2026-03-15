@@ -417,8 +417,10 @@ const Configuracoes = () => {
               janela={janelas[cfg.tipo]}
               onChange={(field, val) => handleJanelaChange(cfg.tipo, field, val)}
               onSave={() => handleSaveJanela(cfg.tipo)}
+              onEncerrar={() => handleEncerrarJanela(cfg.tipo)}
               saving={!!janelaSaving[cfg.tipo]}
               saved={!!janelaSaved[cfg.tipo]}
+              encerrating={!!janelaEncerrating[cfg.tipo]}
             />
           ))}
         </div>
