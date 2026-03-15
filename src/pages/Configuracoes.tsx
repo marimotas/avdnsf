@@ -272,7 +272,7 @@ const Configuracoes = () => {
       await client.from('janela_declaracoes').update({ data_abertura: j.abertura, data_fechamento: j.fechamento }).eq('id', j.id);
     } else {
       const { data } = await client.from('janela_declaracoes')
-        .insert({ ciclo: CICLO, tipo, data_abertura: j.abertura, data_fechamento: j.fechamento })
+        .insert({ ciclo, tipo, data_abertura: j.abertura, data_fechamento: j.fechamento })
         .select('id').single();
       if (data) setJanelas(prev => ({ ...prev, [tipo]: { ...prev[tipo], id: data.id } }));
     }
