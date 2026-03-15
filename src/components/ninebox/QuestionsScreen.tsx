@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import {
   type EvaluationState,
@@ -62,6 +62,26 @@ const DimensionBadge = ({ dimension }: { dimension: 'Desempenho' | 'Potencial' }
 const QuestionsScreen = ({ state, onChange, onSubmitted }: QuestionsScreenProps) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [janelaAberta, setJanelaAberta] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    const checkJanela = async () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data } = await (supabase as any)
+        .from('janela_declaracoes')
+        .select('data_abertura,data_fechamento')
+        .eq('tipo', 'avaliacao_desempenho')
+        .eq('ciclo', '2026.1')
+        .maybeSingle();
+
+      if (!data) { setJanelaAberta(false); return; }
+      const today = new Date().toISOString().slice(0, 10);
+      const aberturaDate = data.data_abertura?.slice(0, 10) ?? '';
+      const fechamentoDate = data.data_fechamento?.slice(0, 10) ?? '';
+      setJanelaAberta(!!(aberturaDate && fechamentoDate && today >= aberturaDate && today <= fechamentoDate));
+    };
+    checkJanela();
+  }, []);
 
   const questions = buildQuestions(state.tipoAvaliador);
   const total = questions.length;
