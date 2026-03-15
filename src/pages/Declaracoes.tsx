@@ -3,8 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import type { User } from '@supabase/supabase-js';
 import logoNsf from '@/assets/logo_nsfs.png';
-
-const CICLO = '2026.1';
+import { useCicloAtivo } from '@/hooks/useCicloAtivo';
 
 type Janela = {
   data_abertura: string;

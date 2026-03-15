@@ -10,8 +10,7 @@ import {
   type AvaliacaoRow,
 } from '@/lib/ninebox-calc';
 import logoNsf from '@/assets/logo_nsfs.png';
-
-const CICLO = '2026.1';
+import { useCicloAtivo } from '@/hooks/useCicloAtivo';
 
 // ─── Grid label config ────────────────────────────────────────────────────────
 const GRID_CELLS = [
