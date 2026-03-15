@@ -93,15 +93,13 @@ const SelectionScreen = ({ initial, onContinue }: SelectionScreenProps) => {
         </div>
       </div>
 
+
       {/* Error */}
       {error && (
         <p className="text-sm font-medium" style={{ color: 'hsl(0 72% 51%)' }}>
           {error}
         </p>
       )}
-
-      {/* Divider */}
-      <div className="border-t border-border" />
 
       {/* Type cards */}
       <div className="space-y-3">
