@@ -437,7 +437,7 @@ const Resultados = () => {
             </div>
 
             {/* Right: filter + collaborator cards */}
-            <div className="lg:col-span-2 space-y-4">
+            <div className="lg:col-span-3 space-y-4">
               {/* Filter bar */}
               <div className="border border-border rounded-[4px] p-3 flex flex-col sm:flex-row gap-2" style={{ background: '#0A0A0A' }}>
                 {/* Filter type buttons */}
