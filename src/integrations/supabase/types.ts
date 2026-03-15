@@ -17,6 +17,7 @@ export type Database = {
       avaliacoes: {
         Row: {
           avaliador_nome: string
+          ciclo: string
           colaborador_nome: string
           comentario: string | null
           created_at: string | null
@@ -40,6 +41,7 @@ export type Database = {
         }
         Insert: {
           avaliador_nome: string
+          ciclo?: string
           colaborador_nome: string
           comentario?: string | null
           created_at?: string | null
@@ -63,6 +65,7 @@ export type Database = {
         }
         Update: {
           avaliador_nome?: string
+          ciclo?: string
           colaborador_nome?: string
           comentario?: string | null
           created_at?: string | null
@@ -83,6 +86,30 @@ export type Database = {
           p4?: number | null
           p5?: number | null
           tipo_avaliador?: string
+        }
+        Relationships: []
+      }
+      ciclos: {
+        Row: {
+          ativo: boolean
+          created_at: string
+          criado_por: string | null
+          id: string
+          nome: string
+        }
+        Insert: {
+          ativo?: boolean
+          created_at?: string
+          criado_por?: string | null
+          id?: string
+          nome: string
+        }
+        Update: {
+          ativo?: boolean
+          created_at?: string
+          criado_por?: string | null
+          id?: string
+          nome?: string
         }
         Relationships: []
       }
