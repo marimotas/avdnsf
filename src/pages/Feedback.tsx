@@ -211,7 +211,7 @@ const Feedback = () => {
         to_user_name: destinatario.nome,
         to_user_email: destinatario.email,
         mensagem: mensagem.trim(),
-        ciclo: '2026.1',
+        ciclo: ciclo,
       });
       if (error) throw error;
       setSendSuccess(true);

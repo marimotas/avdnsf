@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { fetchCicloAtivo, CICLO_FALLBACK } from '@/config/ciclo';
 import {
   type EvaluationState,
   LIDER_QUESTIONS,

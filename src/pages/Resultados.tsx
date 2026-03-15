@@ -253,6 +253,7 @@ const Resultados = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [authLoading, setAuthLoading] = useState(true);
   const [dataLoading, setDataLoading] = useState(false);
+  const { ciclo } = useCicloAtivo();
   const [resultados, setResultados] = useState<ColaboradorResultado[]>([]);
   const [error, setError] = useState('');
   const [filterType, setFilterType] = useState<'nome' | 'quadrante' | 'cluster'>('nome');
