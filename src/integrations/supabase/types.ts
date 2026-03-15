@@ -149,6 +149,42 @@ export type Database = {
         }
         Relationships: []
       }
+      feedbacks: {
+        Row: {
+          ciclo: string
+          created_at: string
+          from_user_email: string
+          from_user_id: string
+          from_user_name: string
+          id: string
+          mensagem: string
+          to_user_email: string
+          to_user_name: string
+        }
+        Insert: {
+          ciclo?: string
+          created_at?: string
+          from_user_email: string
+          from_user_id: string
+          from_user_name: string
+          id?: string
+          mensagem: string
+          to_user_email: string
+          to_user_name: string
+        }
+        Update: {
+          ciclo?: string
+          created_at?: string
+          from_user_email?: string
+          from_user_id?: string
+          from_user_name?: string
+          id?: string
+          mensagem?: string
+          to_user_email?: string
+          to_user_name?: string
+        }
+        Relationships: []
+      }
       janela_declaracoes: {
         Row: {
           ciclo: string
