@@ -192,6 +192,7 @@ const Configuracoes = () => {
   const [ciclos, setCiclos] = useState<CicloRow[]>([]);
   const [cicloOpening, setCicloOpening] = useState(false);
   const [cicloSuccess, setCicloSuccess] = useState('');
+  const [cicloToggling, setCicloToggling] = useState<string | null>(null);
 
   const edgeFn = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-manage-roles`;
 
