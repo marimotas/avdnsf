@@ -254,45 +254,39 @@ const ColaboradorCard = ({ r }: { r: ColaboradorResultado }) => {
   const c = CLUSTER_COLORS[r.quadrante.cluster];
   return (
     <div
-      className="border rounded-[4px] p-5 space-y-4 transition-colors"
-      style={{ background: '#0A0A0A', borderColor: open ? c.border : '#1A1A1A' }}
+      className="border pl-5 pr-4 py-4 space-y-2 transition-colors"
+      style={{
+        background: '#0A0A0A',
+        borderColor: open ? c.border : '#1A1A1A',
+        borderLeft: `4px solid ${c.badge}`,
+        borderRadius: '0 6px 6px 0',
+      }}
     >
+      {/* Name + quadrant */}
       <div className="flex items-start justify-between gap-3">
         <div className="flex-1 min-w-0">
-          <p className="font-bold text-foreground text-base truncate">{r.nome}</p>
-          <p className="text-xs font-semibold mt-0.5" style={{ color: c.text }}>{r.quadrante.nome}</p>
+          <p className="font-bold text-foreground text-sm truncate">{r.nome}</p>
+          <p className="text-[11px] font-medium mt-0.5" style={{ color: c.text }}>{r.quadrante.nome}</p>
         </div>
-        <div
-          className="shrink-0 text-xs font-black px-3 py-1 rounded-full"
+      </div>
+
+      {/* Inline scores row */}
+      <div className="flex items-center gap-4 mt-1">
+        <span className="text-xs font-bold tabular-nums" style={{ color: '#4D94FF' }}>
+          D {r.desempenhoScore.toFixed(1)}
+        </span>
+        <span className="text-xs font-bold tabular-nums" style={{ color: 'hsl(0 0% 60%)' }}>
+          P {r.potencialScore > 0 ? r.potencialScore.toFixed(1) : '—'}
+        </span>
+        <span
+          className="text-[10px] font-bold px-2 py-0.5 rounded-full ml-auto"
           style={{ background: c.bg, border: `1px solid ${c.border}`, color: c.text }}
         >
           C{r.quadrante.cluster}
-        </div>
+        </span>
       </div>
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-1.5">
-          <div className="flex items-center justify-between">
-            <span className="text-xs text-muted-foreground">Desempenho</span>
-            <div className="flex items-center gap-1.5">
-              <span className="text-xs font-bold tabular-nums text-foreground">{r.desempenhoScore.toFixed(1)}</span>
-              <NivelBadge nivel={r.desempenhoNivel} />
-            </div>
-          </div>
-          <ScoreBar score={r.desempenhoScore} color="#0066FF" />
-        </div>
-        <div className="space-y-1.5">
-          <div className="flex items-center justify-between">
-            <span className="text-xs text-muted-foreground">Potencial</span>
-            <div className="flex items-center gap-1.5">
-              <span className="text-xs font-bold tabular-nums text-foreground">
-                {r.potencialScore > 0 ? r.potencialScore.toFixed(1) : '—'}
-              </span>
-              {r.potencialScore > 0 && <NivelBadge nivel={r.potencialNivel} />}
-            </div>
-          </div>
-          <ScoreBar score={r.potencialScore} color="hsl(0 0% 80%)" />
-        </div>
-      </div>
+
+      {/* Recommended action */}
       <div
         className="rounded-[4px] px-3 py-2 text-xs leading-relaxed"
         style={{ background: c.bg, borderLeft: `2px solid ${c.border}`, color: c.text }}
@@ -300,6 +294,8 @@ const ColaboradorCard = ({ r }: { r: ColaboradorResultado }) => {
         <span className="font-bold">Ação recomendada: </span>
         <span className="text-muted-foreground">{r.quadrante.clusterAcao}</span>
       </div>
+
+      {/* Comments accordion */}
       {r.comentarios.length > 0 && (
         <div>
           <button
