@@ -17,6 +17,19 @@ type AdminUser = {
   email: string;
 };
 
+type LiderUser = {
+  id: string;
+  user_id: string;
+  email: string;
+};
+
+type EquipeMembroRow = {
+  id: string;
+  colaborador_nome: string;
+  colaborador_email: string;
+  lider_user_id: string;
+};
+
 type JanelaRow = {
   id: string | null;
   abertura: string;
@@ -161,7 +174,24 @@ const Configuracoes = () => {
   const [adminError, setAdminError] = useState('');
   const [adminSuccess, setAdminSuccess] = useState('');
 
+  // Líderes
+  const [lideres, setLideres] = useState<LiderUser[]>([]);
+  const [liderEmail, setLiderEmail] = useState('');
+  const [liderLoading, setLiderLoading] = useState(false);
+  const [removingLider, setRemovingLider] = useState<string | null>(null);
+  const [liderError, setLiderError] = useState('');
+  const [liderSuccess, setLiderSuccess] = useState('');
+
+  // Equipes: selectedLider → membros
+  const [selectedLiderForEquipe, setSelectedLiderForEquipe] = useState<LiderUser | null>(null);
+  const [equipeMembers, setEquipeMembers] = useState<EquipeMembroRow[]>([]);
+  const [equipeLoading, setEquipeLoading] = useState(false);
+  const [newMembroNome, setNewMembroNome] = useState('');
+  const [newMembroEmail, setNewMembroEmail] = useState('');
+  const [equipeError, setEquipeError] = useState('');
+
   // Janelas — one state entry per tipo
+
   const [janelas, setJanelas] = useState<Record<string, JanelaRow>>(
     Object.fromEntries(JANELAS_CONFIG.map(j => [j.tipo, { id: null, abertura: '', fechamento: '' }]))
   );
@@ -174,6 +204,7 @@ const Configuracoes = () => {
   const [cicloToggling, setCicloToggling] = useState<string | null>(null);
 
   const edgeFn = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-manage-roles`;
+  const liderancaFn = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-manage-lideranca`;
 
   const getSession = async () => {
     const { data: { session } } = await supabase.auth.getSession();
@@ -193,6 +224,33 @@ const Configuracoes = () => {
       setAdmins(json.admins ?? []);
     }
   }, [edgeFn]);
+
+  const loadLideres = useCallback(async () => {
+    const session = await getSession();
+    if (!session) return;
+    const res = await fetch(liderancaFn, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
+      body: JSON.stringify({ action: 'list' }),
+    });
+    if (res.ok) {
+      const json = await res.json();
+      setLideres(json.lideres ?? []);
+    }
+  }, [liderancaFn]);
+
+  const loadEquipe = useCallback(async (liderUserId: string) => {
+    if (!ciclo) return;
+    setEquipeLoading(true);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data } = await (supabase as any)
+      .from('equipes')
+      .select('id,colaborador_nome,colaborador_email,lider_user_id')
+      .eq('lider_user_id', liderUserId)
+      .eq('ciclo', ciclo);
+    setEquipeMembers(data ?? []);
+    setEquipeLoading(false);
+  }, [ciclo]);
 
   // loadJanelas recebe cicloNome como parâmetro para evitar closure stale
   const loadJanelas = useCallback(async (cicloNome: string) => {
@@ -236,8 +294,8 @@ const Configuracoes = () => {
   }, [navigate]);
 
   useEffect(() => {
-    if (isAdmin) { loadAdmins(); loadCiclos(); }
-  }, [isAdmin, loadAdmins, loadCiclos]);
+    if (isAdmin) { loadAdmins(); loadLideres(); loadCiclos(); }
+  }, [isAdmin, loadAdmins, loadLideres, loadCiclos]);
 
   // Carrega janelas assim que ciclo estiver disponível (aguarda o hook)
   useEffect(() => {
@@ -339,6 +397,65 @@ const Configuracoes = () => {
       if (!res.ok) setAdminError(json.error || 'Erro ao remover admin.');
       else { setAdminSuccess('Acesso removido com sucesso.'); loadAdmins(); }
     } finally { setRemoving(null); }
+  };
+
+  const handleAddLider = async () => {
+    setLiderError(''); setLiderSuccess('');
+    const email = liderEmail.trim().toLowerCase();
+    if (!email) return;
+    setLiderLoading(true);
+    try {
+      const session = await getSession();
+      if (!session) return;
+      const res = await fetch(liderancaFn, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
+        body: JSON.stringify({ action: 'add', email }),
+      });
+      const json = await res.json();
+      if (!res.ok) setLiderError(json.error || 'Erro ao adicionar líder.');
+      else { setLiderSuccess(`${email} agora tem acesso de liderança.`); setLiderEmail(''); loadLideres(); }
+    } finally { setLiderLoading(false); }
+  };
+
+  const handleRemoveLider = async (liderId: string, userId: string) => {
+    setLiderError(''); setLiderSuccess('');
+    setRemovingLider(liderId);
+    try {
+      const session = await getSession();
+      if (!session) return;
+      const res = await fetch(liderancaFn, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
+        body: JSON.stringify({ action: 'remove', user_id: userId }),
+      });
+      const json = await res.json();
+      if (!res.ok) setLiderError(json.error || 'Erro ao remover líder.');
+      else { setLiderSuccess('Acesso removido com sucesso.'); loadLideres(); if (selectedLiderForEquipe?.user_id === userId) setSelectedLiderForEquipe(null); }
+    } finally { setRemovingLider(null); }
+  };
+
+  const handleAddMembro = async () => {
+    if (!selectedLiderForEquipe || !ciclo || !newMembroNome.trim()) return;
+    setEquipeError('');
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { error } = await (supabase as any).from('equipes').insert({
+      lider_user_id: selectedLiderForEquipe.user_id,
+      lider_nome: selectedLiderForEquipe.email.split('@')[0],
+      lider_email: selectedLiderForEquipe.email,
+      colaborador_nome: newMembroNome.trim(),
+      colaborador_email: newMembroEmail.trim(),
+      ciclo,
+    });
+    if (error) { setEquipeError(error.message); return; }
+    setNewMembroNome(''); setNewMembroEmail('');
+    loadEquipe(selectedLiderForEquipe.user_id);
+  };
+
+  const handleRemoveMembro = async (membroId: string) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await (supabase as any).from('equipes').delete().eq('id', membroId);
+    if (selectedLiderForEquipe) loadEquipe(selectedLiderForEquipe.user_id);
   };
 
   if (isAdmin === null) {
@@ -497,6 +614,145 @@ const Configuracoes = () => {
               </button>
             </div>
           )}
+        </div>
+
+        {/* ── Líderes ───────────────────────────────────────────────────── */}
+        <div className="border border-border rounded-[6px] p-6 space-y-5 bg-card">
+          <div>
+            <h2 className="text-sm font-bold text-foreground">Líderes</h2>
+            <p className="text-xs text-muted-foreground mt-1">
+              Líderes têm acesso ao Dashboard do Líder, visualizando os dados do próprio time.
+              O colaborador precisa ter feito login ao menos uma vez para ser adicionado.
+            </p>
+          </div>
+
+          {liderError && <div className="border border-destructive/30 bg-destructive/10 rounded-[4px] px-3 py-2 text-xs text-destructive">{liderError}</div>}
+          {liderSuccess && <div className="border border-green-500/30 bg-green-500/10 rounded-[4px] px-3 py-2 text-xs text-green-400">{liderSuccess}</div>}
+
+          <div className="flex gap-2">
+            <input
+              type="email"
+              value={liderEmail}
+              onChange={e => setLiderEmail(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && handleAddLider()}
+              placeholder="email@semfronteiras.app"
+              className="flex-1 bg-background border border-border rounded-[4px] px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:border-primary/50"
+            />
+            <button
+              onClick={handleAddLider}
+              disabled={liderLoading || !liderEmail.trim()}
+              className="px-4 py-2 rounded-[4px] text-sm font-semibold transition-all disabled:opacity-40 text-primary border border-primary/30 bg-primary/10 hover:bg-primary/20"
+            >
+              {liderLoading ? <div className="w-4 h-4 rounded-full border-2 border-current border-t-transparent animate-spin" /> : 'Adicionar'}
+            </button>
+          </div>
+
+          <div className="space-y-2">
+            {lideres.length === 0 ? (
+              <p className="text-xs text-muted-foreground/40 text-center py-4">Nenhum líder cadastrado.</p>
+            ) : lideres.map(lider => (
+              <div key={lider.id}>
+                <div className="flex items-center justify-between px-3 py-2.5 rounded-[4px] border border-border"
+                  style={{ background: selectedLiderForEquipe?.user_id === lider.user_id ? 'rgba(0,102,255,0.06)' : 'hsl(var(--card))' }}>
+                  <div className="flex items-center gap-2 flex-1 min-w-0">
+                    <div className="w-6 h-6 rounded-full flex items-center justify-center bg-primary/10 border border-primary/20">
+                      <svg className="w-3 h-3 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                      </svg>
+                    </div>
+                    <span className="text-xs text-foreground truncate">{lider.email || lider.user_id}</span>
+                    <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full shrink-0" style={{ background: 'rgba(168,85,247,0.1)', border: '1px solid rgba(168,85,247,0.2)', color: '#c084fc' }}>liderança</span>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <button
+                      onClick={() => {
+                        if (selectedLiderForEquipe?.user_id === lider.user_id) {
+                          setSelectedLiderForEquipe(null);
+                        } else {
+                          setSelectedLiderForEquipe(lider);
+                          loadEquipe(lider.user_id);
+                        }
+                      }}
+                      className="text-xs font-semibold px-2 py-1 rounded-[4px] transition-all"
+                      style={selectedLiderForEquipe?.user_id === lider.user_id
+                        ? { background: 'rgba(0,102,255,0.15)', border: '1px solid rgba(0,102,255,0.3)', color: '#4D94FF' }
+                        : { background: 'transparent', border: '1px solid hsl(var(--border))', color: 'hsl(var(--muted-foreground))' }}
+                    >
+                      Time
+                    </button>
+                    <button
+                      onClick={() => handleRemoveLider(lider.id, lider.user_id)}
+                      disabled={removingLider === lider.id}
+                      className="text-muted-foreground/40 hover:text-destructive transition-colors disabled:opacity-40"
+                    >
+                      {removingLider === lider.id
+                        ? <div className="w-3 h-3 rounded-full border border-current border-t-transparent animate-spin" />
+                        : <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                      }
+                    </button>
+                  </div>
+                </div>
+
+                {/* Equipe inline panel */}
+                {selectedLiderForEquipe?.user_id === lider.user_id && (
+                  <div className="mt-2 ml-4 border border-border rounded-[4px] p-4 space-y-3" style={{ background: '#050505' }}>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/50">
+                      Time de {lider.email.split('@')[0]} — {ciclo}
+                    </p>
+
+                    {equipeError && <p className="text-xs text-destructive">{equipeError}</p>}
+
+                    <div className="flex gap-2 flex-wrap">
+                      <input
+                        type="text"
+                        value={newMembroNome}
+                        onChange={e => setNewMembroNome(e.target.value)}
+                        placeholder="Nome completo"
+                        className="flex-1 min-w-[140px] bg-background border border-border rounded-[4px] px-3 py-1.5 text-xs text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:border-primary/50"
+                      />
+                      <input
+                        type="email"
+                        value={newMembroEmail}
+                        onChange={e => setNewMembroEmail(e.target.value)}
+                        placeholder="email@semfronteiras.app (opcional)"
+                        className="flex-1 min-w-[200px] bg-background border border-border rounded-[4px] px-3 py-1.5 text-xs text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:border-primary/50"
+                      />
+                      <button
+                        onClick={handleAddMembro}
+                        disabled={!newMembroNome.trim()}
+                        className="px-3 py-1.5 rounded-[4px] text-xs font-semibold transition-all disabled:opacity-40 text-primary border border-primary/30 bg-primary/10 hover:bg-primary/20"
+                      >
+                        + Adicionar
+                      </button>
+                    </div>
+
+                    {equipeLoading ? (
+                      <div className="flex justify-center py-3"><div className="w-4 h-4 rounded-full border-2 border-primary border-t-transparent animate-spin" /></div>
+                    ) : equipeMembers.length === 0 ? (
+                      <p className="text-xs text-muted-foreground/30 text-center py-2 italic">Nenhum colaborador no time ainda.</p>
+                    ) : (
+                      <div className="space-y-1.5">
+                        {equipeMembers.map(m => (
+                          <div key={m.id} className="flex items-center justify-between px-3 py-2 rounded-[4px] border border-border" style={{ background: '#0A0A0A' }}>
+                            <div>
+                              <p className="text-xs font-semibold text-foreground">{m.colaborador_nome}</p>
+                              {m.colaborador_email && <p className="text-[10px] text-muted-foreground/50">{m.colaborador_email}</p>}
+                            </div>
+                            <button
+                              onClick={() => handleRemoveMembro(m.id)}
+                              className="text-muted-foreground/30 hover:text-destructive transition-colors"
+                            >
+                              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* ── Administradores ───────────────────────────────────────────── */}
