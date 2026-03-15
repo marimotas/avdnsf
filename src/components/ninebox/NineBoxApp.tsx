@@ -98,6 +98,14 @@ const NineBoxApp = () => {
               CICLO 2026.1
             </span>
 
+            {/* My result */}
+            <button
+              onClick={() => navigate('/meu-resultado')}
+              className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Meu resultado
+            </button>
+
             {/* Admin access */}
             <button
               onClick={handleAdminLogin}
