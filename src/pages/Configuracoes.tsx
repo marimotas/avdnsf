@@ -147,8 +147,8 @@ const JanelaCard = ({
           </p>
         )}
         <div className="flex items-center gap-2">
-          {/* Encerrar — only shown when window exists and is currently open */}
-          {isOpen && (
+          {/* Encerrar — shown whenever a janela record exists */}
+          {janela.id && (
             <button
               onClick={onEncerrar}
               disabled={encerrating}
