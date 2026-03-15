@@ -155,8 +155,7 @@ const JanelaCard = ({
             <button
               onClick={onEncerrar}
               disabled={encerrating}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-[4px] text-xs font-bold transition-all duration-150 disabled:opacity-40"
-              style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)', color: '#f87171' }}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-[4px] text-xs font-bold transition-all duration-150 disabled:opacity-40 bg-red-600 hover:opacity-90 text-white"
             >
               {encerrating
                 ? <div className="w-3 h-3 rounded-full border-2 border-current border-t-transparent animate-spin" />
