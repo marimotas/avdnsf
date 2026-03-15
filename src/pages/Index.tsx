@@ -301,16 +301,13 @@ const Index = () => {
   const [authLoading, setAuthLoading] = useState(true);
   const [loginLoading, setLoginLoading] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
-  const { lovable } = useLovable();
 
   useEffect(() => {
-    // Listen for auth changes first
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
       setAuthLoading(false);
     });
 
-    // Then get current session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
       setAuthLoading(false);
@@ -319,7 +316,6 @@ const Index = () => {
     return () => subscription.unsubscribe();
   }, []);
 
-  // Check admin role when user changes
   useEffect(() => {
     if (!user) { setIsAdmin(false); return; }
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -329,6 +325,7 @@ const Index = () => {
 
   const handleLogin = async () => {
     setLoginLoading(true);
+    const { lovable } = await import('@/integrations/lovable/index');
     await lovable.auth.signInWithOAuth('google', {
       redirect_uri: window.location.origin,
       extraParams: { hd: 'semfronteiras.app', prompt: 'select_account' },
@@ -356,26 +353,4 @@ const Index = () => {
   return <Portal user={user} isAdmin={isAdmin} onSignOut={handleSignOut} />;
 };
 
-const IndexWrapper = () => {
-  const [lovableReady, setLovableReady] = useState(false);
-  const [lovableInstance, setLovableInstance] = useState<{ auth: { signInWithOAuth: (provider: string, opts?: object) => Promise<unknown> } } | null>(null);
-
-  useEffect(() => {
-    import('@/integrations/lovable/index').then(m => {
-      setLovableInstance(m.lovable);
-      setLovableReady(true);
-    });
-  }, []);
-
-  if (!lovableReady || !lovableInstance) {
-    return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: '#000' }}>
-        <div className="w-5 h-5 rounded-full border-2 border-primary border-t-transparent animate-spin" />
-      </div>
-    );
-  }
-
-  return <LovableContext.Provider value={{ lovable: lovableInstance }}><Index /></LovableContext.Provider>;
-};
-
-export default IndexWrapper;
+export default Index;
