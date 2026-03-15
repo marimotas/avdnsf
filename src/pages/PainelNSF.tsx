@@ -359,10 +359,10 @@ const TabAvaliacao = ({
     return <EmptyState message="Nenhuma avaliação encontrada no banco de dados." />;
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
-      {/* Left: grid + summary */}
-      <div className="lg:col-span-2 space-y-6">
-        <div className="border border-border rounded-[4px] p-5 space-y-3" style={{ background: '#0A0A0A' }}>
+    <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 lg:gap-8">
+      {/* Left: grid + summary — coluna única em mobile */}
+      <div className="lg:col-span-2 space-y-4 lg:space-y-6">
+        <div className="border border-border rounded-[4px] p-4 sm:p-5 space-y-3" style={{ background: '#0A0A0A' }}>
           <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Matriz 9-Box</p>
           <NineBoxGridVisual resultados={resultados} />
         </div>
@@ -396,7 +396,7 @@ const TabAvaliacao = ({
               <button
                 key={type}
                 onClick={() => { setFilterType(type); setFilterQuery(''); }}
-                className="text-[11px] font-bold px-3 py-1.5 rounded-[4px] capitalize transition-all duration-150"
+                className="text-[11px] font-bold px-3 py-2 sm:py-1.5 rounded-[4px] capitalize transition-all duration-150 min-h-[40px] sm:min-h-0"
                 style={
                   filterType === type
                     ? { background: 'rgba(0,102,255,0.15)', border: '1px solid rgba(0,102,255,0.4)', color: '#4D94FF' }
