@@ -138,9 +138,7 @@ const Configuracoes = () => {
   const [janelas, setJanelas] = useState<Record<string, JanelaRow>>(
     Object.fromEntries(JANELAS_CONFIG.map(j => [j.tipo, { id: null, abertura: '', fechamento: '' }]))
   );
-  const [janelaSaving, setJanelaSaving] = useState<Record<string, boolean>>({});
-  const [janelaSaved, setJanelaSaved] = useState<Record<string, boolean>>({});
-  const [janelaEncerrating, setJanelaEncerrating] = useState<Record<string, boolean>>({});
+  const [janelaToggling, setJanelaToggling] = useState<Record<string, boolean>>({});
 
   // Ciclos
   const [ciclos, setCiclos] = useState<CicloRow[]>([]);
@@ -170,6 +168,7 @@ const Configuracoes = () => {
   }, [edgeFn]);
 
   const loadJanelas = useCallback(async () => {
+    if (!ciclo) return;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data } = await (supabase as any)
       .from('janela_declaracoes')
@@ -187,7 +186,7 @@ const Configuracoes = () => {
       }
       setJanelas(prev => ({ ...prev, ...updates }));
     }
-  }, []);
+  }, [ciclo]);
 
   const loadCiclos = useCallback(async () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -213,45 +212,42 @@ const Configuracoes = () => {
     if (isAdmin) { loadAdmins(); loadJanelas(); loadCiclos(); }
   }, [isAdmin, loadAdmins, loadJanelas, loadCiclos]);
 
-  const handleJanelaChange = (tipo: string, field: 'abertura' | 'fechamento', val: string) => {
-    setJanelas(prev => ({ ...prev, [tipo]: { ...prev[tipo], [field]: val } }));
-  };
-
-  const handleSaveJanela = async (tipo: string) => {
-    const j = janelas[tipo];
-    if (!j.abertura || !j.fechamento) return;
-    setJanelaSaving(prev => ({ ...prev, [tipo]: true }));
+  // Ativar: cria/atualiza janela com abertura=hoje e fechamento=31/12/2099
+  const handleAtivarJanela = async (tipo: string) => {
+    if (!ciclo) return;
+    setJanelaToggling(prev => ({ ...prev, [tipo]: true }));
+    const hoje = new Date().toISOString().slice(0, 10);
+    const futuro = '2099-12-31';
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const client = supabase as any;
+    const j = janelas[tipo];
     if (j.id) {
-      await client.from('janela_declaracoes').update({ data_abertura: j.abertura, data_fechamento: j.fechamento }).eq('id', j.id);
+      await client.from('janela_declaracoes')
+        .update({ data_abertura: hoje, data_fechamento: futuro })
+        .eq('id', j.id);
     } else {
       const { data } = await client.from('janela_declaracoes')
-        .insert({ ciclo, tipo, data_abertura: j.abertura, data_fechamento: j.fechamento })
+        .insert({ ciclo, tipo, data_abertura: hoje, data_fechamento: futuro })
         .select('id').single();
       if (data) setJanelas(prev => ({ ...prev, [tipo]: { ...prev[tipo], id: data.id } }));
     }
-    setJanelaSaving(prev => ({ ...prev, [tipo]: false }));
-    setJanelaSaved(prev => ({ ...prev, [tipo]: true }));
-    setTimeout(() => setJanelaSaved(prev => ({ ...prev, [tipo]: false })), 3000);
+    setJanelas(prev => ({ ...prev, [tipo]: { ...prev[tipo], abertura: hoje, fechamento: futuro } }));
+    setJanelaToggling(prev => ({ ...prev, [tipo]: false }));
   };
 
-  const handleEncerrarJanela = async (tipo: string) => {
+  // Inativar: seta fechamento=ontem
+  const handleInativarJanela = async (tipo: string) => {
     const j = janelas[tipo];
     if (!j.id) return;
-    setJanelaEncerrating(prev => ({ ...prev, [tipo]: true }));
-    // Set fechamento to now (minus 1 minute to be safe with timezone rounding)
+    setJanelaToggling(prev => ({ ...prev, [tipo]: true }));
     const ontem = new Date(Date.now() - 86_400_000).toISOString().slice(0, 10);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     await (supabase as any)
       .from('janela_declaracoes')
       .update({ data_fechamento: ontem })
       .eq('id', j.id);
-    setJanelas(prev => ({
-      ...prev,
-      [tipo]: { ...prev[tipo], fechamento: ontem },
-    }));
-    setJanelaEncerrating(prev => ({ ...prev, [tipo]: false }));
+    setJanelas(prev => ({ ...prev, [tipo]: { ...prev[tipo], fechamento: ontem } }));
+    setJanelaToggling(prev => ({ ...prev, [tipo]: false }));
   };
 
   const handleAbrirCiclo = async (nome: string) => {
