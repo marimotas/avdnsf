@@ -4,37 +4,8 @@ import { supabase } from '@/integrations/supabase/client';
 import logoNsf from '@/assets/logo_nsfs.png';
 import { useCicloAtivo } from '@/hooks/useCicloAtivo';
 
-type CicloRow = {
-  id: string;
-  nome: string;
-  ativo: boolean;
-  created_at: string;
-};
-
-type AdminUser = {
-  id: string;
-  user_id: string;
-  email: string;
-};
-
-type LiderUser = {
-  id: string;
-  user_id: string;
-  email: string;
-};
-
-type EquipeMembroRow = {
-  id: string;
-  colaborador_nome: string;
-  colaborador_email: string;
-  lider_user_id: string;
-};
-
-type JanelaRow = {
-  id: string | null;
-  abertura: string;
-  fechamento: string;
-};
+type CicloRow = { id: string; nome: string; ativo: boolean; created_at: string };
+type JanelaRow = { id: string | null; abertura: string; fechamento: string };
 
 const JANELAS_CONFIG = [
   {
@@ -93,12 +64,8 @@ const JanelaCard = ({
   janela: JanelaRow; onAtivar: () => void; onInativar: () => void; toggling: boolean;
 }) => {
   const today = new Date().toISOString().slice(0, 10);
-  const isOpen = !!(janela.abertura && janela.fechamento
-    && today >= janela.abertura && today <= janela.fechamento);
-
-  // Para módulos que requerem ciclo ativo, só mostra o botão quando há ciclo ativo
+  const isOpen = !!(janela.abertura && janela.fechamento && today >= janela.abertura && today <= janela.fechamento);
   const canToggle = !requiresCicloAtivo || cicloAtivo;
-
   const fmt = (dt: string) =>
     dt ? new Date(dt + 'T00:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' }) : '';
 
@@ -118,20 +85,16 @@ const JanelaCard = ({
               </p>
             )}
             {requiresCicloAtivo && !cicloAtivo && (
-              <p className="text-[10px] mt-1 text-muted-foreground/40 italic">
-                Ative um ciclo para habilitar este módulo.
-              </p>
+              <p className="text-[10px] mt-1 text-muted-foreground/40 italic">Ative um ciclo para habilitar.</p>
             )}
           </div>
         </div>
         <div className="flex-shrink-0 flex items-center gap-2">
           <span
             className="text-[10px] font-bold px-2.5 py-1 rounded-full whitespace-nowrap"
-            style={
-              isOpen
-                ? { background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.3)', color: '#4ade80' }
-                : { background: 'rgba(100,100,100,0.1)', border: '1px solid rgba(100,100,100,0.2)', color: 'hsl(var(--muted-foreground))' }
-            }
+            style={isOpen
+              ? { background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.3)', color: '#4ade80' }
+              : { background: 'rgba(100,100,100,0.1)', border: '1px solid rgba(100,100,100,0.2)', color: 'hsl(var(--muted-foreground))' }}
           >
             {isOpen ? '● Ativo' : '○ Inativo'}
           </span>
@@ -140,16 +103,11 @@ const JanelaCard = ({
               onClick={isOpen ? onInativar : onAtivar}
               disabled={toggling || !ciclo}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-[4px] text-xs font-bold transition-all duration-150 disabled:opacity-40 whitespace-nowrap min-h-[32px]"
-              style={
-                isOpen
-                  ? { background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)', color: '#f87171' }
-                  : { background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.25)', color: '#4ade80' }
-              }
+              style={isOpen
+                ? { background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)', color: '#f87171' }
+                : { background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.25)', color: '#4ade80' }}
             >
-              {toggling
-                ? <div className="w-3 h-3 rounded-full border border-current border-t-transparent animate-spin" />
-                : isOpen ? 'Inativar' : 'Ativar'
-              }
+              {toggling ? <div className="w-3 h-3 rounded-full border border-current border-t-transparent animate-spin" /> : isOpen ? 'Inativar' : 'Ativar'}
             </button>
           )}
         </div>
@@ -165,33 +123,7 @@ const Configuracoes = () => {
   const { ciclo, loading: cicloLoading } = useCicloAtivo();
   const cicloAtivo = !cicloLoading && !!ciclo;
 
-  // Admins
-  const [admins, setAdmins] = useState<AdminUser[]>([]);
-  const [newEmail, setNewEmail] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [removing, setRemoving] = useState<string | null>(null);
-  const [currentUserId, setCurrentUserId] = useState('');
-  const [adminError, setAdminError] = useState('');
-  const [adminSuccess, setAdminSuccess] = useState('');
-
-  // Líderes
-  const [lideres, setLideres] = useState<LiderUser[]>([]);
-  const [liderEmail, setLiderEmail] = useState('');
-  const [liderLoading, setLiderLoading] = useState(false);
-  const [removingLider, setRemovingLider] = useState<string | null>(null);
-  const [liderError, setLiderError] = useState('');
-  const [liderSuccess, setLiderSuccess] = useState('');
-
-  // Equipes: selectedLider → membros
-  const [selectedLiderForEquipe, setSelectedLiderForEquipe] = useState<LiderUser | null>(null);
-  const [equipeMembers, setEquipeMembers] = useState<EquipeMembroRow[]>([]);
-  const [equipeLoading, setEquipeLoading] = useState(false);
-  const [newMembroNome, setNewMembroNome] = useState('');
-  const [newMembroEmail, setNewMembroEmail] = useState('');
-  const [equipeError, setEquipeError] = useState('');
-
-  // Janelas — one state entry per tipo
-
+  // Janelas
   const [janelas, setJanelas] = useState<Record<string, JanelaRow>>(
     Object.fromEntries(JANELAS_CONFIG.map(j => [j.tipo, { id: null, abertura: '', fechamento: '' }]))
   );
@@ -203,71 +135,21 @@ const Configuracoes = () => {
   const [cicloSuccess, setCicloSuccess] = useState('');
   const [cicloToggling, setCicloToggling] = useState<string | null>(null);
 
-  const edgeFn = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-manage-roles`;
-  const liderancaFn = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-manage-lideranca`;
-
   const getSession = async () => {
     const { data: { session } } = await supabase.auth.getSession();
     return session;
   };
 
-  const loadAdmins = useCallback(async () => {
-    const session = await getSession();
-    if (!session) return;
-    const res = await fetch(edgeFn, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
-      body: JSON.stringify({ action: 'list' }),
-    });
-    if (res.ok) {
-      const json = await res.json();
-      setAdmins(json.admins ?? []);
-    }
-  }, [edgeFn]);
-
-  const loadLideres = useCallback(async () => {
-    const session = await getSession();
-    if (!session) return;
-    const res = await fetch(liderancaFn, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
-      body: JSON.stringify({ action: 'list' }),
-    });
-    if (res.ok) {
-      const json = await res.json();
-      setLideres(json.lideres ?? []);
-    }
-  }, [liderancaFn]);
-
-  const loadEquipe = useCallback(async (liderUserId: string) => {
-    if (!ciclo) return;
-    setEquipeLoading(true);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data } = await (supabase as any)
-      .from('equipes')
-      .select('id,colaborador_nome,colaborador_email,lider_user_id')
-      .eq('lider_user_id', liderUserId)
-      .eq('ciclo', ciclo);
-    setEquipeMembers(data ?? []);
-    setEquipeLoading(false);
-  }, [ciclo]);
-
-  // loadJanelas recebe cicloNome como parâmetro para evitar closure stale
   const loadJanelas = useCallback(async (cicloNome: string) => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data } = await (supabase as any)
       .from('janela_declaracoes')
       .select('id,tipo,data_abertura,data_fechamento')
       .eq('ciclo', cicloNome);
-
     if (data && Array.isArray(data)) {
       const updates: Record<string, JanelaRow> = {};
       for (const row of data) {
-        updates[row.tipo] = {
-          id: row.id,
-          abertura: row.data_abertura?.slice(0, 10) ?? '',
-          fechamento: row.data_fechamento?.slice(0, 10) ?? '',
-        };
+        updates[row.tipo] = { id: row.id, abertura: row.data_abertura?.slice(0, 10) ?? '', fechamento: row.data_fechamento?.slice(0, 10) ?? '' };
       }
       setJanelas(prev => ({ ...prev, ...updates }));
     }
@@ -275,10 +157,7 @@ const Configuracoes = () => {
 
   const loadCiclos = useCallback(async () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data } = await (supabase as any)
-      .from('ciclos')
-      .select('id,nome,ativo,created_at')
-      .order('nome', { ascending: true });
+    const { data } = await (supabase as any).from('ciclos').select('id,nome,ativo,created_at').order('nome', { ascending: true });
     if (data) setCiclos(data);
   }, []);
 
@@ -286,7 +165,6 @@ const Configuracoes = () => {
     (async () => {
       const session = await getSession();
       if (!session) { navigate('/'); return; }
-      setCurrentUserId(session.user.id);
       const { data } = await supabase.from('user_roles').select('role').eq('user_id', session.user.id).eq('role', 'admin').maybeSingle();
       if (!data) { navigate('/'); return; }
       setIsAdmin(true);
@@ -294,15 +172,13 @@ const Configuracoes = () => {
   }, [navigate]);
 
   useEffect(() => {
-    if (isAdmin) { loadAdmins(); loadLideres(); loadCiclos(); }
-  }, [isAdmin, loadAdmins, loadLideres, loadCiclos]);
+    if (isAdmin) loadCiclos();
+  }, [isAdmin, loadCiclos]);
 
-  // Carrega janelas assim que ciclo estiver disponível (aguarda o hook)
   useEffect(() => {
     if (isAdmin && ciclo) loadJanelas(ciclo);
   }, [isAdmin, ciclo, loadJanelas]);
 
-  // Ativar: cria/atualiza janela com abertura=hoje e fechamento=31/12/2099
   const handleAtivarJanela = async (tipo: string) => {
     if (!ciclo) return;
     setJanelaToggling(prev => ({ ...prev, [tipo]: true }));
@@ -312,37 +188,28 @@ const Configuracoes = () => {
     const client = supabase as any;
     const j = janelas[tipo];
     if (j.id) {
-      await client.from('janela_declaracoes')
-        .update({ data_abertura: hoje, data_fechamento: futuro })
-        .eq('id', j.id);
+      await client.from('janela_declaracoes').update({ data_abertura: hoje, data_fechamento: futuro }).eq('id', j.id);
     } else {
-      const { data } = await client.from('janela_declaracoes')
-        .insert({ ciclo, tipo, data_abertura: hoje, data_fechamento: futuro })
-        .select('id').maybeSingle();
+      const { data } = await client.from('janela_declaracoes').insert({ ciclo, tipo, data_abertura: hoje, data_fechamento: futuro }).select('id').maybeSingle();
       if (data) setJanelas(prev => ({ ...prev, [tipo]: { ...prev[tipo], id: data.id } }));
     }
     setJanelas(prev => ({ ...prev, [tipo]: { ...prev[tipo], abertura: hoje, fechamento: futuro } }));
     setJanelaToggling(prev => ({ ...prev, [tipo]: false }));
   };
 
-  // Inativar: seta fechamento=ontem
   const handleInativarJanela = async (tipo: string) => {
     const j = janelas[tipo];
     if (!j.id) return;
     setJanelaToggling(prev => ({ ...prev, [tipo]: true }));
     const ontem = new Date(Date.now() - 86_400_000).toISOString().slice(0, 10);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await (supabase as any)
-      .from('janela_declaracoes')
-      .update({ data_fechamento: ontem })
-      .eq('id', j.id);
+    await (supabase as any).from('janela_declaracoes').update({ data_fechamento: ontem }).eq('id', j.id);
     setJanelas(prev => ({ ...prev, [tipo]: { ...prev[tipo], fechamento: ontem } }));
     setJanelaToggling(prev => ({ ...prev, [tipo]: false }));
   };
 
   const handleAbrirCiclo = async (nome: string) => {
-    setCicloOpening(true);
-    setCicloSuccess('');
+    setCicloOpening(true); setCicloSuccess('');
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const client = supabase as any;
     const session = await getSession();
@@ -360,102 +227,6 @@ const Configuracoes = () => {
     await (supabase as any).from('ciclos').update({ ativo: !currentAtivo }).eq('id', cicloId);
     await loadCiclos();
     setCicloToggling(null);
-  };
-
-  const handleAddAdmin = async () => {
-    setAdminError(''); setAdminSuccess('');
-    const email = newEmail.trim().toLowerCase();
-    if (!email) return;
-    setLoading(true);
-    try {
-      const session = await getSession();
-      if (!session) return;
-      const res = await fetch(edgeFn, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
-        body: JSON.stringify({ action: 'add', email }),
-      });
-      const json = await res.json();
-      if (!res.ok) setAdminError(json.error || 'Erro ao adicionar admin.');
-      else { setAdminSuccess(`${email} agora tem acesso de administrador.`); setNewEmail(''); loadAdmins(); }
-    } finally { setLoading(false); }
-  };
-
-  const handleRemoveAdmin = async (adminId: string, userId: string) => {
-    setAdminError(''); setAdminSuccess('');
-    if (userId === currentUserId) { setAdminError('Você não pode remover seu próprio acesso de administrador.'); return; }
-    setRemoving(adminId);
-    try {
-      const session = await getSession();
-      if (!session) return;
-      const res = await fetch(edgeFn, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
-        body: JSON.stringify({ action: 'remove', user_id: userId }),
-      });
-      const json = await res.json();
-      if (!res.ok) setAdminError(json.error || 'Erro ao remover admin.');
-      else { setAdminSuccess('Acesso removido com sucesso.'); loadAdmins(); }
-    } finally { setRemoving(null); }
-  };
-
-  const handleAddLider = async () => {
-    setLiderError(''); setLiderSuccess('');
-    const email = liderEmail.trim().toLowerCase();
-    if (!email) return;
-    setLiderLoading(true);
-    try {
-      const session = await getSession();
-      if (!session) return;
-      const res = await fetch(liderancaFn, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
-        body: JSON.stringify({ action: 'add', email }),
-      });
-      const json = await res.json();
-      if (!res.ok) setLiderError(json.error || 'Erro ao adicionar líder.');
-      else { setLiderSuccess(`${email} agora tem acesso de liderança.`); setLiderEmail(''); loadLideres(); }
-    } finally { setLiderLoading(false); }
-  };
-
-  const handleRemoveLider = async (liderId: string, userId: string) => {
-    setLiderError(''); setLiderSuccess('');
-    setRemovingLider(liderId);
-    try {
-      const session = await getSession();
-      if (!session) return;
-      const res = await fetch(liderancaFn, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
-        body: JSON.stringify({ action: 'remove', user_id: userId }),
-      });
-      const json = await res.json();
-      if (!res.ok) setLiderError(json.error || 'Erro ao remover líder.');
-      else { setLiderSuccess('Acesso removido com sucesso.'); loadLideres(); if (selectedLiderForEquipe?.user_id === userId) setSelectedLiderForEquipe(null); }
-    } finally { setRemovingLider(null); }
-  };
-
-  const handleAddMembro = async () => {
-    if (!selectedLiderForEquipe || !ciclo || !newMembroNome.trim()) return;
-    setEquipeError('');
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { error } = await (supabase as any).from('equipes').insert({
-      lider_user_id: selectedLiderForEquipe.user_id,
-      lider_nome: selectedLiderForEquipe.email.split('@')[0],
-      lider_email: selectedLiderForEquipe.email,
-      colaborador_nome: newMembroNome.trim(),
-      colaborador_email: newMembroEmail.trim(),
-      ciclo,
-    });
-    if (error) { setEquipeError(error.message); return; }
-    setNewMembroNome(''); setNewMembroEmail('');
-    loadEquipe(selectedLiderForEquipe.user_id);
-  };
-
-  const handleRemoveMembro = async (membroId: string) => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await (supabase as any).from('equipes').delete().eq('id', membroId);
-    if (selectedLiderForEquipe) loadEquipe(selectedLiderForEquipe.user_id);
   };
 
   if (isAdmin === null) {
@@ -496,7 +267,30 @@ const Configuracoes = () => {
           <h1 className="text-2xl font-black tracking-tight text-foreground mt-1">Configurações</h1>
         </div>
 
-        {/* ── Janelas de preenchimento ──────────────────────────────────── */}
+        {/* ── Gestão de Acessos (link card) ─────────────────────────── */}
+        <button
+          onClick={() => navigate('/gestao-acessos')}
+          className="w-full text-left border border-border rounded-[6px] p-5 bg-card hover:border-primary/40 transition-all duration-200 group"
+        >
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="w-9 h-9 rounded-[6px] flex items-center justify-center bg-primary/10 border border-primary/20 shrink-0">
+                <svg className="w-4.5 h-4.5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
+                </svg>
+              </div>
+              <div>
+                <p className="text-sm font-bold text-foreground">Gestão de Acessos</p>
+                <p className="text-xs text-muted-foreground/60 mt-0.5">Administradores, líderes e composição das equipes por ciclo.</p>
+              </div>
+            </div>
+            <svg className="w-4 h-4 text-muted-foreground/30 group-hover:text-muted-foreground/60 transition-colors shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+            </svg>
+          </div>
+        </button>
+
+        {/* ── Janelas de preenchimento ──────────────────────────────── */}
         <div className="border border-border rounded-[6px] p-6 space-y-3 bg-card">
           <div className="mb-2">
             <h2 className="text-sm font-bold text-foreground">Janelas de preenchimento</h2>
@@ -525,27 +319,24 @@ const Configuracoes = () => {
           ))}
         </div>
 
-        {/* ── Ciclos ────────────────────────────────────────────────────── */}
+        {/* ── Ciclos ────────────────────────────────────────────────── */}
         <div className="border border-border rounded-[6px] p-6 space-y-5 bg-card">
           <div>
             <h2 className="text-sm font-bold text-foreground">Ciclos de avaliação</h2>
             <p className="text-xs text-muted-foreground mt-1">
-              Ao abrir um novo ciclo, uma base de dados independente é criada para avaliações de desempenho, declarações de expectativas e metas.
+              Ao abrir um novo ciclo, uma base de dados independente é criada para avaliações, declarações e metas.
             </p>
           </div>
 
           {cicloSuccess && (
-            <div className="border border-green-500/30 bg-green-500/10 rounded-[4px] px-3 py-2 text-xs text-green-400 leading-relaxed">
+            <div className="border border-green-500/30 bg-green-500/10 rounded-[4px] px-3 py-2 text-xs text-green-400">
               {cicloSuccess}
             </div>
           )}
 
           <div className="space-y-2">
             {ciclos.map(c => (
-              <div
-                key={c.id}
-                className="flex items-center justify-between px-4 py-3 rounded-[4px] border border-border bg-background"
-              >
+              <div key={c.id} className="flex items-center justify-between px-4 py-3 rounded-[4px] border border-border bg-background">
                 <div className="flex items-center gap-3">
                   <div className="w-7 h-7 rounded-[4px] flex items-center justify-center bg-primary/10 border border-primary/20">
                     <svg className="w-3.5 h-3.5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -562,11 +353,9 @@ const Configuracoes = () => {
                 <div className="flex items-center gap-2">
                   <span
                     className="text-[10px] font-bold px-2.5 py-1 rounded-full"
-                    style={
-                      c.ativo
-                        ? { background: 'rgba(34,197,94,0.10)', border: '1px solid rgba(34,197,94,0.3)', color: '#4ade80' }
-                        : { background: 'rgba(100,100,100,0.10)', border: '1px solid rgba(100,100,100,0.25)', color: 'hsl(var(--muted-foreground))' }
-                    }
+                    style={c.ativo
+                      ? { background: 'rgba(34,197,94,0.10)', border: '1px solid rgba(34,197,94,0.3)', color: '#4ade80' }
+                      : { background: 'rgba(100,100,100,0.10)', border: '1px solid rgba(100,100,100,0.25)', color: 'hsl(var(--muted-foreground))' }}
                   >
                     {c.ativo ? '● Ativo' : '○ Inativo'}
                   </span>
@@ -574,16 +363,13 @@ const Configuracoes = () => {
                     onClick={() => handleToggleCiclo(c.id, c.ativo)}
                     disabled={cicloToggling === c.id}
                     className="flex items-center gap-1.5 px-3 py-1.5 rounded-[4px] text-xs font-bold transition-all duration-150 disabled:opacity-40 min-h-[32px]"
-                    style={
-                      c.ativo
-                        ? { background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)', color: '#f87171' }
-                        : { background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.25)', color: '#4ade80' }
-                    }
+                    style={c.ativo
+                      ? { background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)', color: '#f87171' }
+                      : { background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.25)', color: '#4ade80' }}
                   >
                     {cicloToggling === c.id
                       ? <div className="w-3 h-3 rounded-full border border-current border-t-transparent animate-spin" />
-                      : c.ativo ? 'Inativar' : 'Ativar'
-                    }
+                      : c.ativo ? 'Inativar' : 'Ativar'}
                   </button>
                 </div>
               </div>
@@ -591,10 +377,7 @@ const Configuracoes = () => {
           </div>
 
           {!ciclos.some(c => c.nome === '2026.2') && (
-            <div
-              className="rounded-[4px] border border-dashed p-4 flex items-center justify-between gap-4"
-              style={{ borderColor: 'hsl(var(--border))' }}
-            >
+            <div className="rounded-[4px] border border-dashed p-4 flex items-center justify-between gap-4" style={{ borderColor: 'hsl(var(--border))' }}>
               <div>
                 <p className="text-sm font-bold text-foreground">Ciclo 2026.2</p>
                 <p className="text-xs text-muted-foreground/60 mt-0.5">
@@ -614,218 +397,6 @@ const Configuracoes = () => {
               </button>
             </div>
           )}
-        </div>
-
-        {/* ── Líderes ───────────────────────────────────────────────────── */}
-        <div className="border border-border rounded-[6px] p-6 space-y-5 bg-card">
-          <div>
-            <h2 className="text-sm font-bold text-foreground">Líderes</h2>
-            <p className="text-xs text-muted-foreground mt-1">
-              Líderes têm acesso ao Dashboard do Líder, visualizando os dados do próprio time.
-              O colaborador precisa ter feito login ao menos uma vez para ser adicionado.
-            </p>
-          </div>
-
-          {liderError && <div className="border border-destructive/30 bg-destructive/10 rounded-[4px] px-3 py-2 text-xs text-destructive">{liderError}</div>}
-          {liderSuccess && <div className="border border-green-500/30 bg-green-500/10 rounded-[4px] px-3 py-2 text-xs text-green-400">{liderSuccess}</div>}
-
-          <div className="flex gap-2">
-            <input
-              type="email"
-              value={liderEmail}
-              onChange={e => setLiderEmail(e.target.value)}
-              onKeyDown={e => e.key === 'Enter' && handleAddLider()}
-              placeholder="email@semfronteiras.app"
-              className="flex-1 bg-background border border-border rounded-[4px] px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:border-primary/50"
-            />
-            <button
-              onClick={handleAddLider}
-              disabled={liderLoading || !liderEmail.trim()}
-              className="px-4 py-2 rounded-[4px] text-sm font-semibold transition-all disabled:opacity-40 text-primary border border-primary/30 bg-primary/10 hover:bg-primary/20"
-            >
-              {liderLoading ? <div className="w-4 h-4 rounded-full border-2 border-current border-t-transparent animate-spin" /> : 'Adicionar'}
-            </button>
-          </div>
-
-          <div className="space-y-2">
-            {lideres.length === 0 ? (
-              <p className="text-xs text-muted-foreground/40 text-center py-4">Nenhum líder cadastrado.</p>
-            ) : lideres.map(lider => (
-              <div key={lider.id}>
-                <div className="flex items-center justify-between px-3 py-2.5 rounded-[4px] border border-border"
-                  style={{ background: selectedLiderForEquipe?.user_id === lider.user_id ? 'rgba(0,102,255,0.06)' : 'hsl(var(--card))' }}>
-                  <div className="flex items-center gap-2 flex-1 min-w-0">
-                    <div className="w-6 h-6 rounded-full flex items-center justify-center bg-primary/10 border border-primary/20">
-                      <svg className="w-3 h-3 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
-                      </svg>
-                    </div>
-                    <span className="text-xs text-foreground truncate">{lider.email || lider.user_id}</span>
-                    <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full shrink-0" style={{ background: 'rgba(168,85,247,0.1)', border: '1px solid rgba(168,85,247,0.2)', color: '#c084fc' }}>liderança</span>
-                  </div>
-                  <div className="flex items-center gap-2 shrink-0">
-                    <button
-                      onClick={() => {
-                        if (selectedLiderForEquipe?.user_id === lider.user_id) {
-                          setSelectedLiderForEquipe(null);
-                        } else {
-                          setSelectedLiderForEquipe(lider);
-                          loadEquipe(lider.user_id);
-                        }
-                      }}
-                      className="text-xs font-semibold px-2 py-1 rounded-[4px] transition-all"
-                      style={selectedLiderForEquipe?.user_id === lider.user_id
-                        ? { background: 'rgba(0,102,255,0.15)', border: '1px solid rgba(0,102,255,0.3)', color: '#4D94FF' }
-                        : { background: 'transparent', border: '1px solid hsl(var(--border))', color: 'hsl(var(--muted-foreground))' }}
-                    >
-                      Time
-                    </button>
-                    <button
-                      onClick={() => handleRemoveLider(lider.id, lider.user_id)}
-                      disabled={removingLider === lider.id}
-                      className="text-muted-foreground/40 hover:text-destructive transition-colors disabled:opacity-40"
-                    >
-                      {removingLider === lider.id
-                        ? <div className="w-3 h-3 rounded-full border border-current border-t-transparent animate-spin" />
-                        : <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
-                      }
-                    </button>
-                  </div>
-                </div>
-
-                {/* Equipe inline panel */}
-                {selectedLiderForEquipe?.user_id === lider.user_id && (
-                  <div className="mt-2 ml-4 border border-border rounded-[4px] p-4 space-y-3" style={{ background: '#050505' }}>
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/50">
-                      Time de {lider.email.split('@')[0]} — {ciclo}
-                    </p>
-
-                    {equipeError && <p className="text-xs text-destructive">{equipeError}</p>}
-
-                    <div className="flex gap-2 flex-wrap">
-                      <input
-                        type="text"
-                        value={newMembroNome}
-                        onChange={e => setNewMembroNome(e.target.value)}
-                        placeholder="Nome completo"
-                        className="flex-1 min-w-[140px] bg-background border border-border rounded-[4px] px-3 py-1.5 text-xs text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:border-primary/50"
-                      />
-                      <input
-                        type="email"
-                        value={newMembroEmail}
-                        onChange={e => setNewMembroEmail(e.target.value)}
-                        placeholder="email@semfronteiras.app (opcional)"
-                        className="flex-1 min-w-[200px] bg-background border border-border rounded-[4px] px-3 py-1.5 text-xs text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:border-primary/50"
-                      />
-                      <button
-                        onClick={handleAddMembro}
-                        disabled={!newMembroNome.trim()}
-                        className="px-3 py-1.5 rounded-[4px] text-xs font-semibold transition-all disabled:opacity-40 text-primary border border-primary/30 bg-primary/10 hover:bg-primary/20"
-                      >
-                        + Adicionar
-                      </button>
-                    </div>
-
-                    {equipeLoading ? (
-                      <div className="flex justify-center py-3"><div className="w-4 h-4 rounded-full border-2 border-primary border-t-transparent animate-spin" /></div>
-                    ) : equipeMembers.length === 0 ? (
-                      <p className="text-xs text-muted-foreground/30 text-center py-2 italic">Nenhum colaborador no time ainda.</p>
-                    ) : (
-                      <div className="space-y-1.5">
-                        {equipeMembers.map(m => (
-                          <div key={m.id} className="flex items-center justify-between px-3 py-2 rounded-[4px] border border-border" style={{ background: '#0A0A0A' }}>
-                            <div>
-                              <p className="text-xs font-semibold text-foreground">{m.colaborador_nome}</p>
-                              {m.colaborador_email && <p className="text-[10px] text-muted-foreground/50">{m.colaborador_email}</p>}
-                            </div>
-                            <button
-                              onClick={() => handleRemoveMembro(m.id)}
-                              className="text-muted-foreground/30 hover:text-destructive transition-colors"
-                            >
-                              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* ── Administradores ───────────────────────────────────────────── */}
-        <div className="border border-border rounded-[6px] p-6 space-y-5 bg-card">
-          <div>
-            <h2 className="text-sm font-bold text-foreground">Administradores</h2>
-            <p className="text-xs text-muted-foreground mt-1">
-              Administradores têm acesso ao dashboard de resultados e a estas configurações.
-              O colaborador precisa ter feito login ao menos uma vez para ser adicionado.
-            </p>
-          </div>
-
-          {adminError && (
-            <div className="border border-destructive/30 bg-destructive/10 rounded-[4px] px-3 py-2 text-xs text-destructive">
-              {adminError}
-            </div>
-          )}
-          {adminSuccess && (
-            <div className="border border-green-500/30 bg-green-500/10 rounded-[4px] px-3 py-2 text-xs text-green-400">
-              {adminSuccess}
-            </div>
-          )}
-
-          <div className="flex gap-2">
-            <input
-              type="email"
-              value={newEmail}
-              onChange={e => setNewEmail(e.target.value)}
-              onKeyDown={e => e.key === 'Enter' && handleAddAdmin()}
-              placeholder="email@semfronteiras.app"
-              className="flex-1 bg-background border border-border rounded-[4px] px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:border-primary/50"
-            />
-            <button
-              onClick={handleAddAdmin}
-              disabled={loading || !newEmail.trim()}
-              className="px-4 py-2 rounded-[4px] text-sm font-semibold transition-all disabled:opacity-40 text-primary border border-primary/30 bg-primary/10 hover:bg-primary/20"
-            >
-              {loading ? <div className="w-4 h-4 rounded-full border-2 border-current border-t-transparent animate-spin" /> : 'Adicionar'}
-            </button>
-          </div>
-
-          <div className="space-y-2">
-            {admins.length === 0 ? (
-              <p className="text-xs text-muted-foreground/40 text-center py-4">Nenhum administrador encontrado.</p>
-            ) : admins.map(admin => (
-              <div key={admin.id} className="flex items-center justify-between px-3 py-2.5 rounded-[4px] border border-border bg-primary/5">
-                <div className="flex items-center gap-2">
-                  <div className="w-6 h-6 rounded-full flex items-center justify-center bg-primary/10 border border-primary/20">
-                    <svg className="w-3 h-3 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
-                    </svg>
-                  </div>
-                  <span className="text-xs text-foreground">{admin.email || admin.user_id}</span>
-                  {admin.user_id === currentUserId && (
-                    <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground border border-border">você</span>
-                  )}
-                  <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-primary/10 border border-primary/20 text-primary">admin</span>
-                </div>
-                {admin.user_id !== currentUserId && (
-                  <button
-                    onClick={() => handleRemoveAdmin(admin.id, admin.user_id)}
-                    disabled={removing === admin.id}
-                    className="text-muted-foreground/40 hover:text-destructive transition-colors disabled:opacity-40"
-                  >
-                    {removing === admin.id
-                      ? <div className="w-3 h-3 rounded-full border border-current border-t-transparent animate-spin" />
-                      : <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
-                    }
-                  </button>
-                )}
-              </div>
-            ))}
-          </div>
         </div>
       </div>
     </div>
