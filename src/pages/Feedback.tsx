@@ -72,6 +72,7 @@ const FeedbackCard = ({ fb, variant }: { fb: FeedbackRow; variant: 'recebido' | 
 const Feedback = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<Tab>('enviar');
+  const { ciclo } = useCicloAtivo();
 
   // Auth
   const [user, setUser] = useState<{ id: string; email: string; name: string } | null>(null);
