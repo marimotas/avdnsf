@@ -582,6 +582,25 @@ const PainelNSF = () => {
     { id: 'avaliacao', label: 'Avaliação de Desempenho', count: resultados.length },
   ];
 
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ background: '#000' }}>
+        <div className="w-5 h-5 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+      </div>
+    );
+  }
+
+  if (!isAdmin) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center px-4 gap-4" style={{ background: '#000' }}>
+        <p className="text-sm text-muted-foreground">Acesso restrito a administradores.</p>
+        <button onClick={() => navigate('/')} className="text-xs font-bold text-primary hover:underline">
+          Ir para o Portal
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
