@@ -11,7 +11,8 @@ import {
 } from '@/lib/ninebox-calc';
 import logoNsf from '@/assets/logo_nsfs.png';
 
-const CICLO = '2026.1';
+const CICLOS = ['2026.1', '2026.2'] as const;
+type Ciclo = (typeof CICLOS)[number];
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 type DeclaracaoRow = {
@@ -21,6 +22,13 @@ type DeclaracaoRow = {
   declaracao: string | null;
   metas: string | null;
   updated_at: string;
+};
+
+type JanelaStatus = {
+  tipo: string;
+  isOpen: boolean;
+  abertura: string | null;
+  fechamento: string | null;
 };
 
 type Tab = 'declaracoes' | 'metas' | 'avaliacao';
