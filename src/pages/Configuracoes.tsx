@@ -260,7 +260,7 @@ const Configuracoes = () => {
     } else {
       const { data } = await client.from('janela_declaracoes')
         .insert({ ciclo, tipo, data_abertura: hoje, data_fechamento: futuro })
-        .select('id').single();
+        .select('id').maybeSingle();
       if (data) setJanelas(prev => ({ ...prev, [tipo]: { ...prev[tipo], id: data.id } }));
     }
     setJanelas(prev => ({ ...prev, [tipo]: { ...prev[tipo], abertura: hoje, fechamento: futuro } }));

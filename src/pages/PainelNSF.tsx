@@ -579,6 +579,61 @@ const PainelNSF = () => {
     { id: 'avaliacao', label: 'Avaliação de Desempenho', count: resultados.length },
   ];
 
+  // ── Carrega janelas ────────────────────────────────────────────────────────
+  useEffect(() => {
+    if (!isAdmin) return;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from('janela_declaracoes')
+      .select('ciclo,tipo,data_abertura,data_fechamento')
+      .then(({ data }: { data: Array<{ ciclo: string; tipo: string; data_abertura: string; data_fechamento: string }> | null }) => {
+        if (!data) return;
+        const now = new Date().toISOString().slice(0, 10);
+        const byCiclo: Record<string, JanelaStatus[]> = {};
+        for (const row of data) {
+          if (!byCiclo[row.ciclo]) byCiclo[row.ciclo] = [];
+          byCiclo[row.ciclo].push({
+            tipo: row.tipo,
+            isOpen: !!(row.data_abertura && row.data_fechamento && now >= row.data_abertura.slice(0, 10) && now <= row.data_fechamento.slice(0, 10)),
+            abertura: row.data_abertura,
+            fechamento: row.data_fechamento,
+          });
+        }
+        setJanelaStatus(byCiclo);
+      });
+  }, [isAdmin]);
+
+  // ── Carrega declarações do ciclo ativo ────────────────────────────────────
+  useEffect(() => {
+    if (!isAdmin) return;
+    setDeclaracoesLoading(true);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from('declaracoes')
+      .select('id,user_name,user_email,declaracao,metas,updated_at')
+      .eq('ciclo', activeCiclo)
+      .then(({ data }: { data: DeclaracaoRow[] | null }) => {
+        setDeclaracoesByCiclo(prev => ({ ...prev, [activeCiclo]: data ?? [] }));
+        setDeclaracoesLoading(false);
+      });
+  }, [isAdmin, activeCiclo]);
+
+  // ── Carrega avaliações do ciclo ativo ─────────────────────────────────────
+  useEffect(() => {
+    if (!isAdmin) return;
+    setAvaliacaoLoading(true);
+    setResultados([]);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from('avaliacoes')
+      .select('colaborador_nome,tipo_avaliador,d1,d2,d3,d4,d5,p1,p2,p3,p4,p5,i1,i2,i3,i4,i5,comentario')
+      .eq('ciclo', activeCiclo)
+      .then(({ data }: { data: AvaliacaoRow[] | null }) => {
+        setResultados(calcularResultados(data ?? []));
+        setAvaliacaoLoading(false);
+      });
+  }, [isAdmin, activeCiclo]);
+
   if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ background: '#000' }}>
