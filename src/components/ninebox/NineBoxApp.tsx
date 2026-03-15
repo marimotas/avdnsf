@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
 import { emptyState, type EvaluationState } from './types';
 import SelectionScreen from './SelectionScreen';
 import QuestionsScreen from './QuestionsScreen';
@@ -12,6 +13,17 @@ const NineBoxApp = () => {
   const navigate = useNavigate();
   const [screen, setScreen] = useState<Screen>('selection');
   const [state, setState] = useState<EvaluationState>(emptyState());
+  const [avaliadorNome, setAvaliadorNome] = useState('');
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!session?.user) { navigate('/'); return; }
+      const u = session.user;
+      const name = u.user_metadata?.full_name || u.user_metadata?.name || u.email?.split('@')[0] || '';
+      setAvaliadorNome(name);
+      setState(prev => ({ ...prev, avaliadorNome: name }));
+    });
+  }, [navigate]);
 
   const handleStart = (data: EvaluationState) => {
     setState(data);
@@ -21,7 +33,7 @@ const NineBoxApp = () => {
   const handleSubmitted = () => setScreen('confirmation');
 
   const handleRestart = () => {
-    setState(emptyState());
+    setState({ ...emptyState(), avaliadorNome });
     setScreen('selection');
   };
 
@@ -42,12 +54,17 @@ const NineBoxApp = () => {
               <span
                 style={{ fontFamily: "'Outfit', sans-serif", fontWeight: 300, fontSize: '10px', color: 'hsl(var(--text-dim))', letterSpacing: '0.03em' }}
               >
-                avaliação de desempenho
+                avaliação de desempenho · ciclo 2026.1
               </span>
             </div>
           </div>
 
           <div className="flex items-center gap-3">
+            {avaliadorNome && (
+              <span className="text-xs text-muted-foreground hidden sm:block">
+                {avaliadorNome}
+              </span>
+            )}
             <span
               style={{
                 fontFamily: "'Outfit', sans-serif",
@@ -78,7 +95,7 @@ const NineBoxApp = () => {
 
       <div className="pt-16">
         {screen === 'selection' && (
-          <SelectionScreen initial={state} onContinue={handleStart} />
+          <SelectionScreen initial={state} avaliadorNome={avaliadorNome} onContinue={handleStart} />
         )}
         {screen === 'questions' && (
           <QuestionsScreen state={state} onChange={setState} onSubmitted={handleSubmitted} />
