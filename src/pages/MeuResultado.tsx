@@ -243,7 +243,13 @@ const MeuResultado = () => {
               </span>
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
+            <button onClick={() => navigate('/')} className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors">
+              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+              </svg>
+              Portal
+            </button>
             {avatar && <img src={avatar} alt={displayName} className="w-6 h-6 rounded-full" />}
             <button onClick={handleSignOut} className="text-xs text-muted-foreground hover:text-foreground transition-colors">
               Sair
