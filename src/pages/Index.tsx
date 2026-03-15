@@ -13,6 +13,7 @@ const FeatureCard = ({
   onClick,
   disabled,
   badge,
+  accent,
 }: {
   icon: React.ReactNode;
   title: string;
@@ -20,23 +21,36 @@ const FeatureCard = ({
   onClick: () => void;
   disabled?: boolean;
   badge?: string;
+  accent?: boolean;
 }) => (
   <button
     onClick={onClick}
     disabled={disabled}
-    className="w-full text-left group relative border border-border rounded-lg p-6 transition-all duration-200 hover:border-primary/40 hover:bg-white/[0.03] disabled:opacity-50 disabled:cursor-not-allowed"
-    style={{ background: '#0A0A0A' }}
+    className="w-full text-left group relative border rounded-lg p-6 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+    style={{
+      background: accent ? 'rgba(0,102,255,0.06)' : '#0A0A0A',
+      borderColor: accent ? 'rgba(0,102,255,0.25)' : 'hsl(var(--border))',
+    }}
+    onMouseEnter={e => {
+      if (!disabled) (e.currentTarget as HTMLElement).style.borderColor = accent ? 'rgba(0,102,255,0.5)' : 'rgba(0,102,255,0.3)';
+    }}
+    onMouseLeave={e => {
+      (e.currentTarget as HTMLElement).style.borderColor = accent ? 'rgba(0,102,255,0.25)' : 'hsl(var(--border))';
+    }}
   >
     <div className="flex items-start gap-4">
       <div
         className="flex-shrink-0 w-10 h-10 rounded-[6px] flex items-center justify-center"
-        style={{ background: 'rgba(0,102,255,0.1)', border: '1px solid rgba(0,102,255,0.2)' }}
+        style={{
+          background: accent ? 'rgba(0,102,255,0.15)' : 'rgba(0,102,255,0.1)',
+          border: accent ? '1px solid rgba(0,102,255,0.35)' : '1px solid rgba(0,102,255,0.2)',
+        }}
       >
         {icon}
       </div>
       <div className="flex-1 min-w-0 space-y-1">
         <div className="flex items-center gap-2">
-          <p className="text-sm font-bold text-foreground group-hover:text-primary transition-colors">
+          <p className="text-sm font-bold text-foreground">
             {title}
           </p>
           {badge && (
@@ -56,7 +70,7 @@ const FeatureCard = ({
       </div>
       {!disabled && (
         <svg
-          className="flex-shrink-0 w-4 h-4 text-muted-foreground/30 group-hover:text-primary/60 transition-colors mt-0.5"
+          className="flex-shrink-0 w-4 h-4 text-muted-foreground/30 mt-0.5"
           fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}
         >
           <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
@@ -106,7 +120,15 @@ const LoginScreen = ({ onLogin, loading }: { onLogin: () => void; loading: boole
 );
 
 // ─── Portal ───────────────────────────────────────────────────────────────────
-const Portal = ({ user, onSignOut }: { user: User; onSignOut: () => void }) => {
+const Portal = ({
+  user,
+  isAdmin,
+  onSignOut,
+}: {
+  user: User;
+  isAdmin: boolean;
+  onSignOut: () => void;
+}) => {
   const navigate = useNavigate();
 
   const displayName =
@@ -185,6 +207,21 @@ const Portal = ({ user, onSignOut }: { user: User; onSignOut: () => void }) => {
             description="Veja seu relatório de desempenho com feedbacks e pontuações do ciclo."
             onClick={() => navigate('/meu-resultado')}
           />
+
+          {/* Admin-only card */}
+          {isAdmin && (
+            <FeatureCard
+              accent
+              icon={
+                <svg className="w-5 h-5" style={{ color: '#4D94FF' }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+                </svg>
+              }
+              title="Resultados NSF"
+              description="Acompanhe o desempenho de toda a equipe na matriz 9-Box e por cluster."
+              onClick={() => navigate('/resultados')}
+            />
+          )}
         </div>
 
         <p className="text-center text-xs text-muted-foreground/30 pb-4">
@@ -197,33 +234,35 @@ const Portal = ({ user, onSignOut }: { user: User; onSignOut: () => void }) => {
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 const Index = () => {
-  const navigate = useNavigate();
   const [user, setUser] = useState<User | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [authLoading, setAuthLoading] = useState(true);
   const [loginLoading, setLoginLoading] = useState(false);
+
+  const checkAdmin = async (userId: string) => {
+    const { data } = await supabase
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', userId)
+      .eq('role', 'admin')
+      .maybeSingle();
+    setIsAdmin(!!data);
+  };
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       setUser(session?.user ?? null);
       setAuthLoading(false);
-
-      // If admin, redirect to /resultados
-      if (session?.user) {
-        const { data } = await supabase
-          .from('user_roles')
-          .select('role')
-          .eq('user_id', session.user.id)
-          .eq('role', 'admin')
-          .maybeSingle();
-        if (data) navigate('/resultados');
-      }
+      if (session?.user) checkAdmin(session.user.id);
+      else setIsAdmin(false);
     });
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
       setAuthLoading(false);
+      if (session?.user) checkAdmin(session.user.id);
     });
     return () => subscription.unsubscribe();
-  }, [navigate]);
+  }, []);
 
   const handleLogin = async () => {
     setLoginLoading(true);
@@ -240,6 +279,7 @@ const Index = () => {
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     setUser(null);
+    setIsAdmin(false);
   };
 
   if (authLoading) {
@@ -252,7 +292,7 @@ const Index = () => {
 
   if (!user) return <LoginScreen onLogin={handleLogin} loading={loginLoading} />;
 
-  return <Portal user={user} onSignOut={handleSignOut} />;
+  return <Portal user={user} isAdmin={isAdmin} onSignOut={handleSignOut} />;
 };
 
 export default Index;
