@@ -12,6 +12,8 @@ import { exportPainelToExcel } from '@/lib/exportPainelToExcel';
 import logoNsf from '@/assets/logo_nsfs.png';
 
 const CICLOS = ['2026.1', '2026.2'] as const;
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+type _AvaliacaoRowUsed = AvaliacaoRow;
 type Ciclo = (typeof CICLOS)[number];
 
 // ─── Types ────────────────────────────────────────────────────────────────────

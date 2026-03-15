@@ -166,16 +166,18 @@ const MeuResultado = () => {
 
   const displayName = user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email?.split('@')[0] || '';
 
+  const { loading: cicloLoading } = useCicloAtivo();
+
   useEffect(() => {
-    if (!displayName || !user || !ciclo) return;
+    if (!displayName || !user || cicloLoading) return;
     setDataLoading(true);
     setNotFound(false);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (supabase as any)
+    let query = (supabase as any)
       .from('avaliacoes')
-      .select('colaborador_nome,tipo_avaliador,d1,d2,d3,d4,d5,p1,p2,p3,p4,p5,i1,i2,i3,i4,i5,comentario')
-      .eq('ciclo', ciclo)
-      .then(({ data }: { data: AvaliacaoRow[] | null }) => {
+      .select('colaborador_nome,tipo_avaliador,d1,d2,d3,d4,d5,p1,p2,p3,p4,p5,i1,i2,i3,i4,i5,comentario');
+    if (ciclo) query = query.eq('ciclo', ciclo);
+    query.then(({ data }: { data: AvaliacaoRow[] | null }) => {
         const todos = calcularResultados(data ?? []);
         const meu = todos.find(
           (r) => r.nome.toLowerCase().trim() === displayName.toLowerCase().trim()
@@ -184,7 +186,7 @@ const MeuResultado = () => {
         else setNotFound(true);
         setDataLoading(false);
       });
-  }, [displayName, user, ciclo]);
+  }, [displayName, user, ciclo, cicloLoading]);
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
