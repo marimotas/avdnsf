@@ -17,9 +17,8 @@ const NineBoxApp = () => {
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
-      if (!session?.user) { navigate('/'); return; }
-      const u = session.user;
-      const name = u.user_metadata?.full_name || u.user_metadata?.name || u.email?.split('@')[0] || '';
+      const u = session?.user;
+      const name = u?.user_metadata?.full_name || u?.user_metadata?.name || u?.email?.split('@')[0] || 'Usuário Demo';
       setAvaliadorNome(name);
       setState(prev => ({ ...prev, avaliadorNome: name }));
     });
