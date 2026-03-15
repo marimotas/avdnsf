@@ -136,7 +136,7 @@ const SelectionScreen = ({ initial, onContinue }: SelectionScreenProps) => {
               </div>
             </div>
             <p className="text-xs text-muted-foreground leading-relaxed">
-              Sou o gestor direto. Avalio desempenho (5 perguntas) e potencial (5 perguntas).
+              Sou o gestor direto. 10 perguntas no total.
             </p>
           </button>
 
