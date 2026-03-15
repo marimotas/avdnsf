@@ -78,9 +78,8 @@ const JanelaCard = ({
   saving: boolean; saved: boolean; encerrating: boolean;
 }) => {
   const today = new Date().toISOString().slice(0, 10);
-  const isOpen = janela.abertura && janela.fechamento
-    ? today >= janela.abertura && today <= janela.fechamento
-    : null;
+  const isOpen = !!(janela.abertura && janela.fechamento
+    && today >= janela.abertura && today <= janela.fechamento);
 
   const fmt = (dt: string) =>
     dt ? new Date(dt + 'T00:00:00').toLocaleDateString('pt-BR', { dateStyle: 'short' }) : '';
