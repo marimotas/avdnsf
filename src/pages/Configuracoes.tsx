@@ -82,7 +82,7 @@ const JanelaCard = ({
     : null;
 
   const fmt = (dt: string) =>
-    dt ? new Date(dt).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' }) : '';
+    dt ? new Date(dt + 'T00:00:00').toLocaleDateString('pt-BR', { dateStyle: 'short' }) : '';
 
   return (
     <div className="border border-border rounded-[4px] p-4 space-y-4 bg-background">
@@ -116,7 +116,7 @@ const JanelaCard = ({
         <div className="space-y-1.5">
           <label className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground/70">Abertura</label>
           <input
-            type="datetime-local"
+            type="date"
             value={janela.abertura}
             onChange={e => onChange('abertura', e.target.value)}
             className="w-full bg-card border border-border rounded-[4px] px-3 py-2 text-sm text-foreground focus:outline-none focus:border-primary/40 transition-colors"
@@ -125,7 +125,7 @@ const JanelaCard = ({
         <div className="space-y-1.5">
           <label className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground/70">Fechamento</label>
           <input
-            type="datetime-local"
+            type="date"
             value={janela.fechamento}
             onChange={e => onChange('fechamento', e.target.value)}
             className="w-full bg-card border border-border rounded-[4px] px-3 py-2 text-sm text-foreground focus:outline-none focus:border-primary/40 transition-colors"
