@@ -358,18 +358,14 @@ const Configuracoes = () => {
           {JANELAS_CONFIG.map(cfg => (
             <JanelaCard
               key={cfg.tipo}
-              tipo={cfg.tipo}
               label={cfg.label}
               desc={cfg.desc}
               icon={cfg.icon}
               ciclo={ciclo}
               janela={janelas[cfg.tipo]}
-              onChange={(field, val) => handleJanelaChange(cfg.tipo, field, val)}
-              onSave={() => handleSaveJanela(cfg.tipo)}
-              onEncerrar={() => handleEncerrarJanela(cfg.tipo)}
-              saving={!!janelaSaving[cfg.tipo]}
-              saved={!!janelaSaved[cfg.tipo]}
-              encerrating={!!janelaEncerrating[cfg.tipo]}
+              onAtivar={() => handleAtivarJanela(cfg.tipo)}
+              onInativar={() => handleInativarJanela(cfg.tipo)}
+              toggling={!!janelaToggling[cfg.tipo]}
             />
           ))}
         </div>
