@@ -17,6 +17,7 @@ const Configuracoes = () => {
   const [newEmail, setNewEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [removing, setRemoving] = useState<string | null>(null);
+  const [currentUserId, setCurrentUserId] = useState<string>('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
