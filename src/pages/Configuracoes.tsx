@@ -357,10 +357,6 @@ const Configuracoes = () => {
 export default Configuracoes;
 
 
-const Configuracoes = () => {
-  const navigate = useNavigate();
-  const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
-  const [admins, setAdmins] = useState<AdminUser[]>([]);
   const [newEmail, setNewEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [removing, setRemoving] = useState<string | null>(null);
