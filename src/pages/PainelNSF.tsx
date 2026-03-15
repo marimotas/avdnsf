@@ -721,8 +721,15 @@ const PainelNSF = () => {
         {/* Title */}
         <div className="space-y-1">
           <h1 className="text-3xl font-black tracking-tight text-foreground">Painel NSF</h1>
-          <p className="text-muted-foreground text-sm">Visão consolidada do ciclo {CICLO}</p>
+          <p className="text-muted-foreground text-sm">Visão consolidada do ciclo {activeCiclo}</p>
         </div>
+
+        {/* Cycle selector */}
+        <CicloSelector
+          activeCiclo={activeCiclo}
+          onChange={(c) => setActiveCiclo(c)}
+          janelaStatus={janelaStatus}
+        />
 
         {error && <p className="text-sm font-medium text-destructive">{error}</p>}
 
