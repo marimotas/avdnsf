@@ -141,6 +141,20 @@ const Feedback = () => {
     return () => subscription.unsubscribe();
   }, []);
 
+  // Carregar colaboradores da tabela profiles
+  useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from('profiles')
+      .select('name,email')
+      .order('name', { ascending: true })
+      .then(({ data }: { data: { name: string; email: string }[] | null }) => {
+        setColaboradores(
+          (data ?? []).map(p => ({ nome: p.name, email: p.email }))
+        );
+      });
+  }, []);
+
   // Carregar listas
   const loadLists = async () => {
     if (!user) return;
