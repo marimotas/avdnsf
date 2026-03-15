@@ -292,6 +292,24 @@ const Configuracoes = () => {
     setTimeout(() => setJanelaSaved(prev => ({ ...prev, [tipo]: false })), 3000);
   };
 
+  const handleEncerrarJanela = async (tipo: string) => {
+    const j = janelas[tipo];
+    if (!j.id) return;
+    setJanelaEncerrating(prev => ({ ...prev, [tipo]: true }));
+    // Set fechamento to now (minus 1 minute to be safe with timezone rounding)
+    const agora = new Date(Date.now() - 60_000).toISOString();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await (supabase as any)
+      .from('janela_declaracoes')
+      .update({ data_fechamento: agora })
+      .eq('id', j.id);
+    setJanelas(prev => ({
+      ...prev,
+      [tipo]: { ...prev[tipo], fechamento: agora.slice(0, 16) },
+    }));
+    setJanelaEncerrating(prev => ({ ...prev, [tipo]: false }));
+  };
+
   const handleAbrirCiclo = async (nome: string) => {
     setCicloOpening(true);
     setCicloSuccess('');
