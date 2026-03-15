@@ -1,7 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
-import { lovable } from '@/integrations/lovable/index';
 import { emptyState, type EvaluationState } from './types';
 import SelectionScreen from './SelectionScreen';
 import QuestionsScreen from './QuestionsScreen';
@@ -14,39 +12,6 @@ const NineBoxApp = () => {
   const navigate = useNavigate();
   const [screen, setScreen] = useState<Screen>('selection');
   const [state, setState] = useState<EvaluationState>(emptyState());
-  const [adminLoading, setAdminLoading] = useState(false);
-
-  // If user returns from OAuth redirect and is admin, go to /resultados
-  useEffect(() => {
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      if (!session?.user) return;
-      const { data } = await supabase
-        .from('user_roles')
-        .select('role')
-        .eq('user_id', session.user.id)
-        .eq('role', 'admin')
-        .maybeSingle();
-      if (data) navigate('/resultados');
-    });
-  }, [navigate]);
-
-
-  const handleAdminLogin = async () => {
-    setAdminLoading(true);
-    try {
-      await lovable.auth.signInWithOAuth('google', {
-        redirect_uri: `${window.location.origin}/resultados`,
-        extraParams: {
-          hd: 'semfronteiras.app',
-          prompt: 'select_account',
-        },
-      });
-    } catch {
-      // ignore
-    } finally {
-      setAdminLoading(false);
-    }
-  };
 
   const handleStart = (data: EvaluationState) => {
     setState(data);
