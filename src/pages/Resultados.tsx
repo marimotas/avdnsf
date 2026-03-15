@@ -88,7 +88,7 @@ const NineBoxGridVisual = ({ resultados }: { resultados: ColaboradorResultado[] 
                 return (
                   <div
                     key={`${col}-${row}`}
-                    className="rounded-[4px] border p-2 flex flex-col gap-1 min-h-[80px]"
+                    className="rounded-[4px] border p-2 flex flex-col gap-1 min-h-[120px]"
                     style={{ background: c.bg, borderColor: c.border }}
                   >
                     <div className="flex items-start justify-between gap-1">
