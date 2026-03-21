@@ -89,6 +89,45 @@ export type Database = {
         }
         Relationships: []
       }
+      calibracoes: {
+        Row: {
+          calibrado_por: string | null
+          ciclo: string
+          colaborador_nome: string
+          created_at: string | null
+          desempenho_nivel: string
+          id: string
+          justificativa: string | null
+          nota_final: number | null
+          potencial_nivel: string
+          updated_at: string | null
+        }
+        Insert: {
+          calibrado_por?: string | null
+          ciclo?: string
+          colaborador_nome: string
+          created_at?: string | null
+          desempenho_nivel: string
+          id?: string
+          justificativa?: string | null
+          nota_final?: number | null
+          potencial_nivel: string
+          updated_at?: string | null
+        }
+        Update: {
+          calibrado_por?: string | null
+          ciclo?: string
+          colaborador_nome?: string
+          created_at?: string | null
+          desempenho_nivel?: string
+          id?: string
+          justificativa?: string | null
+          nota_final?: number | null
+          potencial_nivel?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       ciclos: {
         Row: {
           ativo: boolean
