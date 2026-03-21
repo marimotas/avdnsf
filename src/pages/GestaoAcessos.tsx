@@ -141,7 +141,7 @@ const GestaoAcessos = () => {
     const { error: err } = await supabase.auth.signUp({
       email,
       password,
-      options: { data: { full_name: name } },
+      options: { data: { full_name: name, must_change_password: true } },
     });
     setNewUserLoading(false);
     if (err) {

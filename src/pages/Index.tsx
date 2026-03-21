@@ -166,6 +166,90 @@ const LoginScreen = () => {
   );
 };
 
+// ─── Change Password Screen ───────────────────────────────────────────────────
+const ChangePasswordScreen = ({ onDone }: { onDone: () => void }) => {
+  const [password, setPassword] = useState('');
+  const [confirm, setConfirm] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    if (password !== confirm) { setError('As senhas não coincidem.'); return; }
+    setLoading(true);
+    const { error: err } = await supabase.auth.updateUser({
+      password,
+      data: { must_change_password: false },
+    });
+    setLoading(false);
+    if (err) setError(err.message);
+    else onDone();
+  };
+
+  return (
+    <div className="min-h-screen flex flex-col items-center justify-center px-4" style={{ background: '#000' }}>
+      <div className="w-full max-w-sm space-y-8">
+        <div className="flex flex-col items-center gap-4">
+          <img src={logoNsf} alt="NSF" className="w-14 h-14" />
+          <div className="text-center space-y-2">
+            <h1 className="text-foreground font-black text-2xl tracking-tight">Crie sua senha</h1>
+            <p className="text-xs text-muted-foreground leading-relaxed max-w-xs">
+              Por segurança, defina uma nova senha para continuar.
+            </p>
+          </div>
+        </div>
+
+        <div className="border border-border rounded-lg p-7 space-y-5" style={{ background: '#0A0A0A' }}>
+          <form onSubmit={handleSubmit} className="space-y-3">
+            <div>
+              <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 mb-1.5 block">Nova senha</label>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Mínimo 6 caracteres"
+                required
+                minLength={6}
+                autoFocus
+                className="w-full bg-background border border-border rounded-[4px] px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/40 outline-none focus:border-primary/50 transition-colors"
+              />
+            </div>
+            <div>
+              <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 mb-1.5 block">Confirmar senha</label>
+              <input
+                type="password"
+                value={confirm}
+                onChange={(e) => setConfirm(e.target.value)}
+                placeholder="Repita a senha"
+                required
+                minLength={6}
+                className="w-full bg-background border border-border rounded-[4px] px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/40 outline-none focus:border-primary/50 transition-colors"
+              />
+            </div>
+
+            {error && <p className="text-xs text-red-400 bg-red-500/10 border border-red-500/20 rounded-[4px] px-3 py-2">{error}</p>}
+
+            <button
+              type="submit"
+              disabled={loading || password.length < 6 || confirm.length < 6}
+              className="w-full py-2.5 rounded-[4px] text-sm font-bold transition-all disabled:opacity-50"
+              style={{ background: 'rgba(0,102,255,0.85)', color: '#fff' }}
+            >
+              {loading ? (
+                <span className="flex items-center justify-center gap-2">
+                  <span className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />
+                  Salvando...
+                </span>
+              ) : 'Definir senha e entrar'}
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 // ─── Status Pill ───────────────────────────────────────────────────────────────
 const StatusPill = ({ filled }: { filled: boolean }) => (
   <span
@@ -494,6 +578,10 @@ const Index = () => {
 
   if (!user) {
     return <LoginScreen />;
+  }
+
+  if (user.user_metadata?.must_change_password) {
+    return <ChangePasswordScreen onDone={() => setUser({ ...user, user_metadata: { ...user.user_metadata, must_change_password: false } })} />;
   }
 
   return <Portal user={user} isAdmin={isAdmin} isLider={isLider} onSignOut={handleSignOut} />;
