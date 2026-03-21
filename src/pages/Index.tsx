@@ -487,7 +487,6 @@ const Portal = ({ user, isAdmin, isLider, onSignOut }: { user: User; isAdmin: bo
 const Index = () => {
   const [user, setUser] = useState<User | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
-  const [loginLoading, setLoginLoading] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isLider, setIsLider] = useState(false);
 
@@ -528,16 +527,6 @@ const Index = () => {
       .then(({ data }: { data: boolean }) => setIsLider(!!data));
   }, [user]);
 
-  const handleLogin = async () => {
-    setLoginLoading(true);
-    const { lovable } = await import('@/integrations/lovable/index');
-    await lovable.auth.signInWithOAuth('google', {
-      redirect_uri: window.location.origin,
-      extraParams: { hd: 'semfronteiras.app', prompt: 'select_account' },
-    });
-    setLoginLoading(false);
-  };
-
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     setUser(null);
@@ -552,7 +541,7 @@ const Index = () => {
   }
 
   if (!user) {
-    return <LoginScreen onLogin={handleLogin} loading={loginLoading} />;
+    return <LoginScreen />;
   }
 
   return <Portal user={user} isAdmin={isAdmin} isLider={isLider} onSignOut={handleSignOut} />;
