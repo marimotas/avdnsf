@@ -90,42 +90,129 @@ const FeatureBtn = ({
 );
 
 // ─── Login screen ─────────────────────────────────────────────────────────────
-const LoginScreen = ({ onLogin, loading }: { onLogin: () => void; loading: boolean }) => (
-  <div className="min-h-screen flex flex-col items-center justify-center px-4" style={{ background: '#000' }}>
-    <div className="w-full max-w-sm space-y-8">
-      <div className="flex flex-col items-center gap-4">
-        <img src={logoNsf} alt="NSF" className="w-14 h-14" />
-        <div className="text-center space-y-2">
-          <h1 className="text-foreground font-black text-2xl tracking-tight">Portal do Colaborador</h1>
-          <p className="text-xs text-muted-foreground leading-relaxed max-w-xs">
-            Acesse avaliações, expectativas e seus resultados com sua conta{' '}
-            <span className="text-foreground font-medium">@semfronteiras.app</span>.
-          </p>
+const LoginScreen = () => {
+  const [mode, setMode] = useState<'login' | 'signup'>('login');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [name, setName] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setSuccess('');
+    setLoading(true);
+
+    if (mode === 'login') {
+      const { error: err } = await supabase.auth.signInWithPassword({ email, password });
+      if (err) setError(err.message === 'Invalid login credentials' ? 'E-mail ou senha incorretos.' : err.message);
+    } else {
+      if (!name.trim()) { setError('Informe seu nome.'); setLoading(false); return; }
+      const { error: err } = await supabase.auth.signUp({
+        email,
+        password,
+        options: { data: { full_name: name.trim() } },
+      });
+      if (err) setError(err.message);
+      else setSuccess('Conta criada! Verifique seu e-mail para confirmar o cadastro.');
+    }
+    setLoading(false);
+  };
+
+  return (
+    <div className="min-h-screen flex flex-col items-center justify-center px-4" style={{ background: '#000' }}>
+      <div className="w-full max-w-sm space-y-8">
+        <div className="flex flex-col items-center gap-4">
+          <img src={logoNsf} alt="NSF" className="w-14 h-14" />
+          <div className="text-center space-y-2">
+            <h1 className="text-foreground font-black text-2xl tracking-tight">Portal do Colaborador</h1>
+            <p className="text-xs text-muted-foreground leading-relaxed max-w-xs">
+              {mode === 'login' ? 'Acesse com seu e-mail e senha.' : 'Crie sua conta para acessar a plataforma.'}
+            </p>
+          </div>
+        </div>
+
+        <div className="border border-border rounded-lg p-7 space-y-5" style={{ background: '#0A0A0A' }}>
+          {/* Mode tabs */}
+          <div className="flex rounded-[4px] overflow-hidden border border-border">
+            {(['login', 'signup'] as const).map((m) => (
+              <button
+                key={m}
+                type="button"
+                onClick={() => { setMode(m); setError(''); setSuccess(''); }}
+                className="flex-1 py-2 text-xs font-bold transition-colors"
+                style={{
+                  background: mode === m ? 'rgba(0,102,255,0.15)' : 'transparent',
+                  color: mode === m ? '#4D94FF' : 'hsl(var(--muted-foreground))',
+                }}
+              >
+                {m === 'login' ? 'Entrar' : 'Criar conta'}
+              </button>
+            ))}
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-3">
+            {mode === 'signup' && (
+              <div>
+                <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 mb-1.5 block">Nome completo</label>
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Seu nome"
+                  required
+                  className="w-full bg-background border border-border rounded-[4px] px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/40 outline-none focus:border-primary/50 transition-colors"
+                />
+              </div>
+            )}
+            <div>
+              <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 mb-1.5 block">E-mail</label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="seu@email.com"
+                required
+                className="w-full bg-background border border-border rounded-[4px] px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/40 outline-none focus:border-primary/50 transition-colors"
+              />
+            </div>
+            <div>
+              <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 mb-1.5 block">Senha</label>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                required
+                minLength={6}
+                className="w-full bg-background border border-border rounded-[4px] px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/40 outline-none focus:border-primary/50 transition-colors"
+              />
+            </div>
+
+            {error && <p className="text-xs text-red-400 bg-red-500/10 border border-red-500/20 rounded-[4px] px-3 py-2">{error}</p>}
+            {success && <p className="text-xs text-green-400 bg-green-500/10 border border-green-500/20 rounded-[4px] px-3 py-2">{success}</p>}
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full py-2.5 rounded-[4px] text-sm font-bold transition-all disabled:opacity-50"
+              style={{ background: 'rgba(0,102,255,0.85)', color: '#fff' }}
+            >
+              {loading ? (
+                <span className="flex items-center justify-center gap-2">
+                  <span className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />
+                  {mode === 'login' ? 'Entrando...' : 'Criando conta...'}
+                </span>
+              ) : mode === 'login' ? 'Entrar' : 'Criar conta'}
+            </button>
+          </form>
         </div>
       </div>
-      <div className="border border-border rounded-lg p-8" style={{ background: '#0A0A0A' }}>
-        <button
-          onClick={onLogin}
-          disabled={loading}
-          className="w-full flex items-center justify-center gap-3 py-3 px-4 rounded-[4px] border border-border text-sm font-semibold text-foreground transition-all duration-200 hover:border-primary/50 hover:bg-white/5 disabled:opacity-50"
-          style={{ background: '#111' }}
-        >
-          {loading ? (
-            <div className="w-4 h-4 rounded-full border-2 border-primary border-t-transparent animate-spin" />
-          ) : (
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-              <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-              <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-              <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
-              <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
-            </svg>
-          )}
-          {loading ? 'Entrando...' : 'Continuar com Google'}
-        </button>
-      </div>
     </div>
-  </div>
-);
+  );
+};
 
 // ─── Status Pill ───────────────────────────────────────────────────────────────
 const StatusPill = ({ filled }: { filled: boolean }) => (
