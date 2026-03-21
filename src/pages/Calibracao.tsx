@@ -4,6 +4,8 @@ import { supabase } from '@/integrations/supabase/client';
 import {
   calcularResultados,
   CLUSTER_COLORS,
+  QUADRANTES,
+  type NivelDimensao,
   type ColaboradorResultado,
   type AvaliacaoRow,
 } from '@/lib/ninebox-calc';
@@ -23,6 +25,17 @@ type DeclaracaoRow = {
 type ProfileRow = {
   name: string;
   email: string;
+};
+
+type CalibracaoData = {
+  id?: string;
+  colaborador_nome: string;
+  ciclo: string;
+  desempenho_nivel: NivelDimensao;
+  potencial_nivel: NivelDimensao;
+  nota_final: number | null;
+  justificativa: string | null;
+  calibrado_por: string | null;
 };
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -362,6 +375,199 @@ const BuscaInput = ({
   );
 };
 
+// ─── Painel de Calibração ─────────────────────────────────────────────────────
+
+const NIVEIS: NivelDimensao[] = ['Baixo', 'Médio', 'Alto'];
+const NOTAS = [1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5];
+
+const PainelCalibracao = ({
+  resultado,
+  ciclo,
+  calibracao,
+  onSalvar,
+  salvando,
+}: {
+  resultado: ColaboradorResultado;
+  ciclo: string;
+  calibracao: CalibracaoData | null;
+  onSalvar: (data: Omit<CalibracaoData, 'id'>) => void;
+  salvando: boolean;
+}) => {
+  const [desempenho, setDesempenho] = useState<NivelDimensao>(
+    calibracao?.desempenho_nivel ?? resultado.desempenhoNivel
+  );
+  const [potencial, setPotencial] = useState<NivelDimensao>(
+    calibracao?.potencial_nivel ?? resultado.potencialNivel
+  );
+  const [nota, setNota] = useState<number | ''>(calibracao?.nota_final ?? '');
+  const [justificativa, setJustificativa] = useState(calibracao?.justificativa ?? '');
+
+  // Reset when a new person is selected or calibracao changes
+  useEffect(() => {
+    setDesempenho(calibracao?.desempenho_nivel ?? resultado.desempenhoNivel);
+    setPotencial(calibracao?.potencial_nivel ?? resultado.potencialNivel);
+    setNota(calibracao?.nota_final ?? '');
+    setJustificativa(calibracao?.justificativa ?? '');
+  }, [calibracao, resultado]);
+
+  const quadranteKey = `${desempenho}-${potencial}`;
+  const quadrante = QUADRANTES[quadranteKey] ?? QUADRANTES['Médio-Médio'];
+  const c = CLUSTER_COLORS[quadrante.cluster];
+
+  const alterado =
+    desempenho !== resultado.desempenhoNivel ||
+    potencial !== resultado.potencialNivel;
+
+  const handleSalvar = () => {
+    onSalvar({
+      colaborador_nome: resultado.nome,
+      ciclo,
+      desempenho_nivel: desempenho,
+      potencial_nivel: potencial,
+      nota_final: nota !== '' ? nota : null,
+      justificativa: justificativa.trim() || null,
+      calibrado_por: null,
+    });
+  };
+
+  return (
+    <div className="border border-border rounded-[6px] p-5 space-y-5" style={{ background: '#0A0A0A' }}>
+      <div className="flex items-center justify-between flex-wrap gap-2">
+        <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+          Calibração Manual
+        </p>
+        {calibracao && (
+          <span
+            className="text-[10px] font-black px-2 py-0.5 rounded-full"
+            style={{ background: 'rgba(0,102,255,0.12)', border: '1px solid rgba(0,102,255,0.3)', color: '#4D94FF' }}
+          >
+            CALIBRADO
+          </span>
+        )}
+      </div>
+
+      {/* Preview do quadrante resultante */}
+      <div
+        className="rounded-[4px] px-4 py-3 space-y-0.5"
+        style={{ background: c.bg, border: `1px solid ${c.border}` }}
+      >
+        <p className="text-xs font-bold" style={{ color: c.text }}>
+          {quadrante.nome}
+          {alterado && (
+            <span className="ml-2 text-[10px] font-normal opacity-60">(alterado)</span>
+          )}
+        </p>
+        <p className="text-[11px] text-muted-foreground leading-snug">{quadrante.clusterAcao}</p>
+      </div>
+
+      {/* Seletores de nível */}
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+            Desempenho
+          </p>
+          <div className="flex gap-2">
+            {NIVEIS.map((n) => (
+              <button
+                key={n}
+                onClick={() => setDesempenho(n)}
+                className="flex-1 py-2 rounded-[4px] text-xs font-bold transition-all border"
+                style={
+                  desempenho === n
+                    ? { background: '#0066FF22', border: '1px solid #0066FF66', color: '#4D94FF' }
+                    : { background: '#111', border: '1px solid #222', color: 'hsl(var(--muted-foreground))' }
+                }
+              >
+                {n}
+              </button>
+            ))}
+          </div>
+          {desempenho !== resultado.desempenhoNivel && (
+            <p className="text-[10px] text-muted-foreground/50">
+              Original: {resultado.desempenhoNivel}
+            </p>
+          )}
+        </div>
+
+        <div className="space-y-2">
+          <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+            Potencial
+          </p>
+          <div className="flex gap-2">
+            {NIVEIS.map((n) => (
+              <button
+                key={n}
+                onClick={() => setPotencial(n)}
+                className="flex-1 py-2 rounded-[4px] text-xs font-bold transition-all border"
+                style={
+                  potencial === n
+                    ? { background: '#0066FF22', border: '1px solid #0066FF66', color: '#4D94FF' }
+                    : { background: '#111', border: '1px solid #222', color: 'hsl(var(--muted-foreground))' }
+                }
+              >
+                {n}
+              </button>
+            ))}
+          </div>
+          {potencial !== resultado.potencialNivel && (
+            <p className="text-[10px] text-muted-foreground/50">
+              Original: {resultado.potencialNivel}
+            </p>
+          )}
+        </div>
+      </div>
+
+      {/* Nota final */}
+      <div className="space-y-2">
+        <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+          Nota Final
+        </p>
+        <div className="flex flex-wrap gap-2">
+          {NOTAS.map((n) => (
+            <button
+              key={n}
+              onClick={() => setNota(nota === n ? '' : n)}
+              className="w-10 h-10 rounded-[4px] text-xs font-bold transition-all border"
+              style={
+                nota === n
+                  ? { background: '#0066FF22', border: '1px solid #0066FF66', color: '#4D94FF' }
+                  : { background: '#111', border: '1px solid #222', color: 'hsl(var(--muted-foreground))' }
+              }
+            >
+              {n}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Justificativa */}
+      <div className="space-y-2">
+        <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+          Justificativa
+        </p>
+        <textarea
+          value={justificativa}
+          onChange={(e) => setJustificativa(e.target.value)}
+          placeholder="Descreva o motivo da calibração..."
+          rows={3}
+          className="w-full px-3 py-2 text-sm rounded-[6px] border border-border bg-card text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:border-primary/50 transition-colors resize-none"
+          style={{ background: '#111' }}
+        />
+      </div>
+
+      {/* Botão salvar */}
+      <button
+        onClick={handleSalvar}
+        disabled={salvando}
+        className="w-full py-3 rounded-[6px] text-sm font-bold transition-all disabled:opacity-50"
+        style={{ background: '#0066FF', color: '#fff' }}
+      >
+        {salvando ? 'Salvando...' : calibracao ? 'Atualizar Calibração' : 'Salvar Calibração'}
+      </button>
+    </div>
+  );
+};
+
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 const Calibracao = () => {
@@ -382,6 +588,11 @@ const Calibracao = () => {
   const [declaracao, setDeclaracao] = useState<DeclaracaoRow | null>(null);
   const [dataLoading, setDataLoading] = useState(false);
   const [notFound, setNotFound] = useState(false);
+
+  // Calibração
+  const [calibracao, setCalibracao] = useState<CalibracaoData | null>(null);
+  const [salvando, setSalvando] = useState(false);
+  const [savedMsg, setSavedMsg] = useState('');
 
   // Sugestões filtradas
   const sugestoes = todosNomes.filter(
@@ -427,6 +638,7 @@ const Calibracao = () => {
     setResultado(null);
     setDeclaracao(null);
     setNotFound(false);
+    setCalibracao(null);
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const client = supabase as any;
@@ -446,13 +658,23 @@ const Calibracao = () => {
         .eq('ciclo', ciclo)
         .ilike('user_name', nomeSelecionado)
         .maybeSingle(),
+
+      // Calibração existente
+      client
+        .from('calibracoes')
+        .select('id,colaborador_nome,ciclo,desempenho_nivel,potencial_nivel,nota_final,justificativa,calibrado_por')
+        .eq('ciclo', ciclo)
+        .eq('colaborador_nome', nomeSelecionado)
+        .maybeSingle(),
     ]).then(
       ([
         { data: avalData },
         { data: declData },
+        { data: calData },
       ]: [
         { data: AvaliacaoRow[] | null },
         { data: DeclaracaoRow | null },
+        { data: CalibracaoData | null },
       ]) => {
         if (!avalData || avalData.length === 0) {
           setNotFound(true);
@@ -461,10 +683,47 @@ const Calibracao = () => {
           setResultado(resultados[0] ?? null);
         }
         setDeclaracao(declData ?? null);
+        setCalibracao(calData ?? null);
         setDataLoading(false);
       }
     );
   }, [nomeSelecionado, ciclo]);
+
+  const handleSalvarCalibracao = async (data: Omit<CalibracaoData, 'id'>) => {
+    setSalvando(true);
+    setSavedMsg('');
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const client = supabase as any;
+    let error;
+    if (calibracao?.id) {
+      ({ error } = await client
+        .from('calibracoes')
+        .update({
+          desempenho_nivel: data.desempenho_nivel,
+          potencial_nivel: data.potencial_nivel,
+          nota_final: data.nota_final,
+          justificativa: data.justificativa,
+        })
+        .eq('id', calibracao.id));
+    } else {
+      ({ error } = await client.from('calibracoes').insert(data));
+    }
+    setSalvando(false);
+    if (error) {
+      setSavedMsg('Erro ao salvar: ' + error.message);
+    } else {
+      setSavedMsg('Calibração salva com sucesso!');
+      // Recarregar calibração
+      const { data: updated } = await client
+        .from('calibracoes')
+        .select('id,colaborador_nome,ciclo,desempenho_nivel,potencial_nivel,nota_final,justificativa,calibrado_por')
+        .eq('ciclo', data.ciclo)
+        .eq('colaborador_nome', data.colaborador_nome)
+        .maybeSingle();
+      setCalibracao(updated ?? null);
+      setTimeout(() => setSavedMsg(''), 3000);
+    }
+  };
 
   const handleSelect = (nome: string) => {
     setNomeSelecionado(nome);
@@ -477,6 +736,8 @@ const Calibracao = () => {
     setResultado(null);
     setDeclaracao(null);
     setNotFound(false);
+    setCalibracao(null);
+    setSavedMsg('');
   };
 
   // ── Loading / acesso ─────────────────────────────────────────────────────────
@@ -600,11 +861,32 @@ const Calibracao = () => {
 
         {/* Relatório */}
         {resultado && !dataLoading && (
-          <Relatorio
-            resultado={resultado}
-            declaracao={declaracao}
-            ciclo={ciclo!}
-          />
+          <>
+            <Relatorio
+              resultado={resultado}
+              declaracao={declaracao}
+              ciclo={ciclo!}
+            />
+            <PainelCalibracao
+              resultado={resultado}
+              ciclo={ciclo!}
+              calibracao={calibracao}
+              onSalvar={handleSalvarCalibracao}
+              salvando={salvando}
+            />
+            {savedMsg && (
+              <p
+                className="text-xs font-bold px-4 py-3 rounded-[6px] border"
+                style={
+                  savedMsg.startsWith('Erro')
+                    ? { background: 'rgba(239,68,68,0.08)', borderColor: 'rgba(239,68,68,0.3)', color: '#f87171' }
+                    : { background: 'rgba(34,197,94,0.08)', borderColor: 'rgba(34,197,94,0.3)', color: '#4ade80' }
+                }
+              >
+                {savedMsg}
+              </p>
+            )}
+          </>
         )}
 
         {/* Estado vazio — aguardando busca */}

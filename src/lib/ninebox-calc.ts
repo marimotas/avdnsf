@@ -37,7 +37,7 @@ const classifyNivel = (score: number): NivelDimensao => {
 
 // ─── Quadrant map ─────────────────────────────────────────────────────────────
 
-const QUADRANTES: Record<string, QuadranteInfo> = {
+export const QUADRANTES: Record<string, QuadranteInfo> = {
   'Baixo-Baixo': {
     nome: 'Ponto crítico',
     cluster: 1,
