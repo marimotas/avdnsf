@@ -91,33 +91,17 @@ const FeatureBtn = ({
 
 // ─── Login screen ─────────────────────────────────────────────────────────────
 const LoginScreen = () => {
-  const [mode, setMode] = useState<'login' | 'signup'>('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [name, setName] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    setSuccess('');
     setLoading(true);
-
-    if (mode === 'login') {
-      const { error: err } = await supabase.auth.signInWithPassword({ email, password });
-      if (err) setError(err.message === 'Invalid login credentials' ? 'E-mail ou senha incorretos.' : err.message);
-    } else {
-      if (!name.trim()) { setError('Informe seu nome.'); setLoading(false); return; }
-      const { error: err } = await supabase.auth.signUp({
-        email,
-        password,
-        options: { data: { full_name: name.trim() } },
-      });
-      if (err) setError(err.message);
-      else setSuccess('Conta criada! Verifique seu e-mail para confirmar o cadastro.');
-    }
+    const { error: err } = await supabase.auth.signInWithPassword({ email, password });
+    if (err) setError(err.message === 'Invalid login credentials' ? 'E-mail ou senha incorretos.' : err.message);
     setLoading(false);
   };
 
@@ -129,44 +113,13 @@ const LoginScreen = () => {
           <div className="text-center space-y-2">
             <h1 className="text-foreground font-black text-2xl tracking-tight">Portal do Colaborador</h1>
             <p className="text-xs text-muted-foreground leading-relaxed max-w-xs">
-              {mode === 'login' ? 'Acesse com seu e-mail e senha.' : 'Crie sua conta para acessar a plataforma.'}
+              Acesse com seu e-mail e senha.
             </p>
           </div>
         </div>
 
         <div className="border border-border rounded-lg p-7 space-y-5" style={{ background: '#0A0A0A' }}>
-          {/* Mode tabs */}
-          <div className="flex rounded-[4px] overflow-hidden border border-border">
-            {(['login', 'signup'] as const).map((m) => (
-              <button
-                key={m}
-                type="button"
-                onClick={() => { setMode(m); setError(''); setSuccess(''); }}
-                className="flex-1 py-2 text-xs font-bold transition-colors"
-                style={{
-                  background: mode === m ? 'rgba(0,102,255,0.15)' : 'transparent',
-                  color: mode === m ? '#4D94FF' : 'hsl(var(--muted-foreground))',
-                }}
-              >
-                {m === 'login' ? 'Entrar' : 'Criar conta'}
-              </button>
-            ))}
-          </div>
-
           <form onSubmit={handleSubmit} className="space-y-3">
-            {mode === 'signup' && (
-              <div>
-                <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 mb-1.5 block">Nome completo</label>
-                <input
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="Seu nome"
-                  required
-                  className="w-full bg-background border border-border rounded-[4px] px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/40 outline-none focus:border-primary/50 transition-colors"
-                />
-              </div>
-            )}
             <div>
               <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 mb-1.5 block">E-mail</label>
               <input
@@ -192,7 +145,6 @@ const LoginScreen = () => {
             </div>
 
             {error && <p className="text-xs text-red-400 bg-red-500/10 border border-red-500/20 rounded-[4px] px-3 py-2">{error}</p>}
-            {success && <p className="text-xs text-green-400 bg-green-500/10 border border-green-500/20 rounded-[4px] px-3 py-2">{success}</p>}
 
             <button
               type="submit"
@@ -203,9 +155,9 @@ const LoginScreen = () => {
               {loading ? (
                 <span className="flex items-center justify-center gap-2">
                   <span className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />
-                  {mode === 'login' ? 'Entrando...' : 'Criando conta...'}
+                  Entrando...
                 </span>
-              ) : mode === 'login' ? 'Entrar' : 'Criar conta'}
+              ) : 'Entrar'}
             </button>
           </form>
         </div>

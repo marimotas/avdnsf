@@ -51,6 +51,13 @@ const GestaoAcessos = () => {
   const [removingLider, setRemovingLider] = useState<string | null>(null);
   const [liderMsg, setLiderMsg] = useState<{ ok: boolean; text: string } | null>(null);
 
+  // Criar usuário
+  const [newUserName, setNewUserName] = useState('');
+  const [newUserEmail, setNewUserEmail] = useState('');
+  const [newUserPassword, setNewUserPassword] = useState('');
+  const [newUserLoading, setNewUserLoading] = useState(false);
+  const [newUserMsg, setNewUserMsg] = useState<{ ok: boolean; text: string } | null>(null);
+
   // Equipe do líder selecionado
   const [selectedLider, setSelectedLider] = useState<LiderUser | null>(null);
   const [equipe, setEquipe] = useState<EquipeMembro[]>([]);
@@ -125,6 +132,28 @@ const GestaoAcessos = () => {
   }, [isAdmin, loadAdmins, loadLideres]);
 
   // ── Handlers ──────────────────────────────────────────────────────────────────
+  const handleCreateUser = async () => {
+    const email = newUserEmail.trim().toLowerCase();
+    const name = newUserName.trim();
+    const password = newUserPassword;
+    if (!email || !name || !password) return;
+    setNewUserLoading(true);
+    const { error: err } = await supabase.auth.signUp({
+      email,
+      password,
+      options: { data: { full_name: name } },
+    });
+    setNewUserLoading(false);
+    if (err) {
+      flash(setNewUserMsg, false, err.message);
+    } else {
+      flash(setNewUserMsg, true, `Conta criada para ${email}. O usuário receberá um e-mail de confirmação.`);
+      setNewUserName('');
+      setNewUserEmail('');
+      setNewUserPassword('');
+    }
+  };
+
   const handleAddAdmin = async () => {
     const email = newAdminEmail.trim().toLowerCase();
     if (!email) return;
@@ -265,6 +294,52 @@ const GestaoAcessos = () => {
           <p className="text-xs text-muted-foreground/50 mt-1">
             Gerencie administradores e líderes. Colaboradores precisam ter feito login ao menos uma vez para serem adicionados.
           </p>
+        </div>
+
+        {/* ── Criar Usuário ─────────────────────────────────────────────── */}
+        <div className="mb-6">
+          <Section
+            title="Criar Usuário"
+            desc="Crie contas de acesso para novos colaboradores. O usuário receberá um e-mail para confirmar o cadastro."
+          >
+            {newUserMsg && (
+              <div className={`rounded-[4px] px-3 py-2 text-xs border ${newUserMsg.ok ? 'border-green-500/30 bg-green-500/10 text-green-400' : 'border-destructive/30 bg-destructive/10 text-destructive'}`}>
+                {newUserMsg.text}
+              </div>
+            )}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+              <input
+                type="text"
+                value={newUserName}
+                onChange={e => setNewUserName(e.target.value)}
+                placeholder="Nome completo"
+                className="bg-background border border-border rounded-[4px] px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:border-primary/50"
+              />
+              <input
+                type="email"
+                value={newUserEmail}
+                onChange={e => setNewUserEmail(e.target.value)}
+                placeholder="email@semfronteiras.app"
+                className="bg-background border border-border rounded-[4px] px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:border-primary/50"
+              />
+              <input
+                type="password"
+                value={newUserPassword}
+                onChange={e => setNewUserPassword(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && handleCreateUser()}
+                placeholder="Senha temporária"
+                minLength={6}
+                className="bg-background border border-border rounded-[4px] px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:border-primary/50"
+              />
+            </div>
+            <button
+              onClick={handleCreateUser}
+              disabled={newUserLoading || !newUserName.trim() || !newUserEmail.trim() || newUserPassword.length < 6}
+              className="px-4 py-2 rounded-[4px] text-sm font-semibold transition-all disabled:opacity-40 text-primary border border-primary/30 bg-primary/10 hover:bg-primary/20"
+            >
+              {newUserLoading ? <div className="w-4 h-4 rounded-full border-2 border-current border-t-transparent animate-spin" /> : '+ Criar conta'}
+            </button>
+          </Section>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
